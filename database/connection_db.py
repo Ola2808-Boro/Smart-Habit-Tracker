@@ -1,9 +1,11 @@
+import logging
 import os
 
 import psycopg2
 from dotenv import load_dotenv
 
 load_dotenv()
+logging.basicConfig(filename="myapp.log", level=logging.INFO, filemode="w")
 
 
 def create_connection():
@@ -15,9 +17,10 @@ def create_connection():
             host=os.getenv("DB_HOST"),
             port=os.getenv("DB_PORT"),
         )
-
+        return conn
     except Exception as e:
-        print(repr(e))
+        logging.info(repr(e))
+        return None
 
 
 create_connection()
