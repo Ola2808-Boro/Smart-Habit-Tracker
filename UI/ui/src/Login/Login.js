@@ -1,8 +1,9 @@
 import './Login.css';
-import { useState } from "react"
+import React, { useState } from 'react';
+import { Link } from 'react-router';
 import axios from "axios"
 
-function Login(){
+const Login = () => {
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
 
@@ -16,6 +17,7 @@ function Login(){
                 'Content-Type': 'application/json'
             }
         });
+        console.log(`response: ${response}`)
     }
     return(
         <div className='login-card'>
@@ -23,17 +25,17 @@ function Login(){
             <form className='login-form' onSubmit={handleLogIn}>
                 <div className='login-input-conatiner'>
                     <label className='label'>Enter address:</label>
-                    <input className='input' type="email" onChange={e=>setEmail(e.target.value)}/>
+                    <input value={email} className='input' type="email" onChange={e=>setEmail(e.target.value)}/>
                 </div>
                 <div className='login-input-conatiner'>
                     <label className='label'>Password:</label>
-                    <input className='input' type="password"  onChange={e=>setPassword(e.target.value)}/>
+                    <input value={password} className='input' type="password"  onChange={e=>setPassword(e.target.value)}/>
                 </div>
                 <button className='login-button' type='submit'>Log In</button>
                 <p className='login-p'>Don't have an account? 
-                    <a href='#' className='login-sign-up-link'>
-                        Sign up
-                    </a>
+                    <Link to='/sign-up' className='login-sign-up-link'>
+                    Sign up
+                    </Link>
                 </p>
             </form>
         </div>
