@@ -1,9 +1,11 @@
 import './SignUp.css';
-import React, { useState } from 'react';
-import { Link } from 'react-router';
+import React, { useState} from 'react';
+import { Link,useNavigate } from 'react-router';
 import axios from "axios"
 
 const SignUp = () => {
+    let [registeredUser,setRegisteredUser]=useState("")
+    const navigate = useNavigate();
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [firstName, setFirstName] = useState("")
@@ -12,14 +14,24 @@ const SignUp = () => {
     async function handleSignUp(e){
         e.preventDefault();
         const requestBody = {email, password,firstName, lastName}
-        console.log('You clicked submit.')
+        console.log('You clicked Sign up button.')
         console.log(requestBody)
-        const response = await axios.post('http://127.0.0.1:5000/login', requestBody, {
+        const response = await axios.post('http://127.0.0.1:5000/sign-up', requestBody, {
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
             }
         });
-        console.log(`response: ${response}`)
+        console.log(response)
+        if (response.data['redirect']){
+            navigate(response.data['redirect'])
+        }
+        else if(response.data['message']==="Account already exists"){
+            setRegisteredUser(true)
+        }
+
+
+       
+
     }
     return(
         <div className='sign-up-card'>
@@ -41,12 +53,8 @@ const SignUp = () => {
                     <label className='label'>Password:</label>
                     <input value={password} className='input' type="password"  onChange={e=>setPassword(e.target.value)}/>
                 </div>
-                <button className='sign-up-button' type='submit'>Log In</button>
-                {/* <p className='login-p'>Don't have an account? 
-                    <Link to='/sign-up' className='login-sign-up-link'>
-                    Sign up
-                    </Link>
-                </p> */}
+                <button className='sign-up-button' type='submit'>Sign up</button>
+                {registeredUser && <p className="registered_p">Account already exists</p>} 
             </form>
         </div>
     )

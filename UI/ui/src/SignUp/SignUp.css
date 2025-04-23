@@ -35,12 +35,12 @@
 .sign-up-button:hover{
     background-color:#4f46e5
 }
-/* .login-sign-up-link{
-    text-decoration: none;
-    color: #6366f1;
+
+.registered_p{
+    color: #ff0000;
     font-weight: bold;
-    margin-left: 5px;
-} */
+}
+
 .sign-up-label{
     font-size:14px ;
     font-weight: bold;

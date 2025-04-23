@@ -1,6 +1,8 @@
-from database.connection_db import create_connection
+import logging
+
 from flask import Flask, jsonify, request
 from flask_cors import CORS
+from user import add_user, check_user, select_user
 
 app = Flask(__name__)
 CORS(app)
@@ -9,18 +11,25 @@ CORS(app)
 @app.route("/login", methods=["POST"])
 def login():
     data = request.json
-    conn = create_connection()
-    cursor = conn.cursor()
-    sql_select_user = """
-        SELECT * FROM habit_tracker.user WHERE email=%s AND password_hash=%s;
-    """
-    cursor.execute(sql_select_user, (data["email"], data["password"]))
-    result = cursor.fetchone()
-    conn.close()
+    result = select_user(data)
     if result:
-        return jsonify({"message": "Login successful"}), 200
+        return jsonify({"message": "Login successful", "redirect": "/main_page"}), 201
     else:
-        return jsonify({"message": "Invalid credentials"}), 401
+        return jsonify({"message": "Invalid credentials"}), 201
+
+
+@app.route("/sign-up", methods=["POST"])
+def sign_up():
+    data = request.json
+    if not check_user(data):
+        return jsonify({"message": "Account already exists"}), 201
+    else:
+        result = add_user(data)
+        if result:
+            return jsonify({"message": "User created", "redirect": "/"}), 201
+
+        else:
+            return jsonify({"message": "Invalid credentials"}), 401
 
 
 if __name__ == "__main__":

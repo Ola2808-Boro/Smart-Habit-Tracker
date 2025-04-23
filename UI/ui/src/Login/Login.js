@@ -1,11 +1,13 @@
 import './Login.css';
 import React, { useState } from 'react';
-import { Link } from 'react-router';
+import { Link,useNavigate } from 'react-router';
 import axios from "axios"
 
 const Login = () => {
     const [email, setEmail] = useState("")
+    const navigate=useNavigate
     const [password, setPassword] = useState("")
+    const [logged,setLogged]=useState(false)
 
     async function handleLogIn(e){
         e.preventDefault();
@@ -18,6 +20,15 @@ const Login = () => {
             }
         });
         console.log(`response: ${response}`)
+        if (response.data.message==="Invalid credentials"){
+            setLogged(false)
+
+        }
+        else if(response.data.message==="Login successful"){
+            setLogged(true)
+            navigate(response.data.redirect)
+
+        }
     }
     return(
         <div className='login-card'>
@@ -37,6 +48,7 @@ const Login = () => {
                     Sign up
                     </Link>
                 </p>
+                {!logged && <p className='credentials_p'>Invalid credentials</p>}
             </form>
         </div>
     )
