@@ -5,7 +5,7 @@ import axios from "axios"
 
 const SignUp = () => {
     let [registeredUser,setRegisteredUser]=useState("")
-    const navigate = useNavigate();
+    const navigate = useNavigate()
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [firstName, setFirstName] = useState("")

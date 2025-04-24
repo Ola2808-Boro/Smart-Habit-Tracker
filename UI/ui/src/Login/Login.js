@@ -5,9 +5,9 @@ import axios from "axios"
 
 const Login = () => {
     const [email, setEmail] = useState("")
-    const navigate=useNavigate
+    const navigate=useNavigate()
     const [password, setPassword] = useState("")
-    const [logged,setLogged]=useState(false)
+    const [logged,setLogged]=useState(true)
 
     async function handleLogIn(e){
         e.preventDefault();
@@ -19,14 +19,14 @@ const Login = () => {
                 'Content-Type': 'application/json'
             }
         });
-        console.log(`response: ${response}`)
-        if (response.data.message==="Invalid credentials"){
+        console.log(`response: ${response.data['message']}, ${response.data['redirect']}`)
+        if (response.data['message']==="Invalid credentials"){
             setLogged(false)
 
         }
-        else if(response.data.message==="Login successful"){
+        else if(response.data['message']==="Login successful"){
             setLogged(true)
-            navigate(response.data.redirect)
+            navigate(response.data['redirect'])
 
         }
     }

@@ -13,7 +13,7 @@ def login():
     data = request.json
     result = select_user(data)
     if result:
-        return jsonify({"message": "Login successful", "redirect": "/main_page"}), 201
+        return jsonify({"message": "Login successful", "redirect": "/main-page"}), 201
     else:
         return jsonify({"message": "Invalid credentials"}), 201
 
