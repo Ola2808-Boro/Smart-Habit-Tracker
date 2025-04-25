@@ -5,6 +5,11 @@ import './index.css';
 import Login from './Login/Login';
 import SignUp from './SignUp/SignUp';
 import MainPage from './MainPage/MainPage';
+import Habits from './Habits/Habits';
+import Statistics from './Statistics/Statistics';
+import Notes from './Notes/Notes';
+import Profile from './Profile/Profile';
+import Dashboard from './Dashboard/Dashboard';
 
 export default function App() {
   return (
@@ -14,6 +19,11 @@ export default function App() {
       <Route index path="/" element={<Login />} />
       <Route path="/sign-up" element={<SignUp />} />
       <Route path="/main-page" element={<MainPage />} />
+      <Route path="/habits" element={<Habits />} />
+      <Route path="/statistics" element={<Statistics />} />
+      <Route path="/log-out" element={<Login />} />
+      <Route path="/profile" element={<Profile />} />
+      <Route path="/notes" element={<Notes />} />
       </Routes>
     </BrowserRouter>
   );

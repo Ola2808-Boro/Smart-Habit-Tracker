@@ -1,12 +1,17 @@
 import './MainPage.css';
 import React from 'react';
-
+import Navbar from '../Navbar/Navbar';
+import Dashboard from '../Dashboard/Dashboard';
 const MainPage = () => {
 
 
     
     return(
-       <p>Main Page</p>
+        <div className='main-page-conatiner'>
+            <Navbar/>
+            {/* <Dashboard/> */}
+        </div>
+       
     )
 
 }
