@@ -1,9 +1,13 @@
 import './Notes.css';
 import React from 'react';
+import Navbar from '../Navbar/Navbar';
 
 const Notes = () => {
     return(
-       <p>Notes</p>
+        <div className='main-page-conatiner'>
+        <Navbar/>
+        {/* <Dashboard/> */}
+        </div>
     )
 
 }
