@@ -1,7 +1,9 @@
 import logging
+from datetime import datetime
 
 from flask import Flask, jsonify, request
 from flask_cors import CORS
+from notes import read_note
 from user import add_user, check_user, select_user
 
 app = Flask(__name__)
@@ -30,6 +32,35 @@ def sign_up():
 
         else:
             return jsonify({"message": "Invalid credentials"}), 401
+
+
+@app.route("/notes-read", methods=["POST"])
+def read_notes_for_a_date():
+    data = request.json
+    date_object = datetime.fromisoformat(data.replace("Z", "+00:00"))
+    answer, question = read_note(data)
+    if answer is not None and question is not None:
+        return (
+            jsonify(
+                {
+                    "message": "correctly downloaded data",
+                    "answer": answer,
+                    "question": question,
+                }
+            ),
+            201,
+        )
+    else:
+        return (
+            jsonify(
+                {
+                    "message": "incorrectly downloaded data",
+                    "answer": answer,
+                    "question": question,
+                }
+            ),
+            401,
+        )
 
 
 if __name__ == "__main__":

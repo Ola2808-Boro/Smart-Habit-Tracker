@@ -9,7 +9,7 @@ const MainPage = () => {
     return (
         <div className='main-page-container'>
             <Navbar />
-            <div>
+            <div className='main-page-content'>
                 <Outlet/>
             </div>
             

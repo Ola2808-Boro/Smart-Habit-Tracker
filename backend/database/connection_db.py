@@ -17,6 +17,7 @@ def create_connection():
             host=os.getenv("DB_HOST"),
             port=os.getenv("DB_PORT"),
         )
+        logging.info(f"Created connection")
         return conn
     except Exception as e:
         logging.info(repr(e))
