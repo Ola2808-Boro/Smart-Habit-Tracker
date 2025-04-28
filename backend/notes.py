@@ -41,3 +41,43 @@ def read_note(data: dict):
         return None, None
     finally:
         conn.close()
+
+def get_number_of_questions():
+    conn=create_connection()
+    try:
+        cursor=conn.cursor()
+        sql_select_num_of_questions="""
+            SELECT COUNT(question_id) FROM habit_tracker.question;
+        """
+        cursor.execute(sql_select_num_of_questions,())
+        num_of_questions=cursor.fetchone()
+        if num_of_questions is None:
+            logging.info(f"Zero questions in question table")
+            return None
+        logging.info(f"Number of questions {num_of_questions[0]}")
+        return num_of_questions[0]
+    except Exception as e:
+        logging.info(f"Error: {e}")
+        return None
+    finally:
+        conn.close()
+        
+def select_question(question_id:int):
+    conn=create_connection()
+    try:
+        cursor=conn.cursor()
+        sql_select_num_of_questions="""
+            SELECT question FROM habit_tracker.question WHERE question_id=%s;
+        """
+        cursor.execute(sql_select_num_of_questions,(question_id,))
+        question=cursor.fetchone()
+        if question is None:
+            logging.info(f"No question with this {question_id} id")
+            return None
+        return question[0]
+    except Exception as e:
+        logging.info(f"Error: {e}")
+        return None
+    finally:
+        conn.close()
+        
