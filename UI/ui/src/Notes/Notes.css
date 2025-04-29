@@ -4,3 +4,37 @@
     display: flex;
     flex-direction: row;
 }
+.form-card{
+    display: flex;
+    flex-direction: column;
+    background-color: white;
+    padding: 1rem;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+    border-radius: 24px;
+    justify-content: space-around;
+    align-items: center;
+    min-width: 30%;
+}
+.form-question{
+    font-size: 18px;
+    font-weight: bold;
+    margin: 10px 0px;
+}
+.form-button{
+    background-color: #6366f1;
+    color: #fff;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    padding: 10px; 
+    width:50%;
+    margin: 10px 0px;
+}
+.form-input{
+    font-size: 16px;
+    border-color:  rgba(0, 0, 0, 0.05);
+    border-radius: 5px;
+    padding: 10px; 
+    width:80%; 
+    margin: 10px 0px;
+}

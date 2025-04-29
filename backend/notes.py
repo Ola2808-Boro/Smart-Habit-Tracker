@@ -81,3 +81,20 @@ def select_question(question_id:int):
     finally:
         conn.close()
         
+def insert_answer(data:dict):
+    conn=create_connection()
+    try:
+        cursor=conn.cursor()
+        sql_insert_answer="""
+            INSERT INTO habit_tracker.answer(answer,question_id) VALUES (%s,%s)
+            RETURNING note_id;
+        """
+        cursor.execute(sql_insert_answer,(data['answer'],data['question_id']))
+        note_id=cursor.fetchone()[0]
+        conn.commit()
+        logging.info(f'Correctly added note with note_id:{note_id}')
+    except Exception as e:
+        logging.info(f"Error: {e}")
+        return None
+    finally:
+        conn.close()

@@ -12,6 +12,12 @@ const Notes = () => {
     const [calDate, setCalDate] = useState(new Date())
     const [lastQuestionIdx,setLastQuestionIdx]=useState(0)
     const [question,SetQuestion]=useState('')
+    const [answer,SetAnswer]=useState('')
+
+    async function handleSaveAnswer(e){
+        e.preventDefault();
+        const response=axios.post('')
+    }
 
     function randomQuestionIdx(max){
         console.log(max,'max')
@@ -50,7 +56,7 @@ const Notes = () => {
             }});
             console.log(response2)
 
-            getQuestion(response2['data']['question'])
+            SetQuestion(response2['data']['question'])
         }
         else{
             return "incorrectly downloaded number of questions"
@@ -64,9 +70,15 @@ const Notes = () => {
              <PageTitle/>
         <div>
             <Calendar onChange={onChange} value={calDate} />
-            <button onClick={getQuestion}>Question</button>
+            <button className='form-button' onClick={getQuestion}>Question</button>
             <div className='q&a-container'>
-
+            {question &&
+                <form className='form-card'  onSubmit={handleSaveAnswer}>
+                    <p>{question}</p>
+                    <input value={answer} className='form-input' type='text'/>
+                    <button className='form-button' type='submit'>Save note</button>
+                </form>
+            }
             </div>
         </div>
         </div>

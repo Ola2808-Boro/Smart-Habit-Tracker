@@ -120,6 +120,10 @@ def get_question():
             ),
             401,
         )
+   
+@app.route('/save-answer',methods=["POST"]) 
+def save_answer():
+    data=request.json
          
 
 if __name__ == "__main__":
