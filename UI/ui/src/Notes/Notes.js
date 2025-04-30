@@ -16,7 +16,12 @@ const Notes = () => {
 
     async function handleSaveAnswer(e){
         e.preventDefault();
-        const response=axios.post('')
+        const response=axios.post('http://127.0.0.1:5000/save-answer',{'answer':answer,'question_id':lastQuestionIdx},{
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        SetQuestion('')
     }
 
     function randomQuestionIdx(max){
@@ -75,7 +80,9 @@ const Notes = () => {
             {question &&
                 <form className='form-card'  onSubmit={handleSaveAnswer}>
                     <p>{question}</p>
-                    <input value={answer} className='form-input' type='text'/>
+                    <input value={answer} className='form-input' type='text'
+                    onChange={e=>SetAnswer(e.target.value)}
+                    />
                     <button className='form-button' type='submit'>Save note</button>
                 </form>
             }
