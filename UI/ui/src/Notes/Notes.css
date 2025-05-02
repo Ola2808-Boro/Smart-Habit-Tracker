@@ -4,6 +4,14 @@
     display: flex;
     flex-direction: row;
 }
+
+.calandera-note-container{
+    width:100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+}
 .form-card{
     display: flex;
     flex-direction: column;
@@ -14,6 +22,7 @@
     justify-content: space-around;
     align-items: center;
     min-width: 30%;
+    margin-left: 2rem;
 }
 .form-question{
     font-size: 18px;
@@ -26,8 +35,7 @@
     font-size: 16px;
     border: none;
     border-radius: 5px;
-    padding: 10px; 
-    width:50%;
+    padding: 20px; 
     margin: 10px 0px;
 }
 .form-input{
@@ -35,6 +43,25 @@
     border-color:  rgba(0, 0, 0, 0.05);
     border-radius: 5px;
     padding: 10px; 
-    width:80%; 
+    width:100%; 
     margin: 10px 0px;
+}
+
+
+.retrived-notes-conatiner{
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+    justify-content: space-around;
+    align-items: center;
+}
+.retrived-note{
+    display: flex;
+    flex-direction: column;
+    background-color: white;
+    padding: 1rem;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+    border-radius: 24px;
+    justify-content: space-around;
+    align-items: center;
 }

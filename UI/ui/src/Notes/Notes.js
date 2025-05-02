@@ -13,6 +13,7 @@ const Notes = () => {
     const [lastQuestionIdx,setLastQuestionIdx]=useState(0)
     const [question,SetQuestion]=useState('')
     const [answer,SetAnswer]=useState('')
+    const [retreivedQandA,setRetreivedQandA]=useState([])
 
     async function handleSaveAnswer(e){
         e.preventDefault();
@@ -44,7 +45,9 @@ const Notes = () => {
             headers: {
             'Content-Type': 'application/json'
         }});
-        console.log(`Response onChange calendar: ${response}`)
+        console.log(`Response onChange calendar: ${response['data']}`)
+        setRetreivedQandA([response['data']['question'],response['data']['answer'],response['data']['activity_date']])
+        console.log(retreivedQandA)
     }
 
     async function getQuestion(){
@@ -71,24 +74,41 @@ const Notes = () => {
 
 
     return(
-        <div>
+        <>
              <PageTitle/>
         <div>
-            <Calendar onChange={onChange} value={calDate} />
-            <button className='form-button' onClick={getQuestion}>Question</button>
-            <div className='q&a-container'>
-            {question &&
-                <form className='form-card'  onSubmit={handleSaveAnswer}>
-                    <p>{question}</p>
-                    <input value={answer} className='form-input' type='text'
-                    onChange={e=>SetAnswer(e.target.value)}
-                    />
-                    <button className='form-button' type='submit'>Save note</button>
-                </form>
-            }
+            <div className='calandera-note-container'>
+                <Calendar onChange={onChange} value={calDate} selectRange={true}/>
+                <div className='q&a-container'>
+                    {question &&
+                        <form className='form-card'  onSubmit={handleSaveAnswer}>
+                            <p>{question}</p>
+                            <input value={answer} className='form-input' type='text'
+                            onChange={e=>SetAnswer(e.target.value)}
+                            />
+                            <button className='form-button' type='submit'>Save note</button>
+                        </form>
+                    }
+                    {
+                        !question && <button className='form-button' onClick={getQuestion}>Question</button>
+                    }
+                </div>
             </div>
+            <div className='retrived-notes-conatiner'>
+                {retreivedQandA && 
+                    retreivedQandA.map((item, index) => {
+                        return (
+                            <div key={index} className='retrived-note'>
+                                <div  className='retrived-note-question'><p>{item[0]}</p> <div className='retrived-note-date'>{item[3]}</div></div>
+                                <div className='retrived-note-answer'><p>{item[1]}</p></div>
+                            </div>
+                        );
+                    })
+                }
+            </div>
+
         </div>
-        </div>
+        </>
     )
 
 }
