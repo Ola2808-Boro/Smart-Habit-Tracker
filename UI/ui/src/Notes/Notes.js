@@ -4,6 +4,8 @@ import Calendar from 'react-calendar'
 import PageTitle from '../PageTitle/PageTitle';
 import 'react-calendar/dist/Calendar.css';
 import axios from 'axios';
+import Popup from 'reactjs-popup';
+import 'reactjs-popup/dist/index.css';
 
 //min-date
 
@@ -12,12 +14,32 @@ const Notes = () => {
     const [calDate, setCalDate] = useState(new Date())
     const [lastQuestionIdx,setLastQuestionIdx]=useState(0)
     const [question,SetQuestion]=useState('')
+    const [newQuestion,SetNewQuestion]=useState('')
     const [answer,SetAnswer]=useState('')
     const [retreivedQandA,setRetreivedQandA]=useState([])
+    const [isOpenQandA, setIsOpenQandA] = useState(false)
+    const [isOpenAddQuestion, setIsOpenAddQuestion] = useState(false)
+
+    async function handleOpenPopupQandA() {
+        await getQuestion();  
+        setIsOpenQandA(true);      
+    }
+
+    async function handleClosePopupQandA(){
+        setIsOpenQandA(false)
+    }
+
+    async function handleOpenPopupAddQuestion() {
+        setIsOpenAddQuestion(true);      
+    }
+
+    async function handleClosePopupAddQuestion(){
+        setIsOpenAddQuestion(false)
+    }
 
     async function handleSaveAnswer(e){
         e.preventDefault();
-        const response=axios.post('http://127.0.0.1:5000/save-answer',{'answer':answer,'question_id':lastQuestionIdx},{
+        const response=await axios.post('http://127.0.0.1:5000/save-answer',{'answer':answer,'question_id':lastQuestionIdx},{
             headers: {
                 'Content-Type': 'application/json'
             }
@@ -46,8 +68,13 @@ const Notes = () => {
             'Content-Type': 'application/json'
         }});
         console.log(`Response onChange calendar: ${response['data']}`)
-        setRetreivedQandA([response['data']['question'],response['data']['answer'],response['data']['activity_date']])
+        setRetreivedQandA(response['data']["answer_question_date"])
         console.log(retreivedQandA)
+    }
+
+    async function handleAddQuestion(){
+        const response=await axios.get('http://127.0.0.1:5000/add_question');
+        console.log(response)
     }
 
     async function getQuestion(){
@@ -79,27 +106,38 @@ const Notes = () => {
         <div>
             <div className='calandera-note-container'>
                 <Calendar onChange={onChange} value={calDate} selectRange={true}/>
-                <div className='q&a-container'>
-                    {question &&
-                        <form className='form-card'  onSubmit={handleSaveAnswer}>
+                <div className='q-a-container'>
+                    <Popup open={isOpenAddQuestion} onClose={() => setIsOpenAddQuestion(false)} modal>
+                        <form className='form-card' onSubmit={handleAddQuestion}>
+                            <p>Add question</p>
+                            <input value={answer} className='form-input' type='text'
+                            onChange={e=>SetNewQuestion(e.target.value)}
+                            />
+                            <button className='form-button' type='submit' onClick={handleClosePopupAddQuestion}>Save question</button>
+                        </form>
+                    </Popup>
+                    <Popup open={isOpenQandA} onClose={() => setIsOpenQandA(false)} modal>
+                        <form className='form-card' onSubmit={handleSaveAnswer}>
                             <p>{question}</p>
                             <input value={answer} className='form-input' type='text'
                             onChange={e=>SetAnswer(e.target.value)}
                             />
-                            <button className='form-button' type='submit'>Save note</button>
+                            <button className='form-button' type='submit' onClick={handleClosePopupQandA}>Save note</button>
                         </form>
-                    }
-                    {
-                        !question && <button className='form-button' onClick={getQuestion}>Question</button>
-                    }
+                    </Popup>
+
+                    <button className='form-button' onClick={handleOpenPopupQandA}>Question</button>
+                    <button className='form-button' onClick={handleOpenPopupAddQuestion}>Add question</button>
+                  
                 </div>
             </div>
             <div className='retrived-notes-conatiner'>
                 {retreivedQandA && 
-                    retreivedQandA.map((item, index) => {
+                        retreivedQandA.map((item, index) => {
+                        console.log(item,index)
                         return (
                             <div key={index} className='retrived-note'>
-                                <div  className='retrived-note-question'><p>{item[0]}</p> <div className='retrived-note-date'>{item[3]}</div></div>
+                                <div  className='retrived-note-question'><p>{item[0]}</p> <div className='retrived-note-date'>{item[2].split(',')[1].slice(0,12)}</div></div>
                                 <div className='retrived-note-answer'><p>{item[1]}</p></div>
                             </div>
                         );

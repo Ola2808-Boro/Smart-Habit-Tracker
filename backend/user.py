@@ -39,7 +39,6 @@ def check_user_acivity_day():
         """
         cursor.execute(sql_select_activity)
         result = cursor.fetchone()
-        print(result)
         logging.info(f'Activity_id for acivity_id: {result}')
         return result
     except Exception as e:
@@ -59,7 +58,7 @@ def select_user(data: dict):
         """
         cursor.execute(sql_select_user, (data["email"], data["password"]))
         result = cursor.fetchone()
-        print(result)
+
         if result and not check_user_acivity_day():
             sql_insert_activity="""
                 INSERT INTO habit_tracker.activity(user_id,activity_date) VALUES(%s,CURRENT_DATE)

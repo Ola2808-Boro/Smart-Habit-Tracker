@@ -37,17 +37,16 @@ def sign_up():
 @app.route("/notes-read", methods=["POST"])
 def read_notes_for_a_date():
     data = request.json
-    print(data['calDate'],type(data['calDate']))
     answer, question,activity_date = read_note(data)
-    print(f'answer: {answer}, question: {question}')
+    answer_question_date=[]
+    for i in range(len(answer)):
+        answer_question_date.append([question[i],answer[i],activity_date[i]])
     if answer or question:
         return (
             jsonify(
                 {
                     "message": "correctly downloaded data",
-                    "answer": answer,
-                    "question": question,
-                    'activity_date':activity_date
+                    "answer_question_date":answer_question_date
                     
                 }
             ),
@@ -58,9 +57,7 @@ def read_notes_for_a_date():
             jsonify(
                 {
                     "message": "incorrectly downloaded data",
-                    "answer": answer,
-                    "question": question,
-                    'activity_date':activity_date
+                    "answer_question_date":answer_question_date
                     
                 }
             ),

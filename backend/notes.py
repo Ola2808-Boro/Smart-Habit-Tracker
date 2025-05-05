@@ -10,6 +10,7 @@ def read_note(data: dict):
         if type(data['calDate'])==list:
             activity_date_start=datetime.strptime(data['calDate'][0], "%Y-%m-%dT%H:%M:%S.%fZ").date().isoformat()
             activity_date_end=datetime.strptime(data['calDate'][1], "%Y-%m-%dT%H:%M:%S.%fZ").date().isoformat()
+            ('as',activity_date_start,activity_date_end)
             sql_select_answer_question = """
                 SELECT answer,question_id FROM habit_tracker.note WHERE note_id IN (SELECT note_id FROM habit_tracker.activity WHERE activity_date BETWEEN %s AND %s AND note_id IS NOT NULL); 
             """
@@ -25,7 +26,6 @@ def read_note(data: dict):
                 questions_id.append(results[idx][1])
                 answers.append(results[idx][0])
                 acitivity_dates.append(results_acitivity_date[idx][0])
-            print(answers,questions_id,acitivity_dates)
             placeholders = ','.join(['%s'] * len(questions_id))
             sql_select_questions = f"""
                 SELECT question FROM habit_tracker.question WHERE question_id IN ({placeholders}); 
@@ -42,7 +42,6 @@ def read_note(data: dict):
         else:      
             data_dt = datetime.strptime(data['calDate'], "%Y-%m-%dT%H:%M:%S.%fZ")
             activity_date = data_dt.date().isoformat()
-            print(f'activity date: {activity_date}')
             sql_note_id = """
                 SELECT note_id FROM habit_tracker.activity WHERE activity_date=%s; 
             """
