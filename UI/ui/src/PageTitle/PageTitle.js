@@ -15,7 +15,7 @@ const PageTitle = () => {
       };
     const title = titles[location.pathname] || 'Smart Habit Tracker';
     return(
-       <h1>{title}</h1>
+       <h1 className='page-title'>{title}</h1>
     )
 
 }
