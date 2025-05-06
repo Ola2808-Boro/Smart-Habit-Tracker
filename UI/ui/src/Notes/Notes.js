@@ -1,5 +1,5 @@
 import './Notes.css';
-import React,{ useState } from 'react';
+import React,{ use, useState } from 'react';
 import Calendar from 'react-calendar'
 import PageTitle from '../PageTitle/PageTitle';
 import 'react-calendar/dist/Calendar.css';
@@ -13,12 +13,13 @@ import 'reactjs-popup/dist/index.css';
 const Notes = () => {
     const [calDate, setCalDate] = useState(new Date())
     const [lastQuestionIdx,setLastQuestionIdx]=useState(0)
-    const [question,SetQuestion]=useState('')
-    const [newQuestion,SetNewQuestion]=useState('')
-    const [answer,SetAnswer]=useState('')
+    const [question,setQuestion]=useState('')
+    const [newQuestion,setNewQuestion]=useState('')
+    const [answer,setAnswer]=useState('')
     const [retreivedQandA,setRetreivedQandA]=useState([])
     const [isOpenQandA, setIsOpenQandA] = useState(false)
     const [isOpenAddQuestion, setIsOpenAddQuestion] = useState(false)
+    const [visibleNotes,setVisibleNotes]=useState(2)
 
     async function handleOpenPopupQandA() {
         await getQuestion();  
@@ -39,12 +40,13 @@ const Notes = () => {
 
     async function handleSaveAnswer(e){
         e.preventDefault();
+        console.log('Add')
         const response=await axios.post('http://127.0.0.1:5000/save-answer',{'answer':answer,'question_id':lastQuestionIdx},{
             headers: {
                 'Content-Type': 'application/json'
             }
         })
-        SetQuestion('')
+        setQuestion('')
     }
 
     function randomQuestionIdx(max){
@@ -72,9 +74,14 @@ const Notes = () => {
         console.log(retreivedQandA)
     }
 
-    async function handleAddQuestion(){
-        const response=await axios.get('http://127.0.0.1:5000/add_question');
-        console.log(response)
+    async function handleAddQuestion(e){
+        e.preventDefault();
+        const response=await axios.post('http://127.0.0.1:5000/add-question',{'new_question':newQuestion},{
+            headers: {
+            'Content-Type': 'application/json'
+        }});
+        console.log(response['data'])
+        handleClosePopupAddQuestion()
     }
 
     async function getQuestion(){
@@ -91,11 +98,12 @@ const Notes = () => {
             }});
             console.log(response2)
 
-            SetQuestion(response2['data']['question'])
+            setQuestion(response2['data']['question'])
         }
         else{
             return "incorrectly downloaded number of questions"
         }
+        handleClosePopupQandA()
         
     }
 
@@ -110,19 +118,19 @@ const Notes = () => {
                     <Popup open={isOpenAddQuestion} onClose={() => setIsOpenAddQuestion(false)} modal>
                         <form className='form-card' onSubmit={handleAddQuestion}>
                             <p>Add question</p>
-                            <input value={answer} className='form-input' type='text'
-                            onChange={e=>SetNewQuestion(e.target.value)}
+                            <input value={newQuestion} className='form-input' type='text'
+                            onChange={e=>setNewQuestion(e.target.value)}
                             />
-                            <button className='form-button' type='submit' onClick={handleClosePopupAddQuestion}>Save question</button>
+                            <button className='form-button' type='submit'>Save question</button>
                         </form>
                     </Popup>
                     <Popup open={isOpenQandA} onClose={() => setIsOpenQandA(false)} modal>
                         <form className='form-card' onSubmit={handleSaveAnswer}>
                             <p>{question}</p>
                             <input value={answer} className='form-input' type='text'
-                            onChange={e=>SetAnswer(e.target.value)}
+                            onChange={e=>setAnswer(e.target.value)}
                             />
-                            <button className='form-button' type='submit' onClick={handleClosePopupQandA}>Save note</button>
+                            <button className='form-button' type='submit'>Save note</button>
                         </form>
                     </Popup>
 
@@ -133,7 +141,7 @@ const Notes = () => {
             </div>
             <div className='retrived-notes-conatiner'>
                 {retreivedQandA && 
-                        retreivedQandA.map((item, index) => {
+                        retreivedQandA.slice(0,visibleNotes).map((item, index) => {
                         console.log(item,index)
                         return (
                             <div key={index} className='retrived-note'>
@@ -144,6 +152,13 @@ const Notes = () => {
                     })
                 }
             </div>
+            {visibleNotes < retreivedQandA.length && (
+                    <div className='more-notes-container'>
+                        <button className='form-button' onClick={() => setVisibleNotes(visibleNotes + 6)}>
+                            See more
+                        </button>
+                    </div>
+                )}
 
         </div>
         </>

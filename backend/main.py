@@ -3,7 +3,7 @@ from datetime import datetime
 
 from flask import Flask, jsonify, request
 from flask_cors import CORS
-from notes import insert_answer,read_note,get_number_of_questions,select_question
+from notes import insert_question,insert_answer,read_note,get_number_of_questions,select_question
 from user import add_user, check_user, select_user
 
 app = Flask(__name__)
@@ -139,12 +139,38 @@ def save_answer():
         return (
             jsonify(
                 {
-                    "message": "problem iwth saving note",
+                    "message": "problem with saving note",
                     
                 }
             ),
             401,
         )
+
+@app.route('/add-question',methods=["POST"]) 
+def add_estion():
+    data=request.json
+    result=insert_question(data)
+    if result:
+        return (
+            jsonify(
+                {
+                    "message": "correctly added question",
+                    
+                }
+            ),
+            201,
+        )
+    else:
+        return (
+            jsonify(
+                {
+                    "message": "problem with adding question",
+                    
+                }
+            ),
+            401,
+        )
+
 
 if __name__ == "__main__":
     app.run(debug=True)

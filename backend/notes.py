@@ -22,7 +22,7 @@ def read_note(data: dict):
             cursor.execute(sql_select_activity_date, (activity_date_start,activity_date_end))
             results_acitivity_date = cursor.fetchall()
             questions_id,answers,acitivity_dates=[],[],[]
-            for idx,value in enumerate(results):
+            for idx,_ in enumerate(results):
                 questions_id.append(results[idx][1])
                 answers.append(results[idx][0])
                 acitivity_dates.append(results_acitivity_date[idx][0])
@@ -122,6 +122,23 @@ def insert_answer(data:dict):
         note_id=cursor.fetchone()[0]
         conn.commit()
         logging.info(f'Correctly added note with note_id:{note_id}')
+        return True
+    except Exception as e:
+        logging.info(f"Error: {e}")
+        return None
+    finally:
+        conn.close()
+        
+def insert_question(data:dict):
+    conn=create_connection()
+    try:
+        sql_insert_question="""
+            INSERT INTO habit_tracker.question(question) VALUES(%s)
+        """
+        cursor=conn.cursor()
+        cursor.execute(sql_insert_question,(data['new_question'],))
+        conn.commit()
+        logging.info(f'Correctly added question')
         return True
     except Exception as e:
         logging.info(f"Error: {e}")
