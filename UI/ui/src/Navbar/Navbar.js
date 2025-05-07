@@ -10,27 +10,39 @@ const Navbar = () => {
             <div>
                 <h2 className='navbar-card-title'>Smart Habit Tracker</h2>
             </div>
-            <div className='navbar-card-option'>
-                <FontAwesomeIcon icon={faChartSimple} />
-                <Link to="/statistics" style={{ marginLeft:"8px", textDecoration: 'none',color:"black" }}>Statistics</Link>
-            </div>
-            <div className='navbar-card-option'>
-                <FontAwesomeIcon icon={faNoteSticky} />
-                <Link to="/notes" style={{marginLeft:"8px", textDecoration: 'none',color:"black" }}>Notes</Link>
-            </div>
-            <div className='navbar-card-option'>
-                <FontAwesomeIcon icon={faListCheck} />
-                <Link to="/habits" style={{marginLeft:"8px", textDecoration: 'none',color:"black" }}>Habits</Link>
-            </div>
-            <div className='navbar-card-option'>
-                <FontAwesomeIcon icon={faUser} />
-                <Link to="/profile" style={{marginLeft:"8px", textDecoration: 'none',color:"black" }}>Profile</Link>
-            </div>
-            <div className='navbar-card-option'>
-                <FontAwesomeIcon icon={faRightFromBracket} />
-                <Link to="/log-out" style={{marginLeft:"8px", textDecoration: 'none',color:"black" }}>Log out</Link>
-            </div>
-       </div>
+            
+                <Link to="/statistics" style={{ textDecoration: 'none',color:"black",width:"100%" }}>
+                        <div className='navbar-card-option'>
+                            <FontAwesomeIcon icon={faChartSimple} />
+                            <p className='navbar-card-option-text'>Statistics</p>
+                        </div>
+                </Link>
+                <Link to="/notes" style={{ textDecoration: 'none',color:"black",width:"100%" }}>
+                        <div className='navbar-card-option'>
+                            <FontAwesomeIcon icon={faNoteSticky} />
+                            <p className='navbar-card-option-text'>Notes</p>
+                        </div>
+                </Link>
+                <Link to="/habits" style={{ textDecoration: 'none',color:"black",width:"100%" }}>
+                        <div className='navbar-card-option'>
+                            <FontAwesomeIcon icon={faListCheck} />
+                            <p className='navbar-card-option-text'>Habits</p>
+                        </div>
+                </Link>
+                <Link to="/profile" style={{ textDecoration: 'none',color:"black",width:"100%" }}>
+                        <div className='navbar-card-option'>
+                            <FontAwesomeIcon icon={faUser} />
+                            <p className='navbar-card-option-text'>Profile</p>
+                        </div>
+                </Link>
+                <Link to="/log-out" style={{ textDecoration: 'none',color:"black",width:"100%" }}>
+                        <div className='navbar-card-option'>
+                            <FontAwesomeIcon icon={faRightFromBracket} />
+                            <p className='navbar-card-option-text'>Log out</p>
+                        </div>
+                </Link>
+  
+    </div>
     )
 
 }

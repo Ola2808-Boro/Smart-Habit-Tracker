@@ -12,10 +12,17 @@
     font-size: 18px;
     font-weight: bold;
     padding:10px 0px 10px 10px;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
 
 }
+.navbar-card-option-text{
+    margin-left: 0.5rem;
+}
 .navbar-card-option:hover{
-    background-color: red;
+    background-color:  #ddd6f3;
     border-radius: 10px;
     padding:10px 0px 10px 10px;
 }
