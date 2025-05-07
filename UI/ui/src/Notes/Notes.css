@@ -1,9 +1,3 @@
-.main-page-container{
-    width:100vw;
-    height: 100vh;
-    display: flex;
-    flex-direction: row;
-}
 
 .calandera-note-container{
     width:100%;
@@ -17,17 +11,17 @@
     flex-direction: column;
     background-color: white;
     padding: 1rem;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+    /* box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05); */
     border-radius: 24px;
     justify-content: space-around;
     align-items: center;
-    min-width: 30%;
-    margin-left: 2rem;
+    min-width: 80%;
+    height:100%;
 }
 .form-question{
     font-size: 18px;
     font-weight: bold;
-    margin: 10px 0px;
+    margin-bottom: 1rem;
 }
 .form-button{
     background-color: #6366f1;
@@ -35,27 +29,17 @@
     font-size: 16px;
     border: none;
     border-radius: 5px;
-    padding: 20px; 
-    margin: 10px 0px;
+    padding: 15px; 
+    margin-bottom: 1rem;
 }
-.form-input{
-    font-size: 16px;
-    border-color:  rgba(0, 0, 0, 0.05);
-    border-radius: 5px;
-    padding: 10px; 
-    width:100%; 
-    margin: 10px 0px;
-}
-
-
-.retrived-notes-conatiner{
+.retrieved-notes-conatiner{
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 1rem;
     padding: 1rem;
     overflow: hidden;
 }
-.retrived-note{
+.retrieved-note{
     width:100%;
     display: flex;
     flex-direction: column;
@@ -67,7 +51,7 @@
     align-items: center;
     margin-bottom: 1rem;
 }
-.retrived-note-question{
+.retrieved-note-question{
     width:100%;
     font-size: 16px;
     font-weight: bold;
@@ -76,10 +60,10 @@
     justify-content: space-between;
     margin-bottom: 0.5rem;
 }
-.retrived-note-answer{
+.retrieved-note-answer{
     font-size: 14px;
 }
-.retrived-note-date{
+.retrieved-note-date{
     text-align: center;
     align-self: center;
     border-radius: 24px;
@@ -100,4 +84,24 @@
     display: flex;
     justify-content: center;
     align-items: center;
+}
+.popup-content {
+    margin: auto;
+    background-image: linear-gradient(#e0e7ff, #ddd6f3);
+    width: 50%;
+    min-height:0%;
+    padding: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  textarea.form-input {
+    width: 100%;
+    resize: none;
+    overflow: hidden;
+    font-family: inherit;
+    font-size: 1rem;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
 }

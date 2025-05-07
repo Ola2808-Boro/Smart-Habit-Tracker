@@ -3,7 +3,7 @@ from datetime import datetime
 
 from flask import Flask, jsonify, request
 from flask_cors import CORS
-from notes import insert_question,insert_answer,read_note,get_number_of_questions,select_question
+from notes import check_answer_exists,insert_question,insert_answer,read_note,get_number_of_questions,select_question
 from user import add_user, check_user, select_user
 
 app = Flask(__name__)
@@ -45,7 +45,7 @@ def read_notes_for_a_date():
         return (
             jsonify(
                 {
-                    "message": "correctly downloaded data",
+                    "message": "Data retrieved successfully",
                     "answer_question_date":answer_question_date
                     
                 }
@@ -56,7 +56,7 @@ def read_notes_for_a_date():
         return (
             jsonify(
                 {
-                    "message": "incorrectly downloaded data",
+                    "message": "Failed to retrieve data",
                     "answer_question_date":answer_question_date
                     
                 }
@@ -72,7 +72,7 @@ def get_num_of_questions():
         return (
             jsonify(
                 {
-                    "message": "correctly downloaded number of questions",
+                    "message": "Number of questions retrieved successfully",
                     "max": result
                 }
             ),
@@ -84,7 +84,7 @@ def get_num_of_questions():
         return (
             jsonify(
                 {
-                    "message": "incorrectly downloaded number of questions",
+                    "message": "Failed to retrieve number of questions",
                     "max": result
                     
                 }
@@ -102,7 +102,7 @@ def get_question():
         return (
             jsonify(
                 {
-                    "message": "correctly downloaded number of questions",
+                    "message": "Data retrieved successfully",
                     "question": result,
                     
                 }
@@ -113,7 +113,7 @@ def get_question():
         return (
             jsonify(
                 {
-                    "message": "incorrectly downloaded number of questions",
+                    "message": "Failed to retrieve data",
                     "question": result,
                     
                 }
@@ -129,7 +129,7 @@ def save_answer():
         return (
             jsonify(
                 {
-                    "message": "correctly saved note",
+                    "message": "Note saved successfully",
                     
                 }
             ),
@@ -139,7 +139,7 @@ def save_answer():
         return (
             jsonify(
                 {
-                    "message": "problem with saving note",
+                    "message": "Failed to save note",
                     
                 }
             ),
@@ -147,14 +147,14 @@ def save_answer():
         )
 
 @app.route('/add-question',methods=["POST"]) 
-def add_estion():
+def add_qestion():
     data=request.json
     result=insert_question(data)
     if result:
         return (
             jsonify(
                 {
-                    "message": "correctly added question",
+                    "message": "Question added successfully",
                     
                 }
             ),
@@ -164,13 +164,47 @@ def add_estion():
         return (
             jsonify(
                 {
-                    "message": "problem with adding question",
+                    "message": "Failed to add question",
                     
                 }
             ),
             401,
         )
 
+@app.route('/check-answer-exists',methods=["GET"]) 
+def check_answer():
+    result=check_answer_exists()
+    if type(result)==int:
+        return (
+            jsonify(
+                {
+                    "message": "A note already exists for this date",
+                    
+                }
+            ),
+            201,
+        )
+    elif result==True:
+        return (
+            jsonify(
+                {
+                    "message": "A note has note_id null",
+                    
+                }
+            ),
+            201,
+        )
+    else:
+        return (
+            jsonify(
+                {
+                    "message": "No note found for this date",
+                    
+                }
+            ),
+            401,
+        )
+        
 
 if __name__ == "__main__":
     app.run(debug=True)

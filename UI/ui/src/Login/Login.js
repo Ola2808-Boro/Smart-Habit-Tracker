@@ -31,7 +31,8 @@ const Login = () => {
         }
     }
     return(
-        <div className='login-card'>
+        <div className='page-container'>
+            <div className='login-card'>
             <h1 className='login-headline'>Habit Tracker</h1>
             <form className='login-form' onSubmit={handleLogIn}>
                 <div className='login-input-conatiner'>
@@ -51,6 +52,8 @@ const Login = () => {
                 {!logged && <p className='credentials_p'>Invalid credentials</p>}
             </form>
         </div>
+        </div>
+        
     )
 
 }

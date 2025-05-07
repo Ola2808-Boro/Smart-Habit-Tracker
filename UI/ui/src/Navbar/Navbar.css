@@ -6,6 +6,7 @@
     justify-content: flex-start;
     align-items: self-start;
     padding: 20px 15px;
+    min-height: 100%;
 }
 .navbar-card-option{
     width: 100%;

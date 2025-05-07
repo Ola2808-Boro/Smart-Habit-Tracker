@@ -28,6 +28,7 @@ const Notes = () => {
 
     async function handleClosePopupQandA(){
         setIsOpenQandA(false)
+        console.log('Close popup Q&A')
     }
 
     async function handleOpenPopupAddQuestion() {
@@ -36,6 +37,7 @@ const Notes = () => {
 
     async function handleClosePopupAddQuestion(){
         setIsOpenAddQuestion(false)
+        console.log('Close popup')
     }
 
     async function handleSaveAnswer(e){
@@ -47,6 +49,9 @@ const Notes = () => {
             }
         })
         setQuestion('')
+        setAnswer('')
+        handleClosePopupQandA()
+        console.log(`Answer: ${answer}, question: ${question}`)
     }
 
     function randomQuestionIdx(max){
@@ -85,26 +90,28 @@ const Notes = () => {
     }
 
     async function getQuestion(){
-        const response=await axios.get('http://127.0.0.1:5000/num_of_questions');
-        console.log(response)
-        if (response['data']['message']!=="incorrectly downloaded number of questions"){
-            const max=response.data.max
-            console.log('max',max)
-            const random_idx=randomQuestionIdx(max)
-            console.log('randomidx',random_idx)
-            const response2=await axios.post('http://127.0.0.1:5000/get_question',{'random_idx': random_idx }, {
-                headers: {
-                'Content-Type': 'application/json'
-            }});
-            console.log(response2)
+        const response_check_answer=await axios.get('http://127.0.0.1:5000/check-answer-exists');
+        if (response_check_answer['data']['message']=='A note has note_id null'){
+            const response=await axios.get('http://127.0.0.1:5000/num_of_questions');
+            console.log(response)
+            if (response['data']['message']!=="Failed to retrieve number of questions"){
+                const max=response.data.max
+                console.log('max',max)
+                const random_idx=randomQuestionIdx(max)
+                console.log('randomidx',random_idx)
+                const response2=await axios.post('http://127.0.0.1:5000/get_question',{'random_idx': random_idx }, {
+                    headers: {
+                    'Content-Type': 'application/json'
+                }});
+                console.log(response2)
 
-            setQuestion(response2['data']['question'])
+                setQuestion(response2['data']['question'])
+            }
+            else{
+                return "incorrectly downloaded number of questions"
+            }
         }
-        else{
-            return "incorrectly downloaded number of questions"
-        }
-        handleClosePopupQandA()
-        
+        // add alert
     }
 
 
@@ -117,36 +124,53 @@ const Notes = () => {
                 <div className='q-a-container'>
                     <Popup open={isOpenAddQuestion} onClose={() => setIsOpenAddQuestion(false)} modal>
                         <form className='form-card' onSubmit={handleAddQuestion}>
-                            <p>Add question</p>
-                            <input value={newQuestion} className='form-input' type='text'
-                            onChange={e=>setNewQuestion(e.target.value)}
+                            <p className='form-question'>Add question</p>
+                            <textarea
+                                value={newQuestion}
+                                className='form-input'
+                                maxLength={255}
+                                onChange={e => {
+                                    setNewQuestion(e.target.value);
+                                    e.target.style.height = 'auto'; 
+                                    e.target.style.height = `${e.target.scrollHeight}px`; // dopasowanie
+                                }}
+                                rows={1}
                             />
                             <button className='form-button' type='submit'>Save question</button>
                         </form>
                     </Popup>
                     <Popup open={isOpenQandA} onClose={() => setIsOpenQandA(false)} modal>
                         <form className='form-card' onSubmit={handleSaveAnswer}>
-                            <p>{question}</p>
-                            <input value={answer} className='form-input' type='text'
-                            onChange={e=>setAnswer(e.target.value)}
+                            <p className='form-question'>{question}</p>
+                            <textarea
+                                value={answer}
+                                className='form-input'
+                                maxLength={255}
+                                onChange={e => {
+                                    setAnswer(e.target.value);
+                                    e.target.style.height = 'auto'; 
+                                    e.target.style.height = `${e.target.scrollHeight}px`; // dopasowanie
+                                }}
+                                rows={1}
                             />
-                            <button className='form-button' type='submit'>Save note</button>
+                            <button className='form-button' type='submit'>Save answer</button>
                         </form>
                     </Popup>
 
-                    <button className='form-button' onClick={handleOpenPopupQandA}>Question</button>
-                    <button className='form-button' onClick={handleOpenPopupAddQuestion}>Add question</button>
+
+                    <button className='form-button' onClick={handleOpenPopupQandA}>Get a random question</button>
+                    <button className='form-button' onClick={handleOpenPopupAddQuestion}>Add a new question</button>
                   
                 </div>
             </div>
-            <div className='retrived-notes-conatiner'>
+            <div className='retrieved-notes-conatiner'>
                 {retreivedQandA && 
                         retreivedQandA.slice(0,visibleNotes).map((item, index) => {
                         console.log(item,index)
                         return (
-                            <div key={index} className='retrived-note'>
-                                <div  className='retrived-note-question'><p>{item[0]}</p> <div className='retrived-note-date'>{item[2].split(',')[1].slice(0,12)}</div></div>
-                                <div className='retrived-note-answer'><p>{item[1]}</p></div>
+                            <div key={index} className='retrieved-note'>
+                                <div  className='retrieved-note-question'><p>{item[0]}</p> <div className='retrieved-note-date'>{item[2].split(',')[1].slice(0,12)}</div></div>
+                                <div className='retrieved-note-answer'><p>{item[1]}</p></div>
                             </div>
                         );
                     })

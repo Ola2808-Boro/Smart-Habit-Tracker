@@ -1,3 +1,12 @@
+.page-container{
+    width:100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
 .login-card{
     background-color: #fff;
     padding: 2rem;

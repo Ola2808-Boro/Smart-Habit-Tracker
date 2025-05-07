@@ -28,15 +28,14 @@ def read_note(data: dict):
                 acitivity_dates.append(results_acitivity_date[idx][0])
             placeholders = ','.join(['%s'] * len(questions_id))
             sql_select_questions = f"""
-                SELECT question FROM habit_tracker.question WHERE question_id IN ({placeholders}); 
+                SELECT  question_id,question FROM habit_tracker.question WHERE question_id IN ({placeholders}); 
             """
             cursor.execute(sql_select_questions,questions_id)
             questions_results= cursor.fetchall()
-            questions=[]
-            for item in questions_results:
-                questions.append(item[0])
+            questions_dict = {qid: qtext for qid, qtext in questions_results}
+            questions = [questions_dict[qid] for qid in questions_id]
             logging.info(
-                f"Answer: {answers}, question: {questions}"
+                f"Answer: {answers}, question: {questions}, questions_id: {questions_id}"
             )
             return answers, questions,acitivity_dates
         else:      
@@ -140,6 +139,28 @@ def insert_question(data:dict):
         conn.commit()
         logging.info(f'Correctly added question')
         return True
+    except Exception as e:
+        logging.info(f"Error: {e}")
+        return None
+    finally:
+        conn.close()
+        
+
+def check_answer_exists(data:dict):
+    conn=create_connection()
+    try:
+        sql_insert_question="""
+            SELECT note_id FROM habit_tracker.activity WHERE activity_date=CURRENT_DATE;
+        """
+        cursor=conn.cursor()
+        cursor.execute(sql_insert_question)
+        result=cursor.fetchone()[0]
+        if result:
+            logging.info(f'There is already a note for the day :{result}')
+            return result
+        else:
+            logging.info(f'Note for the day  is null')
+            return True
     except Exception as e:
         logging.info(f"Error: {e}")
         return None
