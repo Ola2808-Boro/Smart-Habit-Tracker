@@ -6,6 +6,7 @@ import 'react-calendar/dist/Calendar.css';
 import axios from 'axios';
 import Popup from 'reactjs-popup';
 import 'reactjs-popup/dist/index.css';
+import ReactJsAlert from "reactjs-alert";
 
 //min-date
 
@@ -20,10 +21,20 @@ const Notes = () => {
     const [isOpenQandA, setIsOpenQandA] = useState(false)
     const [isOpenAddQuestion, setIsOpenAddQuestion] = useState(false)
     const [visibleNotes,setVisibleNotes]=useState(2)
+    const [noMoreQuestionAlert,setNoMoreQuestionAlert]=useState(false)
 
     async function handleOpenPopupQandA() {
-        await getQuestion();  
-        setIsOpenQandA(true);      
+        const response_check_answer=await axios.get('http://127.0.0.1:5000/check-answer-exists');
+        if (response_check_answer['data']['message']==='A note has note_id null'){
+            await getQuestion();  
+            setIsOpenQandA(true);   
+        }
+        else{
+            console.log('aaa',noMoreQuestionAlert)
+            setNoMoreQuestionAlert(true)
+            console.log('aaa',noMoreQuestionAlert)
+        }
+         
     }
 
     async function handleClosePopupQandA(){
@@ -90,8 +101,6 @@ const Notes = () => {
     }
 
     async function getQuestion(){
-        const response_check_answer=await axios.get('http://127.0.0.1:5000/check-answer-exists');
-        if (response_check_answer['data']['message']=='A note has note_id null'){
             const response=await axios.get('http://127.0.0.1:5000/num_of_questions');
             console.log(response)
             if (response['data']['message']!=="Failed to retrieve number of questions"){
@@ -110,8 +119,7 @@ const Notes = () => {
             else{
                 return "incorrectly downloaded number of questions"
             }
-        }
-        // add alert
+       
     }
 
 
@@ -183,6 +191,16 @@ const Notes = () => {
                         </button>
                     </div>
                 )}
+            
+                 <ReactJsAlert
+                 status={noMoreQuestionAlert}
+                 type='info'
+                 title='Adding notes'
+                 isQuotes={true}
+                 quote="Added note today. You can add one note per day."
+                 Close={() => setNoMoreQuestionAlert(false)}
+               />
+            
 
         </div>
         </>

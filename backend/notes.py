@@ -146,20 +146,20 @@ def insert_question(data:dict):
         conn.close()
         
 
-def check_answer_exists(data:dict):
+def check_answer_exists():
     conn=create_connection()
     try:
         sql_insert_question="""
-            SELECT note_id FROM habit_tracker.activity WHERE activity_date=CURRENT_DATE;
+            SELECT note_id,activity_date FROM habit_tracker.activity WHERE activity_date=CURRENT_DATE;
         """
         cursor=conn.cursor()
         cursor.execute(sql_insert_question)
-        result=cursor.fetchone()[0]
-        if result:
-            logging.info(f'There is already a note for the day :{result}')
-            return result
+        note_id,activity_date=cursor.fetchone()
+        if note_id:
+            logging.info(f'There is already a note for the day :{activity_date}')
+            return note_id
         else:
-            logging.info(f'Note for the day  is null')
+            logging.info(f'Note for the day is null')
             return True
     except Exception as e:
         logging.info(f"Error: {e}")
