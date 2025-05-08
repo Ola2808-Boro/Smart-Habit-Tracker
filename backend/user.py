@@ -25,22 +25,51 @@ def add_user(data: dict):
         return True
     except Exception as e:
         logging.info(repr(e))
+        return None
     finally:
         conn.close()
 
+
+def check_user_acivity_day():
+    conn=create_connection()
+    try:
+        cursor = conn.cursor()
+        sql_select_activity = """
+            SELECT activity_id FROM habit_tracker.activity WHERE activity_date=CURRENT_DATE;
+        """
+        cursor.execute(sql_select_activity)
+        result = cursor.fetchone()
+        logging.info(f'Activity_id for acivity_id: {result}')
+        return result
+    except Exception as e:
+        logging.info(f"Error: {e}")
+        return None
+    finally:
+        conn.close()
+        
+    
 
 def select_user(data: dict):
     conn = create_connection()
     try:
         cursor = conn.cursor()
         sql_select_user = """
-            SELECT * FROM habit_tracker.user WHERE email=%s AND password_hash=%s;
+            SELECT user_id,first_name FROM habit_tracker.user WHERE email=%s AND password_hash=%s;
         """
         cursor.execute(sql_select_user, (data["email"], data["password"]))
         result = cursor.fetchone()
+
+        if result and not check_user_acivity_day():
+            sql_insert_activity="""
+                INSERT INTO habit_tracker.activity(user_id,activity_date) VALUES(%s,CURRENT_DATE)
+            """
+            cursor.execute(sql_insert_activity,(result[0],))
+            conn.commit()
+            logging.info(f'Add user activity')
         return result
     except Exception as e:
         logging.info(f"Error: {e}")
+        return None
     finally:
         conn.close()
 
@@ -50,14 +79,13 @@ def check_user(data: dict):
     try:
         cursor = conn.cursor()
         sql_select_user = """
-            SELECT * FROM habit_tracker.user WHERE email=%s;
+            SELECT user_id FROM habit_tracker.user WHERE email=%s;
         """
-        cursor.execute(sql_select_user, (data["email"]))
+        cursor.execute(sql_select_user, (data["email"],))
         result = cursor.fetchone()
         logging.info(f"Check user results:{result}")
         return True
     except Exception as e:
         logging.info(f"Error: {e}")
-        return False
     finally:
         conn.close()
