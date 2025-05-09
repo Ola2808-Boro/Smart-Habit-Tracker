@@ -1,13 +1,35 @@
 import logging
 from datetime import datetime
-
+import jwt
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 from notes import check_answer_exists,insert_question,insert_answer,read_note,get_number_of_questions,select_question
 from user import add_user, check_user, select_user
+from dotenv import load_dotenv
+import os
+from functools import wraps
 
 app = Flask(__name__)
 CORS(app)
+load_dotenv()
+app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
+
+def token_required(f):
+    @wraps(f)
+    def decorated(*args,**kwargs):
+        token=None
+        if 'Authorization' in request.headers:
+            token=request.headers["Authorization"].split(" ")[1]
+        if not token:
+            return jsonify({"message": "Token is missing!"}), 401
+        
+        try:
+            data=jwt.decode(token,app.config["SECRET_KEY"],algorithm="HS256")
+            current_user_id=data['user_id']
+        except:
+            return jsonify({"message": "Token is invalid!"}), 401
+        return f(current_user_id, *args, **kwargs)
+    return decorated    
 
 
 @app.route("/login", methods=["POST"])
@@ -15,7 +37,8 @@ def login():
     data = request.json
     result = select_user(data)
     if result:
-        return jsonify({"message": "Login successful", "redirect": "/main-page"}), 201
+        token=jwt.encode({"user_id":result[0]},app.config["SECRET_KEY"],algorithm="HS256")  #exp
+        return jsonify({"message": "Login successful", "redirect": "/main-page","token":token}), 201
     else:
         return jsonify({"message": "Invalid credentials"}), 201
 
@@ -208,3 +231,5 @@ def check_answer():
 
 if __name__ == "__main__":
     app.run(debug=True)
+
+

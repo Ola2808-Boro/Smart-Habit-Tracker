@@ -27,6 +27,7 @@ const Login = () => {
         else if(response.data['message']==="Login successful"){
             setLogged(true)
             navigate(response.data['redirect'])
+            localStorage.setItem('token',response.data['token'])
 
         }
     }
