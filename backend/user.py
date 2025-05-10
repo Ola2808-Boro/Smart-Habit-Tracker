@@ -54,7 +54,7 @@ def select_user(data: dict):
     try:
         cursor = conn.cursor()
         sql_select_user = """
-            SELECT user_id,first_name FROM habit_tracker.user WHERE email=%s AND password_hash=%s;
+            SELECT user_id,first_name,last_name FROM habit_tracker.user WHERE email=%s AND password_hash=%s;
         """
         cursor.execute(sql_select_user, (data["email"], data["password"]))
         result = cursor.fetchone()
