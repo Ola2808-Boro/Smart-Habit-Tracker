@@ -24,7 +24,12 @@ const Notes = () => {
     const [noMoreQuestionAlert,setNoMoreQuestionAlert]=useState(false)
 
     async function handleOpenPopupQandA() {
-        const response_check_answer=await axios.get('http://127.0.0.1:5000/check-answer-exists');
+        const token= localStorage.getItem('token')
+        const response_check_answer=await axios.get('http://127.0.0.1:5000/check-answer-exists',{
+            headers: {
+                'Authorization':token
+            }
+        });
         if (response_check_answer['data']['message']==='A note has note_id null'){
             await getQuestion();  
             setIsOpenQandA(true);   
@@ -79,11 +84,13 @@ const Notes = () => {
         return random_idx
     }
     async function onChange (calDate) {
+        const token=localStorage.getItem('token')
         setCalDate(calDate)
         console.log(calDate,typeof(calDate))
         const response=await axios.post('http://127.0.0.1:5000/notes-read',{'calDate':calDate}, {
             headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Authorization':token
         }});
         console.log(`Response onChange calendar: ${response['data']}`)
         setRetreivedQandA(response['data']["answer_question_date"])
@@ -105,12 +112,12 @@ const Notes = () => {
             console.log(response)
             if (response['data']['message']!=="Failed to retrieve number of questions"){
                 const max=response.data.max
-                console.log('max',max)
                 const random_idx=randomQuestionIdx(max)
-                console.log('randomidx',random_idx)
+                const token=localStorage.getItem('token')
                 const response2=await axios.post('http://127.0.0.1:5000/get_question',{'random_idx': random_idx }, {
                     headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Authorization':token
                 }});
                 console.log(response2)
 
