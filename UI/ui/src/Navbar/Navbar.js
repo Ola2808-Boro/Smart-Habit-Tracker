@@ -2,7 +2,7 @@ import './Navbar.css';
 import React from 'react';
 import {Link} from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faChartSimple,faListCheck,faNoteSticky,faRightFromBracket,faUser} from '@fortawesome/free-solid-svg-icons';
+import { faFaceSmile,faChartSimple,faListCheck,faNoteSticky,faRightFromBracket,faUser} from '@fortawesome/free-solid-svg-icons';
 
 const Navbar = () => {
     return(
@@ -27,6 +27,12 @@ const Navbar = () => {
                         <div className='navbar-card-option'>
                             <FontAwesomeIcon icon={faListCheck} />
                             <p className='navbar-card-option-text'>Habits</p>
+                        </div>
+                </Link>
+                <Link to="/mood" style={{ textDecoration: 'none',color:"black",width:"100%" }}>
+                        <div className='navbar-card-option'>
+                            <FontAwesomeIcon icon={faFaceSmile} />
+                            <p className='navbar-card-option-text'>Mood</p>
                         </div>
                 </Link>
                 <Link to="/profile" style={{ textDecoration: 'none',color:"black",width:"100%" }}>

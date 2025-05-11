@@ -12,6 +12,7 @@ const PageTitle = () => {
         '/notes': 'Notes',
         '/sign-up': 'Sign Up',
         '/': 'Login',
+        '/mood':'Mood'
       };
     const title = titles[location.pathname] || 'Smart Habit Tracker';
     return(
