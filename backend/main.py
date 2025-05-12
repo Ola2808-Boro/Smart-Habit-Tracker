@@ -15,7 +15,7 @@ from notes import (
     read_note,
     select_question,
 )
-from user import add_user, check_user, select_user
+from user import add_user, check_user, select_user,check_user_joined_date
 
 app = Flask(__name__)
 CORS(app)
@@ -234,6 +234,30 @@ def check_answer(current_user_id: int):
             401,
         )
 
+@app.route("/check-joined-date", methods=["GET"])
+@token_required
+def check_joined_date(current_user_id:int):
+    result=check_user_joined_date(current_user_id=current_user_id)
+    if result:
+         return (
+            jsonify(
+                {
+                    'message':'Joined date found for user',
+                    'date_join':result
+                }
+            ),
+            201,
+        )
+    else:
+        return(
+            jsonify(
+                {
+                    'message':'Joined date no found for user'
+                },
+                401
+            )
+        )
+    
 
 if __name__ == "__main__":
     app.run(debug=True)

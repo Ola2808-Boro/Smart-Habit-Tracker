@@ -87,5 +87,24 @@ def check_user(data: dict):
         return True
     except Exception as e:
         logging.info(f"Error: {e}")
+        return None
+    finally:
+        conn.close()
+
+
+def check_user_joined_date(current_user_id:int):
+    conn=create_connection()
+    try:
+        cursor=conn.cursor()
+        sql_check_joined_date="""
+            SELECT date_join FROM habit_tracker.user WHERE user_id=%s
+        """
+        cursor.execute(sql_check_joined_date,(current_user_id,))
+        joined_date=cursor.fetchone()[0]
+        logging.info(f'Join date: {joined_date} for user: {current_user_id}')
+        return joined_date
+    except Exception as e:
+        logging.info(f"Error: {e}")
+        return None
     finally:
         conn.close()

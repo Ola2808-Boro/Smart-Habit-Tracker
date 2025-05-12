@@ -34,8 +34,22 @@
     flex-direction: row;
     width:100%;
 }
-.month-select{
+
+.select-option{
     padding: 0.5rem;
     font-weight: bold;
     font-size: 1rem;
+}
+.mood-tracker-container-options{
+    width:100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+}
+.unactive{
+    background-color: dimgray;
+}
+.sad{
+    background-color: red;
 }
