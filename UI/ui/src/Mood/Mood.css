@@ -50,6 +50,44 @@
 .unactive{
     background-color: dimgray;
 }
-.sad{
-    background-color: red;
+.mood-type-container {
+    width: 1.5rem;         
+    aspect-ratio: 1 / 1;   
+    border-radius: 4px;    
+    margin-right: 0.5rem;
+}
+
+.mood-legend-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+}
+
+.mood-legend-type-container {
+    display: flex;
+    align-items: center;
+}
+
+.sad {
+  background-color: red;
+}
+
+.happy {
+  background-color: yellowgreen;
+}
+
+.angry {
+  background-color: darkorange;
+}
+
+.neutral {
+  background-color: gray;
+}
+
+.anxious {
+  background-color: mediumpurple;
+}
+
+.excited {
+  background-color: gold;
 }

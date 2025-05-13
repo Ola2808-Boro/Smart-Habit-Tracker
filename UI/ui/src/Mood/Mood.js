@@ -26,24 +26,37 @@ const Mood = () => {
         return new Date(year,month+1,0).getDate()
     }
 
-    async function setMoods(day){
-        console.log('click')
-        setSelectedMoods(prev => ({
-            ...prev,
-            [day]: 'sad'
-        }));
+    async function setUnactiveMoodDays(){
         setSelectedMoods(prev => {
             const moods={...prev}
             console.log('date',new Date().getDate())
             for (let i=new Date().getDate();i<=totalDays;i+=1){
                 console.log(i)
                 if(!moods[i]){
-                    console.log('change')
                     moods[i]='unactive'
                 }
             }   
             return moods
         })
+    }
+    async function setMoods(day){
+        console.log('click')
+        setSelectedMoods(prev => ({
+            ...prev,
+            [day]: 'sad'
+        }));
+        // setSelectedMoods(prev => {
+        //     const moods={...prev}
+        //     console.log('date',new Date().getDate())
+        //     for (let i=new Date().getDate();i<=totalDays;i+=1){
+        //         console.log(i)
+        //         if(!moods[i]){
+        //             console.log('change')
+        //             moods[i]='unactive'
+        //         }
+        //     }   
+        //     return moods
+        // })
 
         
         setSelectedDay(day)
@@ -58,10 +71,12 @@ const Mood = () => {
         })
         const dateJoinYear=new Date(response['data']['date_join']).getFullYear()
         console.log(selectedYear,dateJoinYear)
+        const years=[]
         for (let i=selectedYear;i>=dateJoinYear;i-=1){
             years.push(i)
         }
         setYears(years)
+        setUnactiveMoodDays()
  
     }
 
@@ -115,7 +130,7 @@ const Mood = () => {
                             {
                                 week.map((day,dayIndex)=>(
                                     <div key={dayIndex} className={`mood-tracker-day ${selectedMoods[day]}`}
-                                    onClick={(e)=>setMoods(day)}>
+                                    onClick={selectedMoods[day] !== 'unactive' ? () => setMoods(day) : undefined}>
                                     {day ? day : ''}
                                 </div>
                                 ))
@@ -123,6 +138,37 @@ const Mood = () => {
                         </div>
                      ))
                     }
+               <div>
+                    <div>Moods:</div>
+                    <div className='mood-legend-container'>
+                        <div className='mood-legend-type-container'>
+                        <div className='mood-type-container sad'></div>
+                        <div><p>sad</p></div>
+                        </div>
+                        <div className='mood-legend-type-container'>
+                        <div className='mood-type-container happy'></div>
+                        <div><p>happy</p></div>
+                        </div>
+                        <div className='mood-legend-type-container'>
+                        <div className='mood-type-container angry'></div>
+                        <div><p>angry</p></div>
+                        </div>
+                        <div className='mood-legend-type-container'>
+                        <div className='mood-type-container neutral'></div>
+                        <div><p>neutral</p></div>
+                        </div>
+                        <div className='mood-legend-type-container'>
+                        <div className='mood-type-container anxious'></div>
+                        <div><p>anxious</p></div>
+                        </div>
+                        <div className='mood-legend-type-container'>
+                        <div className='mood-type-container excited'></div>
+                        <div><p>excited</p></div>
+                        </div>
+                    </div>
+                    </div>
+
+
             </div>
         </div>
         </>
