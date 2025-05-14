@@ -2,16 +2,24 @@ import './Mood.css';
 import React, { useState,useEffect } from 'react';
 import PageTitle from '../PageTitle/PageTitle';
 import axios from 'axios';
+import Popup from 'reactjs-popup';
+import { HexColorPicker } from "react-colorful";
+
 const Mood = () => {
-    const [selectedMonth,setSelectedMonth]=useState(new Date().getMonth())
-    const [selectedDay,setSelectedDay]=useState(new Date().getDay())
-    const [selectedYear,setSelecteYear]=useState(new Date().getFullYear())
-    const [selectedMoods,setSelectedMoods]=useState({})
+    const [selectedMonth,setSelectedMonth]=useState(new Date().getMonth());
+    const [selectedDay,setSelectedDay]=useState(new Date().getDay());
+    const [selectedYear,setSelecteYear]=useState(new Date().getFullYear());
+    const [selectedMoods,setSelectedMoods]=useState({});
     const [years, setYears] = useState([]);
+    const [isMoodPopupOpen, setIsMoodPopupOpen]=useState(false);
+    const [isAddMoodLegendOpen, setIsAddMoodLegendOpen]=useState(false);
+    const [newMoodColor, setNewMoodColor] = useState('#aabbcc');
+    const [newMoodName, setNewMoodName] = useState('');
+
     const nameOfDays=['Sun','Mon','Tue','Wed','Thu','Fri','Sat']
     const days=[]
     const weekChunks=[]
-  
+    const moods=["sad","angry","happy","neutral","anxious","excited"]
     const firstDay=new Date(selectedYear,selectedMonth).getDay()
     const totalDays = daysInMonth(selectedYear, selectedMonth);
     const months = [
@@ -26,14 +34,27 @@ const Mood = () => {
         return new Date(year,month+1,0).getDate()
     }
 
+    async function addMoodToLegend(){
+        const token=localStorage.getItem('token')
+            const response=await axios.post('http://127.0.0.1:5000/add-new-mood-options',{'newMoodOption':newMoodName,'newMoodOptionColor':newMoodColor}, {
+            headers: {
+            'Content-Type': 'application/json',
+            'Authorization':token
+            }});
+    }
+    async function handleOpenAddMoodLegendPopup(){
+        console.log(newMoodName,newMoodColor)
+        setIsAddMoodLegendOpen(true)
+    }
+
     async function setUnactiveMoodDays(){
         setSelectedMoods(prev => {
             const moods={...prev}
             console.log('date',new Date().getDate())
-            for (let i=new Date().getDate();i<=totalDays;i+=1){
+            for (let i=new Date().getDate()+1;i<=totalDays;i+=1){
                 console.log(i)
                 if(!moods[i]){
-                    moods[i]='unactive'
+                    moods[i]='inactive'
                 }
             }   
             return moods
@@ -41,25 +62,25 @@ const Mood = () => {
     }
     async function setMoods(day){
         console.log('click')
+        setSelectedDay(day)
+        setIsMoodPopupOpen(true)
         setSelectedMoods(prev => ({
             ...prev,
             [day]: 'sad'
         }));
-        // setSelectedMoods(prev => {
-        //     const moods={...prev}
-        //     console.log('date',new Date().getDate())
-        //     for (let i=new Date().getDate();i<=totalDays;i+=1){
-        //         console.log(i)
-        //         if(!moods[i]){
-        //             console.log('change')
-        //             moods[i]='unactive'
-        //         }
-        //     }   
-        //     return moods
-        // })
 
         
         setSelectedDay(day)
+    }
+    async function handleAddMood(e) {
+        console.log(`Submit ${e.target.dataset.mood}`)
+        console.log(selectedMoods)
+         setSelectedMoods(prev => ({
+            ...prev,
+            [selectedDay]: e.target.dataset.mood
+        }));
+        console.log(selectedMoods)
+
     }
     async function getJoinedDate(){
         const token=localStorage.getItem('token')
@@ -130,7 +151,7 @@ const Mood = () => {
                             {
                                 week.map((day,dayIndex)=>(
                                     <div key={dayIndex} className={`mood-tracker-day ${selectedMoods[day]}`}
-                                    onClick={selectedMoods[day] !== 'unactive' ? () => setMoods(day) : undefined}>
+                                    onClick={day===new Date().getDate() ? () => setMoods(day) : undefined}>
                                     {day ? day : ''}
                                 </div>
                                 ))
@@ -141,33 +162,51 @@ const Mood = () => {
                <div>
                     <div>Moods:</div>
                     <div className='mood-legend-container'>
-                        <div className='mood-legend-type-container'>
-                        <div className='mood-type-container sad'></div>
-                        <div><p>sad</p></div>
-                        </div>
-                        <div className='mood-legend-type-container'>
-                        <div className='mood-type-container happy'></div>
-                        <div><p>happy</p></div>
-                        </div>
-                        <div className='mood-legend-type-container'>
-                        <div className='mood-type-container angry'></div>
-                        <div><p>angry</p></div>
-                        </div>
-                        <div className='mood-legend-type-container'>
-                        <div className='mood-type-container neutral'></div>
-                        <div><p>neutral</p></div>
-                        </div>
-                        <div className='mood-legend-type-container'>
-                        <div className='mood-type-container anxious'></div>
-                        <div><p>anxious</p></div>
-                        </div>
-                        <div className='mood-legend-type-container'>
-                        <div className='mood-type-container excited'></div>
-                        <div><p>excited</p></div>
-                        </div>
+                        {
+                            moods.map((mood,index)=>{
+                                return(
+                                    <div className='mood-legend-type-container'>
+                                        <div className={`mood-type-container ${mood}`} data-mood={mood}></div>
+                                        <div><p>{mood}</p></div>
+                                    </div>
+                                )
+                            })
+                        }
                     </div>
+                    <button className='form-button' onClick={handleOpenAddMoodLegendPopup}>Add mood</button>
                     </div>
-
+                    <Popup open={isMoodPopupOpen} onClose={() => setIsMoodPopupOpen(false)} modal>
+                            <p className='form-question'>Add mood</p>
+                            {
+                            moods.map((mood,_)=>{
+                                return(
+                                    <div className='mood-legend-type-container' onClick={handleAddMood}>
+                                        <div className={`mood-type-container ${mood}`} data-mood={mood}></div>
+                                        <div><p>{mood}</p></div>
+                                    </div>
+                                )
+                                })
+                            }
+                    </Popup> 
+                    <Popup open={isAddMoodLegendOpen} onClose={() => setIsAddMoodLegendOpen(false)} modal>
+                            <form className='form-card' onSubmit={addMoodToLegend}>
+                            <p className='form-question'>Add mood</p>
+                            <HexColorPicker color={newMoodColor} onChange={setNewMoodColor} />
+                            <textarea
+                                value={newMoodName}
+                                className='form-input'
+                                maxLength={255}
+                                onChange={e => {
+                                    setNewMoodName(e.target.value);
+                                    e.target.style.height = 'auto'; 
+                                    e.target.style.height = `${e.target.scrollHeight}px`; 
+                                }}
+                                rows={1}
+                                placeholder='mood name'
+                            />
+                            <button className='form-button' type='submit'>Save mood</button>
+                        </form>
+                    </Popup> 
 
             </div>
         </div>
