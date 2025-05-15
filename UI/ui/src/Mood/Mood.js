@@ -28,31 +28,30 @@ const Mood = () => {
     ];
 
 
-    console.log(selectedDay,selectedMonth,selectedYear,firstDay)
-
     function daysInMonth(year,month){
         return new Date(year,month+1,0).getDate()
     }
 
-    async function addMoodToLegend(){
+    async function addMoodToLegend(e){
+        e.preventDefault();
         const token=localStorage.getItem('token')
-            const response=await axios.post('http://127.0.0.1:5000/add-new-mood-options',{'newMoodOption':newMoodName,'newMoodOptionColor':newMoodColor}, {
+        console.log('Click')
+        const response=await axios.post('http://127.0.0.1:5000/add-new-mood-option',{'newMoodOption':newMoodName,'newMoodOptionColor':newMoodColor}, {
             headers: {
             'Content-Type': 'application/json',
             'Authorization':token
             }});
+        setIsAddMoodLegendOpen(false)
     }
     async function handleOpenAddMoodLegendPopup(){
-        console.log(newMoodName,newMoodColor)
+        console.log('open')
         setIsAddMoodLegendOpen(true)
     }
 
     async function setUnactiveMoodDays(){
         setSelectedMoods(prev => {
             const moods={...prev}
-            console.log('date',new Date().getDate())
             for (let i=new Date().getDate()+1;i<=totalDays;i+=1){
-                console.log(i)
                 if(!moods[i]){
                     moods[i]='inactive'
                 }
@@ -73,6 +72,7 @@ const Mood = () => {
         setSelectedDay(day)
     }
     async function handleAddMood(e) {
+        e.preventDefault();
         console.log(`Submit ${e.target.dataset.mood}`)
         console.log(selectedMoods)
          setSelectedMoods(prev => ({
@@ -82,22 +82,47 @@ const Mood = () => {
         console.log(selectedMoods)
 
     }
+    async function updateMood(e){
+        e.preventDefault();
+        const token=localStorage.getItem('token')
+        console.log('click add mood')
+        const day=selectedDay
+        const mood=selectedMoods[day]
+        console.log(token)
+        const response=await axios.post('http://127.0.0.1:5000/update-mood',{'selectedMood':mood},{
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': token
+            }
+        })
+        console.log(response)
+    }
     async function getJoinedDate(){
         const token=localStorage.getItem('token')
-        console.log(token)
         const response=await axios.get('http://127.0.0.1:5000/check-joined-date',{
             headers: {
                 'Authorization': token
             }
         })
         const dateJoinYear=new Date(response['data']['date_join']).getFullYear()
-        console.log(selectedYear,dateJoinYear)
         const years=[]
         for (let i=selectedYear;i>=dateJoinYear;i-=1){
             years.push(i)
         }
         setYears(years)
         setUnactiveMoodDays()
+ 
+    }
+
+    async function getMoodData(){
+        console.log('Get mood data')
+        const token=localStorage.getItem('token')
+        const response=await axios.get('http://127.0.0.1:5000/retrieved-mood-data',{
+            headers: {
+                'Authorization': token
+            }
+        })
+       console.log(response)
  
     }
 
@@ -113,10 +138,11 @@ const Mood = () => {
 
     useEffect(()=>{
         getJoinedDate()
+        getMoodData()
     },[])
 
     useEffect(() => {
-    console.log('selectedMoods updated:', selectedMoods);
+        console.log('selectedMoods updated:', selectedMoods);
     }, [selectedMoods]);
 
 
@@ -159,34 +185,40 @@ const Mood = () => {
                         </div>
                      ))
                     }
-               <div>
-                    <div>Moods:</div>
-                    <div className='mood-legend-container'>
-                        {
-                            moods.map((mood,index)=>{
-                                return(
-                                    <div className='mood-legend-type-container'>
-                                        <div className={`mood-type-container ${mood}`} data-mood={mood}></div>
-                                        <div><p>{mood}</p></div>
-                                    </div>
-                                )
-                            })
-                        }
-                    </div>
-                    <button className='form-button' onClick={handleOpenAddMoodLegendPopup}>Add mood</button>
+                    <div className='mood-legend'>
+                        <div className='mood=legend-p-container'><p>Moods:</p></div>
+                        <div className='mood-legend-container'>
+                            {
+                                moods.map((mood,index)=>{
+                                    return(
+                                        <div className='mood-legend-type-container'>
+                                            <div className={`mood-type-container ${mood}`} data-mood={mood}></div>
+                                            <div><p>{mood}</p></div>
+                                        </div>
+                                    )
+                                })
+                            }
+                        </div>
+                        <button className='form-button' onClick={handleOpenAddMoodLegendPopup}>Add mood type</button>
                     </div>
                     <Popup open={isMoodPopupOpen} onClose={() => setIsMoodPopupOpen(false)} modal>
-                            <p className='form-question'>Add mood</p>
-                            {
-                            moods.map((mood,_)=>{
+                            <form className='form-card' onSubmit={updateMood}>
+                                <p className='form-question'>Add mood</p>
+                            <div className='mood-legend-container'>
+                                {moods.map((mood,_)=>{
                                 return(
-                                    <div className='mood-legend-type-container' onClick={handleAddMood}>
+                                    <div key={mood} className='mood-legend-type-container' onClick={handleAddMood}>
                                         <div className={`mood-type-container ${mood}`} data-mood={mood}></div>
                                         <div><p>{mood}</p></div>
                                     </div>
                                 )
                                 })
-                            }
+                                }
+                            </div>
+                            <button className='form-button' type='submit'>Save mood</button>
+                        </form>
+                         
+                           
                     </Popup> 
                     <Popup open={isAddMoodLegendOpen} onClose={() => setIsAddMoodLegendOpen(false)} modal>
                             <form className='form-card' onSubmit={addMoodToLegend}>
@@ -204,7 +236,7 @@ const Mood = () => {
                                 rows={1}
                                 placeholder='mood name'
                             />
-                            <button className='form-button' type='submit'>Save mood</button>
+                            <button className='form-button' type='submit'>Save mood type</button>
                         </form>
                     </Popup> 
 

@@ -47,7 +47,7 @@
     justify-content: space-between;
     margin-bottom: 0.5rem;
 }
-.unactive{
+.inactive{
     background-color: dimgray;
 }
 .mood-type-container {

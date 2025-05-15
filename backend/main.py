@@ -2,7 +2,7 @@ import logging
 import os
 from datetime import datetime
 from functools import wraps
-
+from mood import insert_new_mood_option,update_user_mood,retrieved_mood_data
 import jwt
 from dotenv import load_dotenv
 from flask import Flask, jsonify, request
@@ -258,6 +258,69 @@ def check_joined_date(current_user_id:int):
             )
         )
     
-
+@app.route('/add-new-mood-option',methods=['POST'])
+@token_required
+def add_new_mood_option(current_user_id:int):
+    data=request.json
+    result=insert_new_mood_option(data,current_user_id)
+    if result:
+        return jsonify({
+            'message':'Mood option added successfully'
+        },201)
+    else:
+        return jsonify({
+            'message':'Failed to add mood option'
+        },401)
+        
+        
+@app.route("/update-mood", methods=["POST"])
+@token_required
+def update_mood(current_user_id:int):
+    data=request.json
+    result=update_user_mood(data=data,current_user_id=current_user_id)
+    if result:
+         return (
+            jsonify(
+                {
+                    'message':'Mood updated uccessfully',
+                    'date_join':result
+                }
+            ),
+            201,
+        )
+    else:
+        return(
+            jsonify(
+                {
+                    'message':'Failed to update mood'
+                },
+                401
+            )
+        )
+    
+@app.route("/retrieved-mood-data", methods=["GET"])
+@token_required
+def retrieved_mood(current_user_id:int):
+    result=retrieved_mood_data(current_user_id=current_user_id)
+    if result:
+         return (
+            jsonify(
+                {
+                    'message':'Retrieved mood uccessfully',
+                    'date_join':result
+                }
+            ),
+            201,
+        )
+    else:
+        return(
+            jsonify(
+                {
+                    'message':'Failed to retrieved mood data'
+                },
+                401
+            )
+        )  
+        
 if __name__ == "__main__":
     app.run(debug=True)
