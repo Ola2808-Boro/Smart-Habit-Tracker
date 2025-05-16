@@ -48,7 +48,7 @@
     margin-bottom: 0.5rem;
 }
 .inactive{
-    background-color: dimgray;
+    background-color: rgb(190, 189, 189);
 }
 .mood-type-container {
     width: 1.5rem;         

@@ -98,7 +98,25 @@ def retrieved_mood_data(current_user_id:int):
                 if item[0]==data[0]:
                     data.extend([item[1],item[2]])
         logging.info(f"Retrieved mood data")
+        print(mood_data)
         return mood_data
+    except Exception as e:
+        logging.info(f"Error: {e}")
+        return None
+    finally:
+        conn.close()
+        
+def get_mood_option(current_user_id:int):
+    conn=create_connection()
+    try:
+      cursor=conn.cursor()
+      sql_select_mood_option="""
+        SELECT mood,color FROM habit_tracker.mood WHERE user_id=%s OR user_id IS NULL;
+      """
+      cursor.execute(sql_select_mood_option,(current_user_id,))
+      results=cursor.fetchall()
+      logging.info('Retrieved mood option')
+      return results
     except Exception as e:
         logging.info(f"Error: {e}")
         return None

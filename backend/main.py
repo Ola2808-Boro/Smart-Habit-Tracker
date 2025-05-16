@@ -2,7 +2,7 @@ import logging
 import os
 from datetime import datetime
 from functools import wraps
-from mood import insert_new_mood_option,update_user_mood,retrieved_mood_data
+from mood import insert_new_mood_option,update_user_mood,retrieved_mood_data,get_mood_option
 import jwt
 from dotenv import load_dotenv
 from flask import Flask, jsonify, request
@@ -302,12 +302,13 @@ def update_mood(current_user_id:int):
 @token_required
 def retrieved_mood(current_user_id:int):
     result=retrieved_mood_data(current_user_id=current_user_id)
+    print(f'Mood option result: {result}')
     if result:
          return (
             jsonify(
                 {
-                    'message':'Retrieved mood uccessfully',
-                    'date_join':result
+                    'message':'Retrieved mood successfully',
+                    'mood_data':result
                 }
             ),
             201,
@@ -321,6 +322,32 @@ def retrieved_mood(current_user_id:int):
                 401
             )
         )  
+        
+@app.route("/get-mood-option", methods=["GET"])
+@token_required
+def retrieved_mood_option(current_user_id:int):
+    result=get_mood_option(current_user_id=current_user_id)
+    print(f'aaaa: {result}')
+    if result:
+         return (
+            jsonify(
+                {
+                    'message':'Retrieved mood option successfully',
+                    'mood_option':result
+                }
+            ),
+            201,
+        )
+    else:
+        return(
+            jsonify(
+                {
+                    'message':'Failed to retrieved mood data'
+                },
+                401
+            )
+        )  
+        
         
 if __name__ == "__main__":
     app.run(debug=True)

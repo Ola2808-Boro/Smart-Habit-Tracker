@@ -11,6 +11,7 @@ const Mood = () => {
     const [selectedYear,setSelecteYear]=useState(new Date().getFullYear());
     const [selectedMoods,setSelectedMoods]=useState({});
     const [years, setYears] = useState([]);
+    const [moodOptions, setMoodOptions] = useState([]);
     const [isMoodPopupOpen, setIsMoodPopupOpen]=useState(false);
     const [isAddMoodLegendOpen, setIsAddMoodLegendOpen]=useState(false);
     const [newMoodColor, setNewMoodColor] = useState('#aabbcc');
@@ -19,7 +20,7 @@ const Mood = () => {
     const nameOfDays=['Sun','Mon','Tue','Wed','Thu','Fri','Sat']
     const days=[]
     const weekChunks=[]
-    const moods=["sad","angry","happy","neutral","anxious","excited"]
+    // const moods=["sad","angry","happy","neutral","anxious","excited"]
     const firstDay=new Date(selectedYear,selectedMonth).getDay()
     const totalDays = daysInMonth(selectedYear, selectedMonth);
     const months = [
@@ -32,6 +33,16 @@ const Mood = () => {
         return new Date(year,month+1,0).getDate()
     }
 
+    async function getMoodLegendData(){
+        console.log('aaaa')
+        const token=localStorage.getItem('token')
+        const response=await axios.get('http://127.0.0.1:5000/get-mood-option', {
+            headers: {
+            'Authorization':token
+            }});
+        console.log(`Mood aaaa${response.data['mood_option']}`)
+        setMoodOptions(response.data['mood_option'])
+    }
     async function addMoodToLegend(e){
         e.preventDefault();
         const token=localStorage.getItem('token')
@@ -42,45 +53,51 @@ const Mood = () => {
             'Authorization':token
             }});
         setIsAddMoodLegendOpen(false)
+        setMoodOptions(prev => ({
+            ...prev,
+            [newMoodName]: newMoodColor
+        }));
+        setNewMoodName('')
+        setMoodOptions('')
     }
     async function handleOpenAddMoodLegendPopup(){
         console.log('open')
         setIsAddMoodLegendOpen(true)
     }
 
-    async function setUnactiveMoodDays(){
+    async function setInactiveMoodDays(){
+        
         setSelectedMoods(prev => {
-            const moods={...prev}
-            for (let i=new Date().getDate()+1;i<=totalDays;i+=1){
-                if(!moods[i]){
-                    moods[i]='inactive'
+            const newState = { ...prev };
+            if (!newState[selectedYear]) newState[selectedYear] = {};
+            if (!newState[selectedYear][selectedMonth]) newState[selectedYear][selectedMonth] = {};
+            for (let i=1;i<=totalDays;i+=1){
+                if(!newState[selectedYear][selectedMonth][i]){
+                    newState[selectedYear][selectedMonth][i] = 'inactive';
                 }
-            }   
-            return moods
+                
+            }
+            return newState;
         })
+       
     }
     async function setMoods(day){
         console.log('click')
         setSelectedDay(day)
         setIsMoodPopupOpen(true)
-        setSelectedMoods(prev => ({
-            ...prev,
-            [day]: 'sad'
-        }));
-
-        
-        setSelectedDay(day)
     }
     async function handleAddMood(e) {
         e.preventDefault();
         console.log(`Submit ${e.target.dataset.mood}`)
         console.log(selectedMoods)
-         setSelectedMoods(prev => ({
-            ...prev,
-            [selectedDay]: e.target.dataset.mood
-        }));
+        setSelectedMoods(prev => {
+            const newState = { ...prev };
+            if (!newState[selectedYear]) newState[selectedYear] = {};
+            if (!newState[selectedYear][selectedMonth]) newState[selectedYear][selectedMonth] = {};
+            newState[selectedYear][selectedMonth][selectedDay] = e.target.dataset.mood;
+            return newState;
+        })
         console.log(selectedMoods)
-
     }
     async function updateMood(e){
         e.preventDefault();
@@ -96,6 +113,7 @@ const Mood = () => {
             }
         })
         console.log(response)
+        setIsMoodPopupOpen(false)
     }
     async function getJoinedDate(){
         const token=localStorage.getItem('token')
@@ -110,7 +128,7 @@ const Mood = () => {
             years.push(i)
         }
         setYears(years)
-        setUnactiveMoodDays()
+        setInactiveMoodDays()
  
     }
 
@@ -122,7 +140,23 @@ const Mood = () => {
                 'Authorization': token
             }
         })
-       console.log(response)
+        console.log('Mood ',response)
+        const newMoods = { ...selectedMoods };
+
+        response.data['mood_data'].forEach(([mood_id, dateStr, mood,color]) => {
+            const date = new Date(dateStr);
+            const y = date.getFullYear();
+            const m = date.getMonth();
+            const d = date.getDate();
+
+            if (!newMoods[y]) newMoods[y] = {};
+            if (!newMoods[y][m]) newMoods[y][m] = {};
+            newMoods[y][m][d] = mood;
+        });
+
+        setSelectedMoods(newMoods);
+        console.log('selectedMood after',selectedMoods)
+
  
     }
 
@@ -137,15 +171,19 @@ const Mood = () => {
     }
 
     useEffect(()=>{
-        getJoinedDate()
+        getMoodLegendData()
         getMoodData()
+        getJoinedDate()
+        
     },[])
 
     useEffect(() => {
         console.log('selectedMoods updated:', selectedMoods);
     }, [selectedMoods]);
 
-
+    useEffect(() => {
+        
+    }, [moodOptions]);
 
     return(
         <>
@@ -176,7 +214,7 @@ const Mood = () => {
                         <div key={weekIndex} className='mood-tracker-week-row'>
                             {
                                 week.map((day,dayIndex)=>(
-                                    <div key={dayIndex} className={`mood-tracker-day ${selectedMoods[day]}`}
+                                    <div key={dayIndex}  className={`mood-tracker-day ${selectedMoods?.[selectedYear]?.[selectedMonth]?.[day] || ''}`}
                                     onClick={day===new Date().getDate() ? () => setMoods(day) : undefined}>
                                     {day ? day : ''}
                                 </div>
@@ -189,11 +227,11 @@ const Mood = () => {
                         <div className='mood=legend-p-container'><p>Moods:</p></div>
                         <div className='mood-legend-container'>
                             {
-                                moods.map((mood,index)=>{
+                                moodOptions.map((mood,color)=>{
                                     return(
                                         <div className='mood-legend-type-container'>
-                                            <div className={`mood-type-container ${mood}`} data-mood={mood}></div>
-                                            <div><p>{mood}</p></div>
+                                            <div className={`mood-type-container ${mood[0]}`} data-mood={mood[0]}></div>
+                                            <div><p>{mood[0]}</p></div>
                                         </div>
                                     )
                                 })
@@ -205,7 +243,7 @@ const Mood = () => {
                             <form className='form-card' onSubmit={updateMood}>
                                 <p className='form-question'>Add mood</p>
                             <div className='mood-legend-container'>
-                                {moods.map((mood,_)=>{
+                                {moodOptions.map((mood,_)=>{
                                 return(
                                     <div key={mood} className='mood-legend-type-container' onClick={handleAddMood}>
                                         <div className={`mood-type-container ${mood}`} data-mood={mood}></div>
