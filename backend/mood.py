@@ -49,7 +49,6 @@ def insert_basic_moods():
 def update_user_mood(data:dict,current_user_id:int):
     conn=create_connection()
     try:
-        print(f'start {data['selectedMood']}')
         cursor=conn.cursor()
         sql_select_mood_id="""
             SELECT mood_id FROM habit_tracker.mood WHERE mood=%s
@@ -85,20 +84,17 @@ def retrieved_mood_data(current_user_id:int):
             mood_id.append(item[0])
             activity_date.append(item[1])
             mood_data.append([item[0],item[1]])
-        print(mood_id)
         placeholder=",".join(["%s"] * len(mood_id))
         sql_select_moods=f"""
             SELECT mood_id,mood,color FROM habit_tracker.mood WHERE mood_id IN ({placeholder})
         """
         cursor.execute(sql_select_moods,(mood_id))
-        results=cursor.fetchmany()
+        results=cursor.fetchall()
         for data in mood_data:
             for item in results:
-                print(item[0],data[0])
                 if item[0]==data[0]:
                     data.extend([item[1],item[2]])
         logging.info(f"Retrieved mood data")
-        print(mood_data)
         return mood_data
     except Exception as e:
         logging.info(f"Error: {e}")
@@ -115,8 +111,11 @@ def get_mood_option(current_user_id:int):
       """
       cursor.execute(sql_select_mood_option,(current_user_id,))
       results=cursor.fetchall()
+      mood_options=[]
+      for item in results:
+          mood_options.append([item[0],item[1]])
       logging.info('Retrieved mood option')
-      return results
+      return mood_options
     except Exception as e:
         logging.info(f"Error: {e}")
         return None

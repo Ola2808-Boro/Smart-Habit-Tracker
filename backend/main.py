@@ -302,7 +302,6 @@ def update_mood(current_user_id:int):
 @token_required
 def retrieved_mood(current_user_id:int):
     result=retrieved_mood_data(current_user_id=current_user_id)
-    print(f'Mood option result: {result}')
     if result:
          return (
             jsonify(
@@ -327,7 +326,6 @@ def retrieved_mood(current_user_id:int):
 @token_required
 def retrieved_mood_option(current_user_id:int):
     result=get_mood_option(current_user_id=current_user_id)
-    print(f'aaaa: {result}')
     if result:
          return (
             jsonify(
