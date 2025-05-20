@@ -10,6 +10,7 @@ import Statistics from './Statistics/Statistics';
 import Notes from './Notes/Notes';
 import Profile from './Profile/Profile';
 import Dashboard from './Dashboard/Dashboard';
+import Mood from './Mood/Mood';
 
 export default function App() {
   return (
@@ -24,6 +25,7 @@ export default function App() {
           <Route path="statistics" element={<Statistics />} />
           <Route path="notes" element={<Notes />} />
           <Route path="profile" element={<Profile />} />
+          <Route path="mood" element={<Mood />} />
         </Route>
       </Routes>
     </BrowserRouter>

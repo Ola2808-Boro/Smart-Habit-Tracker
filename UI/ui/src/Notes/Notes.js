@@ -35,16 +35,14 @@ const Notes = () => {
             setIsOpenQandA(true);   
         }
         else{
-            console.log('aaa',noMoreQuestionAlert)
+
             setNoMoreQuestionAlert(true)
-            console.log('aaa',noMoreQuestionAlert)
         }
          
     }
 
     async function handleClosePopupQandA(){
         setIsOpenQandA(false)
-        console.log('Close popup Q&A')
     }
 
     async function handleOpenPopupAddQuestion() {
@@ -53,7 +51,7 @@ const Notes = () => {
 
     async function handleClosePopupAddQuestion(){
         setIsOpenAddQuestion(false)
-        console.log('Close popup')
+
     }
 
     async function handleSaveAnswer(e){
@@ -147,7 +145,7 @@ const Notes = () => {
                                 onChange={e => {
                                     setNewQuestion(e.target.value);
                                     e.target.style.height = 'auto'; 
-                                    e.target.style.height = `${e.target.scrollHeight}px`; // dopasowanie
+                                    e.target.style.height = `${e.target.scrollHeight}px`;
                                 }}
                                 rows={1}
                             />
@@ -164,7 +162,7 @@ const Notes = () => {
                                 onChange={e => {
                                     setAnswer(e.target.value);
                                     e.target.style.height = 'auto'; 
-                                    e.target.style.height = `${e.target.scrollHeight}px`; // dopasowanie
+                                    e.target.style.height = `${e.target.scrollHeight}px`; 
                                 }}
                                 rows={1}
                             />
