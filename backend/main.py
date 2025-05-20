@@ -316,7 +316,7 @@ def retrieved_mood(current_user_id:int):
         return(
             jsonify(
                 {
-                    'message':'Failed to retrieved mood data'
+                    'message':'Failed to retrieve mood data'
                 },
                 401
             )
@@ -340,7 +340,7 @@ def retrieved_mood_option(current_user_id:int):
         return(
             jsonify(
                 {
-                    'message':'Failed to retrieved mood data'
+                    'message':'Failed to retrieve mood data'
                 },
                 401
             )

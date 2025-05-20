@@ -199,9 +199,6 @@ const Mood = () => {
         console.log('selectedMoods updated:', selectedMoods);
     }, [selectedMoods]);
 
-    // useEffect(() => {
-        
-    // }, [moodOptions]);
 
     return(
         <>
@@ -283,7 +280,7 @@ const Mood = () => {
                                 }
                                 {visibleLegendOptions < moodOptions.length && (
                                     <div className='more-notes-container'>
-                                        <button className='form-button' onClick={() => setVisibleLegendOptions(visibleLegendOptions + 6)}>
+                                        <button className='form-button'  type="button" onClick={() => setVisibleLegendOptions(visibleLegendOptions + 6)}>
                                             See more
                                         </button>
                                     </div>
