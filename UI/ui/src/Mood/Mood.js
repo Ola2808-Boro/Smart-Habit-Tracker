@@ -1,6 +1,6 @@
 import './Mood.css';
 import React, { useState,useEffect } from 'react';
-import PageTitle from '../PageTitle/PageTitle';
+import PageTitle from '../Components/PageTitle/PageTitle';
 import axios from 'axios';
 import Popup from 'reactjs-popup';
 import { HexColorPicker } from "react-colorful";
@@ -40,7 +40,6 @@ const Mood = () => {
             headers: {
             'Authorization':token
             }});
-        console.log(`Mood aaaa${response.data['mood_option']}, ${typeof(response.data['mood_option'])}`)
         setMoodOptions(response.data['mood_option'])
     }
     async function addMoodToLegend(e){
@@ -91,7 +90,6 @@ const Mood = () => {
     }
     async function handleAddMood(e) {
         e.preventDefault();
-        console.log(`Submit ${e.target.dataset.mood}`)
         console.log(selectedMoods)
         setSelectedMoods(prev => {
             const newState = { ...prev };
@@ -105,7 +103,6 @@ const Mood = () => {
     async function updateMood(e){
         e.preventDefault();
         const token=localStorage.getItem('token')
-        console.log('click add mood')
         const day=selectedDay
         const mood=selectedMoods[selectedYear][selectedMonth][day].mood
         console.log(token,mood)

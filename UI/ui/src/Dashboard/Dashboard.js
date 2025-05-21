@@ -1,6 +1,6 @@
 import './Dashboard.css';
 import React from 'react';
-import PageTitle from '../PageTitle/PageTitle';
+import PageTitle from '../Components/PageTitle/PageTitle'
 
 const Dashboard = () => {
 
