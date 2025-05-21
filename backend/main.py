@@ -2,6 +2,7 @@ import logging
 import os
 from datetime import datetime
 from functools import wraps
+from habits import insert_category
 from mood import insert_new_mood_option,update_user_mood,retrieved_mood_data,get_mood_option
 import jwt
 from dotenv import load_dotenv
@@ -345,7 +346,31 @@ def retrieved_mood_option(current_user_id:int):
                 401
             )
         )  
-        
+
+@app.route("/get-mood-option", methods=["POST"])
+@token_required
+def add_category(current_user_id:int):
+    data=request.json
+    result=insert_category(data=data,current_user_id=current_user_id)
+    if result:
+         return (
+            jsonify(
+                {
+                    'message':'Added successfully category',
+                    'mood_option':result
+                }
+            ),
+            201,
+        )
+    else:
+        return(
+            jsonify(
+                {
+                    'message':'Failed to add category'
+                },
+                401
+            )
+        )        
         
 if __name__ == "__main__":
     app.run(debug=True)
