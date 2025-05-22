@@ -1,5 +1,5 @@
 import './Habits.css';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import PageTitle from '../Components/PageTitle/PageTitle';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowLeft,faArrowRight} from '@fortawesome/free-solid-svg-icons';
@@ -9,7 +9,7 @@ import DragItem from '../Components/DragItem/DragItem'
 import DropZone from '../Components/DropZone/DropZone.js'
 import axios from 'axios';
 import Popup from 'reactjs-popup';
-
+import ReactJsAlert from "reactjs-alert";
 const Habits = () => {
 
     
@@ -21,8 +21,32 @@ const Habits = () => {
     const [selectedDate,setSelectedDate]=useState(`${months[new Date().getMonth()]} ${new Date().getDate()},${new Date().getFullYear()}`)
     const [droppedItems, setDroppedItems] = useState({});
     const [isCategoryPopupOpen,setIsCategoryPopupOpen]=useState(false)
+    const [isHabitPopupOpen,setIsHabitPopupOpen]=useState(false)
     const [category,setCategory]=useState('')
+    const [categories,setCategories]=useState([])
+    const [habit,setHabit]=useState('')
+    const [alert, setAlert] = useState({
+            visible: false,
+            title: '',
+            quote: '',
+            type: 'info',
+            });
 
+
+
+    useEffect(() => {
+        const fetchData = async () => {
+                await getCategories()
+            };
+            fetchData();
+        }, []);
+
+    useEffect(() => {
+        const fetchData = async () => {
+                await getCategories()
+            };
+            fetchData();
+        }, categories);
 
     const handleDrop = (item) => {
         setDroppedItems(prev => {
@@ -40,15 +64,69 @@ const Habits = () => {
         setDroppedItems(updatedItems);
     };
 
-    async function handleAddCategory(e){
+    async function handleSelectCategory(e) {
+        console.log(e.target.dataset.category)
+    }
+    async function handleAddHabit(e){
+        console.log(category,category.toLowerCase())
         e.preventDefault();
         const token = localStorage.getItem('token')
-        const response=await axios.post('http://127.0.0.1:5000/add-category',{'category':category},{
+        const response=await axios.post('http://127.0.0.1:5000/add-habit',{'habit':habit.toLowerCase(),'category':category},{
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': token
             }
         })
+        console.log(response.data.message)
+        if (response.data['message']=='Habit already exists'){
+            console.log('open')
+            setAlert({
+                visible: true,
+                title: 'Adding habit',
+                quote: 'Habit already exists',
+                type: 'info',
+            })
+        }
+        setIsHabitPopupOpen(false)
+        setHabit('')
+           
+    }
+    async function getCategories(){
+        const token = localStorage.getItem('token')
+        const response=await axios.get('http://127.0.0.1:5000/get-category',{
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': token
+            }
+        })
+        setCategories(response.data.category)
+    }
+    async function handleAddCategory(e){
+        console.log(category,category.toLowerCase())
+        e.preventDefault();
+        const token = localStorage.getItem('token')
+        const response=await axios.post('http://127.0.0.1:5000/add-category',{'category':category.toLowerCase()},{
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': token
+            }
+        })
+        console.log(response.data.message)
+        if (response.data['message']=='Category already exists'){
+            console.log('open')
+            setAlert({
+                visible: true,
+                title: 'Adding category',
+                quote: 'Category already exists',
+                type: 'info',
+            })
+        }
+        else if (response.data['message']=='Added successfully category'){
+            setCategories(prev=>[...prev,category.toLowerCase()])
+        }
+        setIsCategoryPopupOpen(false)
+        setCategory('')
+           
     }
     async function handleCheckBoxClick(e){
         const taskName=e.target.dataset.task
@@ -122,22 +200,49 @@ const Habits = () => {
                         <p>Heatlh</p>
                     </div> */}
 
-                    <button className='form-button' >
+                    <button className='form-button' onClick={() => setIsHabitPopupOpen(true)}>
                         + Add habit
                     </button>
                     <button className='form-button' onClick={() => setIsCategoryPopupOpen(true)}>
                         + Add category
                     </button>
+                    <Popup open={isHabitPopupOpen} onClose={() => setIsHabitPopupOpen(false)} modal>
+                        <form className='form-card' onSubmit={handleAddHabit}>
+                            <p className='form-question'>Add habit</p>
+                            <input type='text' value={habit} maxLength={30} onChange={e=>{setHabit(e.target.value)}}/>
+                            <div className='categories-container'>
+                                {
+                                    categories.map((category,index)=>(
+                                        <div className='category' key={index} data-category={category}onClick={e=>handleSelectCategory(e)}>
+                                            {category}
+                                        </div>
+                                    ))
+                                }
+                            </div>
+                            <button className='form-button' type='submit'>Save habit</button>
+                        </form>
+                    </Popup>
+
                     <Popup open={isCategoryPopupOpen} onClose={() => setIsCategoryPopupOpen(false)} modal>
                         <form className='form-card' onSubmit={handleAddCategory}>
                             <p className='form-question'>Add category</p>
                             <input type='text' value={category} maxLength={20} onChange={e=>{setCategory(e.target.value)}}/>
                             <button className='form-button' type='submit'>Save category</button>
                         </form>
-                    </Popup> 
+                    </Popup>  
                 </div>
             </div>
         </DndProvider>
+
+        <ReactJsAlert
+            status={alert.visible}
+            type={alert.type}
+            title={alert.title}
+            isQuotes={true}
+            quote={alert.quote}
+            Close={() => setAlert(prev => ({ ...prev, visible: false }))}
+        />
+        
         </div>
        </>
        

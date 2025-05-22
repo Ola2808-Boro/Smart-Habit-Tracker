@@ -74,3 +74,14 @@
     border-radius: 10px;
     padding: 0.5rem;
 }
+.category{
+    background-color: #ddd6f3;
+    border-radius: 10px;
+    padding: 0.3rem;
+}
+.categories-container{
+    width:100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
