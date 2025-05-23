@@ -23,7 +23,7 @@ const Habits = () => {
     const [isCategoryPopupOpen,setIsCategoryPopupOpen]=useState(false)
     const [isHabitPopupOpen,setIsHabitPopupOpen]=useState(false)
     const [category,setCategory]=useState('')
-    const [categories,setCategories]=useState([])
+    const [categories,setCategories]=useState({})
     const [habit,setHabit]=useState('')
     const [alert, setAlert] = useState({
             visible: false,
@@ -37,16 +37,17 @@ const Habits = () => {
     useEffect(() => {
         const fetchData = async () => {
                 await getCategories()
+                await getHabits()
             };
             fetchData();
         }, []);
 
-    useEffect(() => {
-        const fetchData = async () => {
-                await getCategories()
-            };
-            fetchData();
-        }, categories);
+    // useEffect(() => {
+    //     const fetchData = async () => {
+    //             await getCategories()
+    //         };
+    //         fetchData();
+    //     }, categories);
 
     const handleDrop = (item) => {
         setDroppedItems(prev => {
@@ -66,12 +67,26 @@ const Habits = () => {
 
     async function handleSelectCategory(e) {
         console.log(e.target.dataset.category)
+        setCategories(prev=>{
+            const newState = { ...prev };
+            newState[e.target.dataset.category]=true;
+            console.log('newState',newState)
+            return newState
+        })
+
+
     }
     async function handleAddHabit(e){
         console.log(category,category.toLowerCase())
         e.preventDefault();
         const token = localStorage.getItem('token')
-        const response=await axios.post('http://127.0.0.1:5000/add-habit',{'habit':habit.toLowerCase(),'category':category},{
+        const categories_data=[]
+        for (const [key, value] of Object.entries(categories)) {
+            if(value===true){
+                categories_data.push(key)
+            }
+        } 
+        const response=await axios.post('http://127.0.0.1:5000/add-habit',{'habit':habit.toLowerCase(),'category':categories_data},{
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': token
@@ -89,6 +104,10 @@ const Habits = () => {
         }
         setIsHabitPopupOpen(false)
         setHabit('')
+        const newState = Object.fromEntries(
+        Object.keys(categories).map(key => [key, false])
+        );
+        setCategories(newState);
            
     }
     async function getCategories(){
@@ -99,7 +118,31 @@ const Habits = () => {
                 'Authorization': token
             }
         })
-        setCategories(response.data.category)
+        
+        const newCategories = response.data.category.reduce((acc, category) => {
+            acc[category] = false;
+            console.log('acc',acc)
+            return acc;
+            }, {});
+        setCategories(newCategories);
+    
+    }
+    async function getHabits(){
+        const token = localStorage.getItem('token')
+        const response=await axios.get('http://127.0.0.1:5000/get-habit',{
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': token
+            }
+        })
+        console.log('habit',response)
+        // const newCategories = response.data.category.reduce((acc, category) => {
+        //     acc[category] = false;
+        //     console.log('acc',acc)
+        //     return acc;
+        //     }, {});
+        // setCategories(newCategories);
+    
     }
     async function handleAddCategory(e){
         console.log(category,category.toLowerCase())
@@ -122,7 +165,12 @@ const Habits = () => {
             })
         }
         else if (response.data['message']=='Added successfully category'){
-            setCategories(prev=>[...prev,category.toLowerCase()])
+            setCategories(prev=>{
+                const newState = { ...prev };
+                newState[category]=false;
+                console.log('newState',newState)
+                return newState
+            })
         }
         setIsCategoryPopupOpen(false)
         setCategory('')
@@ -133,17 +181,13 @@ const Habits = () => {
         const isChecked=e.target.checked
 
         const parentDiv=e.target.closest('div')
-        console.log('parentdiv',parentDiv)
         const timeInput = parentDiv.querySelector('input[type="time"]');
         const selectedTime = timeInput?.value || '';
         console.log(taskName,isChecked,selectedTime)
         setDroppedItems(prev => {
             const newState = { ...prev };
             if (!newState[taskName]) newState[taskName] = {};
-            console.log('before',newState[taskName])
             newState[taskName] = {'done':isChecked,'time':selectedTime};
-            console.log('after',newState[taskName])
-            console.log(newState)
             return newState;
         })
     }
@@ -212,13 +256,18 @@ const Habits = () => {
                             <input type='text' value={habit} maxLength={30} onChange={e=>{setHabit(e.target.value)}}/>
                             <div className='categories-container'>
                                 {
-                                    categories.map((category,index)=>(
-                                        <div className='category' key={index} data-category={category}onClick={e=>handleSelectCategory(e)}>
-                                            {category}
-                                        </div>
+                                    Object.entries(categories).map(([category, isSelected], index) => (
+                                    <div
+                                        className={`category ${isSelected ? 'selected' : ''}`}
+                                        key={index}
+                                        data-category={category}
+                                        onClick={handleSelectCategory}
+                                    >
+                                        {category}
+                                    </div>
                                     ))
                                 }
-                            </div>
+                                </div>
                             <button className='form-button' type='submit'>Save habit</button>
                         </form>
                     </Popup>

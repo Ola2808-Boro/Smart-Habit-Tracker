@@ -2,7 +2,7 @@ import logging
 import os
 from datetime import datetime
 from functools import wraps
-from habits import insert_category, insert_habit, get_category
+from habits import insert_category, insert_habit, get_category,get_habit
 from mood import insert_new_mood_option, update_user_mood, retrieved_mood_data, get_mood_option
 import jwt
 from dotenv import load_dotenv
@@ -228,6 +228,15 @@ def retrieved_category(current_user_id: int):
         return jsonify({'message': 'Retrieved category successfully', 'category': result}), 201
     else:
         return jsonify({'message': 'Failed to retrieve category data'}), 401
+
+@app.route("/get-habit", methods=["GET"])
+@token_required
+def retrieved_habit(current_user_id: int):
+    result = get_habit(current_user_id=current_user_id)
+    if result:
+        return jsonify({'message': 'Retrieved habit successfully', 'habit': result}), 201
+    else:
+        return jsonify({'message': 'Failed to retrieve habbit data'}), 401
 
 
 if __name__ == "__main__":
