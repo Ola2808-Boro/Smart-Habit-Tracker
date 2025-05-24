@@ -24,7 +24,8 @@ const Habits = () => {
     const [isHabitPopupOpen,setIsHabitPopupOpen]=useState(false)
     const [category,setCategory]=useState('')
     const [categories,setCategories]=useState({})
-    const [habit,setHabit]=useState('')
+    const [newHabit,setNewHabit]=useState('')
+    const [habits,setHabits]=useState([])
     const [alert, setAlert] = useState({
             visible: false,
             title: '',
@@ -49,14 +50,27 @@ const Habits = () => {
     //         fetchData();
     //     }, categories);
 
+    async function saveHabit(name,time) {
+        const token=localStorage.getItem('token')
+        const response=await axios.post('http://127.0.0.1:5000/save-habit',{'habit':name,'time':'0 seconds'},{
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': token
+            }
+        })
+        console.log('add habit ',response)
+    }
     const handleDrop = (item) => {
         setDroppedItems(prev => {
             const newState = {...prev };
             if (!newState[item.name]) newState[item.name] = {};
-            newState[item.name] = {'done':false,'time':0};
+            console.log('item',item)
+            newState[item.name] = {'done':false,'time':'0 seconds','categories':item.categories};
             console.log(newState)
             return newState;
         })
+
+        saveHabit(item.name,0)
     };
 
     const handleRemoveItem = (index) => {
@@ -86,7 +100,7 @@ const Habits = () => {
                 categories_data.push(key)
             }
         } 
-        const response=await axios.post('http://127.0.0.1:5000/add-habit',{'habit':habit.toLowerCase(),'category':categories_data},{
+        const response=await axios.post('http://127.0.0.1:5000/add-habit',{'habit':newHabit.toLowerCase(),'category':categories_data},{
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': token
@@ -103,7 +117,7 @@ const Habits = () => {
             })
         }
         setIsHabitPopupOpen(false)
-        setHabit('')
+        setNewHabit('')
         const newState = Object.fromEntries(
         Object.keys(categories).map(key => [key, false])
         );
@@ -135,13 +149,8 @@ const Habits = () => {
                 'Authorization': token
             }
         })
-        console.log('habit',response)
-        // const newCategories = response.data.category.reduce((acc, category) => {
-        //     acc[category] = false;
-        //     console.log('acc',acc)
-        //     return acc;
-        //     }, {});
-        // setCategories(newCategories);
+        console.log(response.data.habit)
+        setHabits(response.data.habit)
     
     }
     async function handleAddCategory(e){
@@ -215,9 +224,20 @@ const Habits = () => {
                    
                     {Object.entries(droppedItems).map(([name, data], index) => (
                         <div className='to-do-list-item' key={index}>
-                            <input type="checkbox" checked={data?.['done']} data-task={name} onChange={handleCheckBoxClick}></input>
-                            <p>{name}</p>
-                            <input aria-label="Time" type="time" data-task={name} defaultValue={data.time || ''}/>    
+                            <div className='to-do-list-item-container'>
+                                <input type="checkbox" checked={data?.['done']} data-task={name} onChange={handleCheckBoxClick}></input>
+                                <p>{name}</p>
+                                <input aria-label="Time" type="time" data-task={name} defaultValue={data.time || ''}/>    
+                            </div>
+                            <div className='categories'>
+                                    {
+                                    data?.categories.map((category,index)=>(
+                                        <div key={index} className='category'>
+                                            {category}
+                                        </div>
+                                   ))
+                                }
+                                </div>
                         </div>
                     ))}
                     <DropZone onDrop={handleDrop} />
@@ -232,18 +252,9 @@ const Habits = () => {
                     <p className='to-do-list-header-p'>Habits</p>
                 </div>
                 <div className='to-do-list-items'>
-                    <DragItem name="Item 1" />
-                    <DragItem name="Item 2" />
-                    <DragItem name="Item 3" />
-
-                        {/* <div className='to-do-list-item habits'>
-                            <p>Heatlh</p>
-                        </div>
-                    
-                    <div className='to-do-list-item habits'>
-                        <p>Heatlh</p>
-                    </div> */}
-
+                    {Object.entries(habits).map(([name, data], index) => (
+                        <DragItem name={data.habit} categories={data.categories} />
+                    ))}
                     <button className='form-button' onClick={() => setIsHabitPopupOpen(true)}>
                         + Add habit
                     </button>
@@ -253,7 +264,7 @@ const Habits = () => {
                     <Popup open={isHabitPopupOpen} onClose={() => setIsHabitPopupOpen(false)} modal>
                         <form className='form-card' onSubmit={handleAddHabit}>
                             <p className='form-question'>Add habit</p>
-                            <input type='text' value={habit} maxLength={30} onChange={e=>{setHabit(e.target.value)}}/>
+                            <input type='text' value={newHabit} maxLength={30} onChange={e=>{setNewHabit(e.target.value)}}/>
                             <div className='categories-container'>
                                 {
                                     Object.entries(categories).map(([category, isSelected], index) => (

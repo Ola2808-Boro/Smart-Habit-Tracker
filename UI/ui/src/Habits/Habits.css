@@ -53,8 +53,21 @@
 .to-do-list-item{
     width:100%;
     display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background-color: #ddd6f3;
+    cursor: move;
+    border: 1px solid #ccc;
+    padding: 10px;
+    border-radius: 5px;
+    margin: 5px 0px;
+
+}
+.to-do-list-item-container{
+    display: flex;
     flex-direction: row;
     justify-content: space-between;
+    width:100%;
 }
 .to-do-list-progress-bar-container{
     width:100%;

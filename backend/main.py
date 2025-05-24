@@ -2,7 +2,7 @@ import logging
 import os
 from datetime import datetime
 from functools import wraps
-from habits import insert_category, insert_habit, get_category,get_habit
+from habits import save_habit,insert_category, insert_habit, get_category,get_habit
 from mood import insert_new_mood_option, update_user_mood, retrieved_mood_data, get_mood_option
 import jwt
 from dotenv import load_dotenv
@@ -237,6 +237,17 @@ def retrieved_habit(current_user_id: int):
         return jsonify({'message': 'Retrieved habit successfully', 'habit': result}), 201
     else:
         return jsonify({'message': 'Failed to retrieve habbit data'}), 401
+
+
+@app.route("/save-habit", methods=["POST"])
+@token_required
+def saving_habit(current_user_id: int):
+    data=request.json
+    result = save_habit(data=data,current_user_id=current_user_id)
+    if result:
+        return jsonify({'message': 'Saved habit successfully', 'habit': result}), 201
+    else:
+        return jsonify({'message': 'Failed to save habbit'}), 401
 
 
 if __name__ == "__main__":

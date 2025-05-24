@@ -105,7 +105,6 @@ def get_habit(current_user_id:int):
         habits_data=[]
         for result in habit_results:
             habit_id,habit_name=result[0],result[1]
-            print(f'habit_id: {habit_id},habit_name: {habit_name}')
             sql_select_all_category_id="""
                 SELECT category_id FROM habit_tracker.habit_category WHERE user_id=%s AND habit_id=%s
             """
@@ -113,7 +112,6 @@ def get_habit(current_user_id:int):
             category_id_results=cursor.fetchall()
             categories=[]
             for category_id in category_id_results:
-                print(f'category_id: {category_id}')
                 sql_select_all_category_name="""
                     SELECT category_name FROM habit_tracker.category WHERE user_id=%s AND category_id=%s
                 """
@@ -124,7 +122,43 @@ def get_habit(current_user_id:int):
                 'habit':habit_name,
                 'categories':categories
             })
+        print(habits_data)
         return habits_data
+    except Exception as e:
+        logging.info(f"Error: {e}")
+        return None
+    finally:
+        conn.close()
+        
+        
+def save_habit(data:dict,current_user_id:int):
+    conn=create_connection()
+    try:
+        print(data['time'])
+        cursor = conn.cursor()
+        sql_select_habit_id="""
+            SELECT habit_id FROM habit_tracker.habit WHERE user_id=%s AND habit_name=%s
+        """
+        cursor.execute(sql_select_habit_id,(current_user_id,data['habit']))
+        habit_id=cursor.fetchone()[0]
+        sql_upsert="""
+            INSERT INTO habit_tracker.habit_tracker(habit_id,duration)
+            VALUES(%s,%s)
+            ON CONFLICT (habit_id)
+            DO UPDATE SET duration=EXCLUDED.duration
+            RETURNING habit_tracker_detail_id;
+        """
+        cursor.execute(sql_upsert,(habit_id,data['time']))
+        habit_tracker_detail_id=cursor.fetchone()[0]
+        if data['time']=='0 seconds':
+            sql_update="""
+                UPDATE habit_tracker.activity SET habit_tracker_detail_id=%s
+                WHERE user_id=%s AND activity_date=CURRENT_DATE
+            """
+            cursor.execute(sql_update,(habit_tracker_detail_id,current_user_id))
+        conn.commit()
+        logging.info(f"Saved habit")
+        return True
     except Exception as e:
         logging.info(f"Error: {e}")
         return None
