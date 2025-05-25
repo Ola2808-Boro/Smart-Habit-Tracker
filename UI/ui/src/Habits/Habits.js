@@ -19,7 +19,7 @@ const Habits = () => {
     ];
     const [progressValue,setProgressValue]=useState(0.0)
     const [selectedDate,setSelectedDate]=useState(`${months[new Date().getMonth()]} ${new Date().getDate()},${new Date().getFullYear()}`)
-    const [droppedItems, setDroppedItems] = useState({});
+    const [droppedItems, setDroppedItems] = useState([]);
     const [isCategoryPopupOpen,setIsCategoryPopupOpen]=useState(false)
     const [isHabitPopupOpen,setIsHabitPopupOpen]=useState(false)
     const [category,setCategory]=useState('')
@@ -39,6 +39,7 @@ const Habits = () => {
         const fetchData = async () => {
                 await getCategories()
                 await getHabits()
+                await getTasks()
             };
             fetchData();
         }, []);
@@ -50,35 +51,46 @@ const Habits = () => {
     //         fetchData();
     //     }, categories);
 
-    async function saveHabit(name,time) {
+    async function saveTask(name,time) {
         const token=localStorage.getItem('token')
-        const response=await axios.post('http://127.0.0.1:5000/save-habit',{'habit':name,'time':'0 seconds'},{
+        const response=await axios.post('http://127.0.0.1:5000/save-task',{'task':name,'time':'0 seconds'},{
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': token
             }
         })
-        console.log('add habit ',response)
+        console.log('add task ',response)
     }
     const handleDrop = (item) => {
         setDroppedItems(prev => {
-            const newState = {...prev };
-            if (!newState[item.name]) newState[item.name] = {};
-            console.log('item',item)
-            newState[item.name] = {'done':false,'time':'0 seconds','categories':item.categories};
-            console.log(newState)
+            const newState = [...prev];
+            newState.push({'habit':item.name,'done':false,'time':0,'categories':item.categories});
+            console.log('new Task',newState)
             return newState;
         })
 
-        saveHabit(item.name,0)
+        saveTask(item.name,0)
     };
 
     const handleRemoveItem = (index) => {
-        const updatedItems = [...droppedItems];
-        updatedItems.splice(index, 1);
-        setDroppedItems(updatedItems);
+        const updatedHabits = [...droppedItems];
+        removeTask(updatedHabits[index])
+        updatedHabits.splice(index, 1);
+        console.log(updatedHabits)
+        setDroppedItems(updatedHabits);
+        
     };
 
+    async function removeTask(habit){
+        console.log('habit',habit)
+        const token = localStorage.getItem('token')
+        const response=await axios.post('http://127.0.0.1:5000/remove-task',{'task':habit.habit,'category':habit.categories},{
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': token
+            }
+        })
+    }
     async function handleSelectCategory(e) {
         console.log(e.target.dataset.category)
         setCategories(prev=>{
@@ -149,10 +161,22 @@ const Habits = () => {
                 'Authorization': token
             }
         })
-        console.log(response.data.habit)
+        console.log('HABITS',response.data.habit)
         setHabits(response.data.habit)
-    
     }
+
+    async function getTasks(){
+        const token = localStorage.getItem('token')
+        const response=await axios.get('http://127.0.0.1:5000/get-task',{
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': token
+            }
+        })
+        console.log('tasks',response.data.task)
+        setDroppedItems(response.data.task)
+    }
+
     async function handleAddCategory(e){
         console.log(category,category.toLowerCase())
         e.preventDefault();
@@ -222,12 +246,12 @@ const Habits = () => {
                 
                 <div className='to-do-list-items'>
                    
-                    {Object.entries(droppedItems).map(([name, data], index) => (
+                    {Object.entries(droppedItems)?.map(([name, data], index) => (
                         <div className='to-do-list-item' key={index}>
                             <div className='to-do-list-item-container'>
-                                <input type="checkbox" checked={data?.['done']} data-task={name} onChange={handleCheckBoxClick}></input>
-                                <p>{name}</p>
-                                <input aria-label="Time" type="time" data-task={name} defaultValue={data.time || ''}/>    
+                                <input type="checkbox" checked={data?.['done']} data-task={data.habit} onChange={handleCheckBoxClick}></input>
+                                <p>{data.habit}</p>
+                                <input aria-label="Time" type="time" data-task={data.habit} defaultValue={data.time || ''}/>    
                             </div>
                             <div className='categories'>
                                     {
@@ -238,7 +262,12 @@ const Habits = () => {
                                    ))
                                 }
                                 </div>
+                            <button onClick={
+                                () => handleRemoveItem(index)}>
+                                Remove
+                            </button>
                         </div>
+                        
                     ))}
                     <DropZone onDrop={handleDrop} />
                                         
@@ -252,7 +281,7 @@ const Habits = () => {
                     <p className='to-do-list-header-p'>Habits</p>
                 </div>
                 <div className='to-do-list-items'>
-                    {Object.entries(habits).map(([name, data], index) => (
+                    {Object.entries(habits)?.map(([name, data], index) => (
                         <DragItem name={data.habit} categories={data.categories} />
                     ))}
                     <button className='form-button' onClick={() => setIsHabitPopupOpen(true)}>
@@ -267,7 +296,7 @@ const Habits = () => {
                             <input type='text' value={newHabit} maxLength={30} onChange={e=>{setNewHabit(e.target.value)}}/>
                             <div className='categories-container'>
                                 {
-                                    Object.entries(categories).map(([category, isSelected], index) => (
+                                    Object.entries(categories)?.map(([category, isSelected], index) => (
                                     <div
                                         className={`category ${isSelected ? 'selected' : ''}`}
                                         key={index}

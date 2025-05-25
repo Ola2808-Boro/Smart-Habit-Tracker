@@ -22,7 +22,7 @@ const DragItem = ({ name,categories }) => {
             {name}
             <div className='categories'>
                 {
-                categories.map((category,index)=>(
+                categories?.map((category,index)=>(
                     <div key={index} className='category'>
                         {category}
                     </div>

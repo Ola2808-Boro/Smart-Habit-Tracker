@@ -130,8 +130,54 @@ def get_habit(current_user_id:int):
     finally:
         conn.close()
         
-        
-def save_habit(data:dict,current_user_id:int):
+
+def get_task(current_user_id:int):
+    conn=create_connection()
+    try:
+        cursor=conn.cursor()
+        sql_select_habit_tracker_detail_id="""
+            SELECT habit_tracker_detail_id from habit_tracker.activity WHERE user_id=%s AND activity_date=CURRENT_DATE
+        """
+        cursor.execute(sql_select_habit_tracker_detail_id,(current_user_id,))
+        habit_tracker_detail_id=cursor.fetchone()[0]
+        sql_select_habit_id="""
+        SELECT habit_id FROM habit_tracker.habit_tracker WHERE   habit_tracker_detail_id=%s
+        """
+        cursor.execute(sql_select_habit_id,(habit_tracker_detail_id,))
+        habit_id=cursor.fetchall()
+        print(f'habit_id: {habit_id}')
+        tasks_data=[]
+        for id in habit_id:
+            sql_select_all_habit="""
+                SELECT habit_id,habit_name FROM habit_tracker.habit WHERE user_id=%s AND habit_id=%s
+            """
+            cursor.execute(sql_select_all_habit,(current_user_id,id))
+            habit_id,habit_name=cursor.fetchone()
+            sql_select_all_category_id="""
+                SELECT category_id FROM habit_tracker.habit_category WHERE user_id=%s AND habit_id=%s
+            """
+            cursor.execute(sql_select_all_category_id,(current_user_id,habit_id))
+            category_id_results=cursor.fetchall()
+            categories=[]
+            for category_id in category_id_results:
+                sql_select_all_category_name="""
+                    SELECT category_name FROM habit_tracker.category WHERE user_id=%s AND category_id=%s
+                """
+                cursor.execute(sql_select_all_category_name,(current_user_id,category_id))
+                category_name_results=cursor.fetchone()[0]
+                categories.append(category_name_results)
+            tasks_data.append({
+                'habit':habit_name,
+                'categories':categories
+            })
+        return tasks_data
+    except Exception as e:
+        logging.info(f"Error: {e}")
+        return None
+    finally:
+        conn.close()
+                
+def save_task(data:dict,current_user_id:int):
     conn=create_connection()
     try:
         print(data['time'])
@@ -139,25 +185,57 @@ def save_habit(data:dict,current_user_id:int):
         sql_select_habit_id="""
             SELECT habit_id FROM habit_tracker.habit WHERE user_id=%s AND habit_name=%s
         """
-        cursor.execute(sql_select_habit_id,(current_user_id,data['habit']))
+        cursor.execute(sql_select_habit_id,(current_user_id,data['task']))
         habit_id=cursor.fetchone()[0]
-        sql_upsert="""
-            INSERT INTO habit_tracker.habit_tracker(habit_id,duration)
-            VALUES(%s,%s)
-            ON CONFLICT (habit_id)
-            DO UPDATE SET duration=EXCLUDED.duration
-            RETURNING habit_tracker_detail_id;
+        sql_select_habit_tracker_detail_id="""
+            SELECT habit_tracker_detail_id from habit_tracker.activity WHERE user_id=%s AND activity_date=CURRENT_DATE
         """
-        cursor.execute(sql_upsert,(habit_id,data['time']))
+        cursor.execute(sql_select_habit_tracker_detail_id,(current_user_id,))
         habit_tracker_detail_id=cursor.fetchone()[0]
+        print(data['time']=='0 seconds',data['time'])
         if data['time']=='0 seconds':
-            sql_update="""
-                UPDATE habit_tracker.activity SET habit_tracker_detail_id=%s
-                WHERE user_id=%s AND activity_date=CURRENT_DATE
+            sql_upsert="""
+                INSERT INTO habit_tracker.habit_tracker(habit_id,duration,habit_tracker_detail_id)
+                VALUES(%s,%s,%s)
             """
-            cursor.execute(sql_update,(habit_tracker_detail_id,current_user_id))
+            cursor.execute(sql_upsert,(habit_id,data['time'],habit_tracker_detail_id))
+            logging.info(f"Saved task")
+        else:
+            sql_update="""
+                UPDATE habit_tracker.habit_tracker SET duration=%s
+                WHERE habit_id=%s AND habit_tracker_detail_id=%s
+            """
+            cursor.execute(sql_update,(data['time'],habit_id,habit_tracker_detail_id))
+            logging.info(f"Updated task")
         conn.commit()
-        logging.info(f"Saved habit")
+        return True
+    except Exception as e:
+        logging.info(f"Error: {e}")
+        return None
+    finally:
+        conn.close()
+        
+def remove_task(data:dict,current_user_id:int):
+    conn=create_connection()
+    try:
+        print(data)
+        cursor=conn.cursor()
+        sql_select_habit_tracker_detail_id="""
+            SELECT habit_tracker_detail_id from habit_tracker.activity WHERE user_id=%s AND activity_date=CURRENT_DATE
+        """
+        cursor.execute(sql_select_habit_tracker_detail_id,(current_user_id,))
+        habit_tracker_detail_id=cursor.fetchone()[0]
+        sql_select_habit_id="""
+            SELECT habit_id FROM habit_tracker.habit WHERE user_id=%s AND habit_name=%s
+        """
+        cursor.execute(sql_select_habit_id,(current_user_id,data['task']))
+        habit_id=cursor.fetchone()[0]
+        sql_delete_habit="""
+            DELETE FROM habit_tracker.habit_tracker WHERE   habit_tracker_detail_id=%s AND habit_id=%s
+        """
+        cursor.execute(sql_delete_habit,(habit_tracker_detail_id,habit_id))
+        conn.commit()
+        logging.info(f"Removed habit")
         return True
     except Exception as e:
         logging.info(f"Error: {e}")
