@@ -143,7 +143,7 @@ const Mood = () => {
         console.log('Mood ',response)
         const newMoods = { ...selectedMoods };
 
-        response.data['mood_data'].forEach(([mood_id, dateStr, mood,color]) => {
+        response.data['mood_data']?.forEach(([mood_id, dateStr, mood,color]) => {
             const date = new Date(dateStr);
             const y = date.getFullYear();
             const m = months[date.getMonth()];

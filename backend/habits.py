@@ -41,14 +41,12 @@ def insert_habit(data:dict,current_user_id:int):
         if data['habit'] in [item[0] for item in results]:
             return False
         else:
-            print(data['habit'],data['category'],current_user_id)
             sql_insert_habit = """
                 INSERT INTO habit_tracker.habit(habit_name,user_id) VALUES(%s,%s)
                 RETURNING habit_id;
             """
             cursor.execute(sql_insert_habit, (data['habit'],current_user_id))
             habit_id = cursor.fetchone()[0]
-            print('id',habit_id)
             habit_category_data=[]
             for category in data['category']:
                 if category==[]:
@@ -60,7 +58,7 @@ def insert_habit(data:dict,current_user_id:int):
                     cursor.execute(sql_select_category_id,(current_user_id,category))
                     category_id=cursor.fetchone()[0]
                     habit_category_data.append((habit_id,category_id,current_user_id))
-            print(habit_category_data)
+
             sql_insert_habit_category = """
                 INSERT INTO habit_tracker.habit_category(habit_id,category_id,user_id) VALUES(%s,%s,%s)
                 RETURNING habit_id;
@@ -122,7 +120,7 @@ def get_habit(current_user_id:int):
                 'habit':habit_name,
                 'categories':categories
             })
-        print(habits_data)
+        #print(habits_data)
         return habits_data
     except Exception as e:
         logging.info(f"Error: {e}")
@@ -141,13 +139,13 @@ def get_task(current_user_id:int):
         cursor.execute(sql_select_habit_tracker_detail_id,(current_user_id,))
         habit_tracker_detail_id=cursor.fetchone()[0]
         sql_select_habit_id="""
-        SELECT habit_id FROM habit_tracker.habit_tracker WHERE   habit_tracker_detail_id=%s
+        SELECT habit_id,duration FROM habit_tracker.habit_tracker WHERE  habit_tracker_detail_id=%s
         """
         cursor.execute(sql_select_habit_id,(habit_tracker_detail_id,))
-        habit_id=cursor.fetchall()
-        print(f'habit_id: {habit_id}')
+        habit_id_duration_results=cursor.fetchall()
+        print(f'habit_id: { habit_id_duration_results}')
         tasks_data=[]
-        for id in habit_id:
+        for id,duration in  habit_id_duration_results:
             sql_select_all_habit="""
                 SELECT habit_id,habit_name FROM habit_tracker.habit WHERE user_id=%s AND habit_id=%s
             """
@@ -166,10 +164,14 @@ def get_task(current_user_id:int):
                 cursor.execute(sql_select_all_category_name,(current_user_id,category_id))
                 category_name_results=cursor.fetchone()[0]
                 categories.append(category_name_results)
+            
             tasks_data.append({
-                'habit':habit_name,
-                'categories':categories
+                'task':habit_name,
+                'categories':categories,
+                'time':str(duration),
+                'done': False if str(duration)=='0:00' else True
             })
+        print(f'Get task data: {tasks_data}')
         return tasks_data
     except Exception as e:
         logging.info(f"Error: {e}")
@@ -178,9 +180,9 @@ def get_task(current_user_id:int):
         conn.close()
                 
 def save_task(data:dict,current_user_id:int):
+    print(f'Save task data: {data}')
     conn=create_connection()
     try:
-        print(data['time'])
         cursor = conn.cursor()
         sql_select_habit_id="""
             SELECT habit_id FROM habit_tracker.habit WHERE user_id=%s AND habit_name=%s
@@ -192,8 +194,8 @@ def save_task(data:dict,current_user_id:int):
         """
         cursor.execute(sql_select_habit_tracker_detail_id,(current_user_id,))
         habit_tracker_detail_id=cursor.fetchone()[0]
-        print(data['time']=='0 seconds',data['time'])
-        if data['time']=='0 seconds':
+        print(data['time']=='0:00',data['time'])
+        if data['time']=='0:00':
             sql_upsert="""
                 INSERT INTO habit_tracker.habit_tracker(habit_id,duration,habit_tracker_detail_id)
                 VALUES(%s,%s,%s)
@@ -218,7 +220,6 @@ def save_task(data:dict,current_user_id:int):
 def remove_task(data:dict,current_user_id:int):
     conn=create_connection()
     try:
-        print(data)
         cursor=conn.cursor()
         sql_select_habit_tracker_detail_id="""
             SELECT habit_tracker_detail_id from habit_tracker.activity WHERE user_id=%s AND activity_date=CURRENT_DATE

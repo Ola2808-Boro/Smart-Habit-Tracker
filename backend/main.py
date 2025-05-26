@@ -181,7 +181,7 @@ def retrieved_mood(current_user_id: int):
     if result:
         return jsonify({'message': 'Retrieved mood successfully', 'mood_data': result}), 201
     else:
-        return jsonify({'message': 'Failed to retrieve mood data'}), 401
+        return jsonify({'message': 'Failed to retrieve mood data'}), 201
 
 
 @app.route("/get-mood-option", methods=["GET"])
@@ -242,7 +242,7 @@ def retrieved_habit(current_user_id: int):
 @token_required
 def retrieved_task(current_user_id: int):
     result = get_task(current_user_id=current_user_id)
-    if result:
+    if result or result==[]:
         return jsonify({'message': 'Retrieved task successfully', 'task': result}), 201
     else:
         return jsonify({'message': 'Failed to retrieve tasks data'}), 401

@@ -44,16 +44,13 @@ const Habits = () => {
             fetchData();
         }, []);
 
-    // useEffect(() => {
-    //     const fetchData = async () => {
-    //             await getCategories()
-    //         };
-    //         fetchData();
-    //     }, categories);
+    useEffect(() => {
+        console.log("Nowe droppedItems:", droppedItems);
+    }, [droppedItems]);
 
     async function saveTask(name,time) {
         const token=localStorage.getItem('token')
-        const response=await axios.post('http://127.0.0.1:5000/save-task',{'task':name,'time':'0 seconds'},{
+        const response=await axios.post('http://127.0.0.1:5000/save-task',{'task':name,'time':time},{
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': token
@@ -62,14 +59,15 @@ const Habits = () => {
         console.log('add task ',response)
     }
     const handleDrop = (item) => {
+        console.log(handleDrop)
         setDroppedItems(prev => {
             const newState = [...prev];
-            newState.push({'habit':item.name,'done':false,'time':0,'categories':item.categories});
+            newState.push({'task':item.name,'done':false,'time':'0:00','categories':item.categories});
             console.log('new Task',newState)
             return newState;
         })
-
-        saveTask(item.name,0)
+        console.log('time: ',item.time)
+        saveTask(item.name,'0:00')
     };
 
     const handleRemoveItem = (index) => {
@@ -81,10 +79,10 @@ const Habits = () => {
         
     };
 
-    async function removeTask(habit){
-        console.log('habit',habit)
+    async function removeTask(task){
+        console.log('task',task)
         const token = localStorage.getItem('token')
-        const response=await axios.post('http://127.0.0.1:5000/remove-task',{'task':habit.habit,'category':habit.categories},{
+        const response=await axios.post('http://127.0.0.1:5000/remove-task',{'task':task.task,'category':task.categories},{
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': token
@@ -175,6 +173,12 @@ const Habits = () => {
         })
         console.log('tasks',response.data.task)
         setDroppedItems(response.data.task)
+        const convertedTasks = response.data.task.map(task => ({
+        ...task,
+        'time': convertPythonTimeToInputTime(task.time)
+       
+    }));
+     setDroppedItems(convertedTasks)
     }
 
     async function handleAddCategory(e){
@@ -209,6 +213,23 @@ const Habits = () => {
         setCategory('')
            
     }
+    function convertPythonTimeToInputTime(pythonTimeStr) {
+        console.log(pythonTimeStr)
+        const [hours, minutes] = pythonTimeStr.split(":");
+        const pad = num => String(num).padStart(2, '0');
+        console.log('time return by function',`${pad(hours)}:${pad(minutes)}`)
+        return `${pad(hours)}:${pad(minutes)}`;
+    }
+    async function handleTimeChange(taskName, newTime) {
+        console.log('task new time',taskName,newTime)
+        setDroppedItems(prev =>
+            prev.map(task =>
+            task.task === taskName
+                ? { ...task, time: newTime }
+                : task
+            )
+        );
+    }
     async function handleCheckBoxClick(e){
         const taskName=e.target.dataset.task
         const isChecked=e.target.checked
@@ -218,11 +239,17 @@ const Habits = () => {
         const selectedTime = timeInput?.value || '';
         console.log(taskName,isChecked,selectedTime)
         setDroppedItems(prev => {
-            const newState = { ...prev };
-            if (!newState[taskName]) newState[taskName] = {};
-            newState[taskName] = {'done':isChecked,'time':selectedTime};
+            const newState = prev.map(item => {
+                if (item.task === taskName) {
+                    return { ...item, done: isChecked, time: selectedTime };
+                }
+                return item;
+            });
+            console.log('newState',newState)
             return newState;
         })
+        saveTask(taskName,selectedTime)
+        
     }
     
     return(
@@ -249,9 +276,9 @@ const Habits = () => {
                     {Object.entries(droppedItems)?.map(([name, data], index) => (
                         <div className='to-do-list-item' key={index}>
                             <div className='to-do-list-item-container'>
-                                <input type="checkbox" checked={data?.['done']} data-task={data.habit} onChange={handleCheckBoxClick}></input>
-                                <p>{data.habit}</p>
-                                <input aria-label="Time" type="time" data-task={data.habit} defaultValue={data.time || ''}/>    
+                                <input type="checkbox" checked={data?.['done']} data-task={data.task} onChange={handleCheckBoxClick}></input>
+                                <p className={data?.done ? 'task-done' : ''}>{data.task}</p>
+                                <input aria-label="Time" type="time" data-task={data.task} value={data.time || ''}  onChange={(e) => handleTimeChange(data.task, e.target.value)}/>    
                             </div>
                             <div className='categories'>
                                     {
