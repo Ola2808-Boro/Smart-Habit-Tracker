@@ -45,6 +45,13 @@ const Habits = () => {
         }, []);
 
     useEffect(() => {
+        const fetchData = async () => {
+                await getTasks()
+            };
+            fetchData();
+        }, [selectedDate]);
+
+    useEffect(() => {
         console.log("Nowe droppedItems:", droppedItems);
     }, [droppedItems]);
 
@@ -82,7 +89,9 @@ const Habits = () => {
     async function removeTask(task){
         console.log('task',task)
         const token = localStorage.getItem('token')
-        const response=await axios.post('http://127.0.0.1:5000/remove-task',{'task':task.task,'category':task.categories},{
+       let newDate=new Date(selectedDate)
+        const newSelectedDate = `${newDate.getFullYear()}-${String(newDate.getMonth() + 1).padStart(2, '0')}-${String(newDate.getDate()).padStart(2, '0')}`
+        const response=await axios.post('http://127.0.0.1:5000/remove-task',{'task':task.task,'category':task.categories,'selectedDate':newSelectedDate},{
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': token
@@ -165,7 +174,9 @@ const Habits = () => {
 
     async function getTasks(){
         const token = localStorage.getItem('token')
-        const response=await axios.get('http://127.0.0.1:5000/get-task',{
+        let newDate=new Date(selectedDate)
+        const newSelectedDate = `${newDate.getFullYear()}-${String(newDate.getMonth() + 1).padStart(2, '0')}-${String(newDate.getDate()).padStart(2, '0')}`
+        const response=await axios.post('http://127.0.0.1:5000/get-task',{'selectedDate':newSelectedDate},{
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': token
@@ -177,8 +188,8 @@ const Habits = () => {
         ...task,
         'time': convertPythonTimeToInputTime(task.time)
        
-    }));
-     setDroppedItems(convertedTasks)
+        }));
+        setDroppedItems(convertedTasks)
     }
 
     async function handleAddCategory(e){
@@ -230,6 +241,25 @@ const Habits = () => {
             )
         );
     }
+    async function handleChangeDate(e) {
+        e.preventDefault()
+        const arrow = e.currentTarget.dataset.arrow;
+        let newDate=new Date(selectedDate)
+        if (`${months[new Date().getMonth()]} ${new Date().getDate()},${new Date().getFullYear()}`===`${months[newDate.getMonth()]} ${newDate.getDate()},${newDate.getFullYear()}` && arrow==='right'){
+            console.log('NO')
+        }
+        else{
+            if(arrow==='right'){
+            newDate.setDate(newDate.getDate() + 1);
+            }
+            else{
+                newDate.setDate(newDate.getDate() - 1);
+            }
+                const newSelectedDate=`${months[newDate.getMonth()]} ${newDate.getDate()},${newDate.getFullYear()}`
+                setSelectedDate(newSelectedDate)
+        } 
+       
+    }
     async function handleCheckBoxClick(e){
         const taskName=e.target.dataset.task
         const isChecked=e.target.checked
@@ -259,11 +289,11 @@ const Habits = () => {
         <DndProvider backend={HTML5Backend}>
             <div className='to-do-list-container'>
                 <div className='to-do-list-date'>
-                    <div className='to-do-list-date-arrow'>
+                    <div className='to-do-list-date-arrow' data-arrow='left' onClick={e=>handleChangeDate(e)}>
                         <FontAwesomeIcon icon={faArrowLeft} />
                     </div>
                     <p className='to-do-list-date-p'>{selectedDate}</p>
-                    <div className='to-do-list-date-arrow'>
+                    <div className='to-do-list-date-arrow' data-arrow='right' onClick={e=>handleChangeDate(e)}>
                         <FontAwesomeIcon icon={faArrowRight} />
                     </div>
                 </div>
@@ -311,7 +341,9 @@ const Habits = () => {
                     {Object.entries(habits)?.map(([name, data], index) => (
                         <DragItem name={data.habit} categories={data.categories} />
                     ))}
-                    <button className='form-button' onClick={() => setIsHabitPopupOpen(true)}>
+                    
+                </div>
+                <button className='form-button' onClick={() => setIsHabitPopupOpen(true)}>
                         + Add habit
                     </button>
                     <button className='form-button' onClick={() => setIsCategoryPopupOpen(true)}>
@@ -346,7 +378,6 @@ const Habits = () => {
                             <button className='form-button' type='submit'>Save category</button>
                         </form>
                     </Popup>  
-                </div>
             </div>
         </DndProvider>
 

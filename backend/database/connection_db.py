@@ -17,17 +17,16 @@ def create_connection():
             host=os.getenv("DB_HOST"),
             port=os.getenv("DB_PORT"),
         )
-        logging.info(f"Created connection")
+        logging.info(f"Database connection established")
         return conn
     except OperationalError as e:
-        logging.info(f"Database connection failed: {e}")
-    except ProgrammingError as e:
-        logging.info(f"SQL syntax or logic error: {e}")
-    except IntegrityError as e:
-        logging.info(f"Data integrity violation (e.g. unique constraint): {e}")
+        logging.error(f"Database connection failed: {e}")
+        return None   
     except DatabaseError as e:
-        logging.info(f"General database error: {e}")
+        logging.error(f"General database error: {e}")
+        return None
     except Exception as e:
-        logging.info(f"Unexpected error: {e}")
+        logging.error(f"Unexpected error: {e}")
+        return None
 
 create_connection()

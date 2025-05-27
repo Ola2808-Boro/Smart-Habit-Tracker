@@ -1,7 +1,16 @@
 import logging
 
 from database.connection_db import create_connection
+from psycopg2 import OperationalError, ProgrammingError, IntegrityError, DatabaseError
 
+
+def get_habit_id(cursor, user_id, habit_name):
+    cursor.execute("SELECT habit_id FROM habit_tracker.habit WHERE user_id=%s AND habit_name=%s", (user_id, habit_name))
+    row = cursor.fetchone()
+    if row:
+        return row[0]
+    logging.warning("Habit not found")
+    return None
 
 def insert_category(data:dict,current_user_id:int):
     conn=create_connection()
@@ -129,14 +138,14 @@ def get_habit(current_user_id:int):
         conn.close()
         
 
-def get_task(current_user_id:int):
+def get_task(data:dict,current_user_id:int):
     conn=create_connection()
     try:
         cursor=conn.cursor()
         sql_select_habit_tracker_detail_id="""
-            SELECT habit_tracker_detail_id from habit_tracker.activity WHERE user_id=%s AND activity_date=CURRENT_DATE
+            SELECT habit_tracker_detail_id from habit_tracker.activity WHERE user_id=%s AND activity_date=%s
         """
-        cursor.execute(sql_select_habit_tracker_detail_id,(current_user_id,))
+        cursor.execute(sql_select_habit_tracker_detail_id,(current_user_id,data['selectedDate']))
         habit_tracker_detail_id=cursor.fetchone()[0]
         sql_select_habit_id="""
         SELECT habit_id,duration FROM habit_tracker.habit_tracker WHERE  habit_tracker_detail_id=%s
@@ -220,17 +229,18 @@ def save_task(data:dict,current_user_id:int):
 def remove_task(data:dict,current_user_id:int):
     conn=create_connection()
     try:
+        if not data.get('task') or not data.get('time'):
+            logging.warning("Missing task or time in input data")
+            return None
         cursor=conn.cursor()
         sql_select_habit_tracker_detail_id="""
-            SELECT habit_tracker_detail_id from habit_tracker.activity WHERE user_id=%s AND activity_date=CURRENT_DATE
+            SELECT habit_tracker_detail_id from habit_tracker.activity WHERE user_id=%s AND activity_date=%s
         """
-        cursor.execute(sql_select_habit_tracker_detail_id,(current_user_id,))
+        cursor.execute(sql_select_habit_tracker_detail_id,(current_user_id,data['selectedDate']))
         habit_tracker_detail_id=cursor.fetchone()[0]
-        sql_select_habit_id="""
-            SELECT habit_id FROM habit_tracker.habit WHERE user_id=%s AND habit_name=%s
-        """
-        cursor.execute(sql_select_habit_id,(current_user_id,data['task']))
-        habit_id=cursor.fetchone()[0]
+        habit_id=get_habit_id(cursor=cursor,user_id=current_user_id,habit_name=data['task'])
+        if habit_id is None:
+            return None
         sql_delete_habit="""
             DELETE FROM habit_tracker.habit_tracker WHERE   habit_tracker_detail_id=%s AND habit_id=%s
         """
@@ -238,8 +248,20 @@ def remove_task(data:dict,current_user_id:int):
         conn.commit()
         logging.info(f"Removed habit")
         return True
+    except ProgrammingError as e:
+        logging.error(f"SQL syntax or logic error: {e}")
+        return None
+    except IntegrityError as e:
+        logging.error(f"Constraint violation: {e}")
+        return None
+    except OperationalError as e:
+        logging.error(f"Database connection or transaction error: {e}")
+        return None
+    except DatabaseError as e:
+        logging.error(f"General database error: {e}")
+        return None
     except Exception as e:
-        logging.info(f"Error: {e}")
+        logging.error(f"Unexpected error: {e}")
         return None
     finally:
         conn.close()

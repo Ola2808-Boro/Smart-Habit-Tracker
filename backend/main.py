@@ -238,10 +238,11 @@ def retrieved_habit(current_user_id: int):
     else:
         return jsonify({'message': 'Failed to retrieve habbit data'}), 401
 
-@app.route("/get-task", methods=["GET"])
+@app.route("/get-task", methods=["POST"])
 @token_required
 def retrieved_task(current_user_id: int):
-    result = get_task(current_user_id=current_user_id)
+    data=request.json
+    result = get_task(data=data,current_user_id=current_user_id)
     if result or result==[]:
         return jsonify({'message': 'Retrieved task successfully', 'task': result}), 201
     else:
