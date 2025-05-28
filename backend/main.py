@@ -2,7 +2,7 @@ import logging
 import os
 from datetime import datetime
 from functools import wraps
-from habits import get_task,remove_task,save_task,insert_category, insert_habit, get_category,get_habit
+from habits import get_task,remove_task,save_task,save_category, save_habit, get_category,get_habit
 from mood import insert_new_mood_option, update_user_mood, retrieved_mood_data, get_mood_option
 import jwt
 from dotenv import load_dotenv
@@ -22,6 +22,7 @@ app = Flask(__name__)
 CORS(app)
 load_dotenv()
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
+
 
 
 def token_required(func):
@@ -194,11 +195,14 @@ def retrieved_mood_option(current_user_id: int):
         return jsonify({'message': 'Failed to retrieve mood data'}), 401
 
 
-@app.route("/add-category", methods=["POST"])
+
+
+#Habits+tasks
+@app.route("/save-category", methods=["POST"])
 @token_required
-def add_category(current_user_id: int):
+def saving_category(current_user_id: int):
     data = request.json
-    result = insert_category(data=data, current_user_id=current_user_id)
+    result = save_category(data=data, current_user_id=current_user_id)
     if result:
         return jsonify({'message': 'Added successfully category'}), 201
     elif result is False:
@@ -207,11 +211,11 @@ def add_category(current_user_id: int):
         return jsonify({'message': 'Failed to add category'}), 401
 
 
-@app.route("/add-habit", methods=["POST"])
+@app.route("/save-habit", methods=["POST"])
 @token_required
-def add_habit(current_user_id: int):
+def saving_habit(current_user_id: int):
     data = request.json
-    result = insert_habit(data=data, current_user_id=current_user_id)
+    result = save_habit(data=data, current_user_id=current_user_id)
     if result:
         return jsonify({'message': 'Added successfully habit'}), 201
     elif result is False:
@@ -223,52 +227,37 @@ def add_habit(current_user_id: int):
 @app.route("/get-category", methods=["GET"])
 @token_required
 def retrieved_category(current_user_id: int):
-    result = get_category(current_user_id=current_user_id)
-    if result:
-        return jsonify({'message': 'Retrieved category successfully', 'category': result}), 201
-    else:
-        return jsonify({'message': 'Failed to retrieve category data'}), 401
+    code,message,results = get_category(current_user_id=current_user_id)
+    return jsonify({'message': message,'category':results}), code
 
 @app.route("/get-habit", methods=["GET"])
 @token_required
 def retrieved_habit(current_user_id: int):
-    result = get_habit(current_user_id=current_user_id)
-    if result:
-        return jsonify({'message': 'Retrieved habit successfully', 'habit': result}), 201
-    else:
-        return jsonify({'message': 'Failed to retrieve habbit data'}), 401
+    code,message,results = get_habit(current_user_id=current_user_id)
+    return jsonify({'message': message,'habit':results}), code
 
 @app.route("/get-task", methods=["POST"])
 @token_required
 def retrieved_task(current_user_id: int):
     data=request.json
-    result = get_task(data=data,current_user_id=current_user_id)
-    if result or result==[]:
-        return jsonify({'message': 'Retrieved task successfully', 'task': result}), 201
-    else:
-        return jsonify({'message': 'Failed to retrieve tasks data'}), 401
+    code,message,results = get_task(data=data,current_user_id=current_user_id)
+    return jsonify({'message': message,'task':results}), code
 
 
 @app.route("/save-task", methods=["POST"])
 @token_required
 def saving_task(current_user_id: int):
     data=request.json
-    result = save_task(data=data,current_user_id=current_user_id)
-    if result:
-        return jsonify({'message': 'Saved habit successfully'}), 201
-    else:
-        return jsonify({'message': 'Failed to save habbit'}), 401
-
+    code,message = save_task(data=data,current_user_id=current_user_id)
+    return jsonify({'message': message}), code
 
 @app.route("/remove-task", methods=["POST"])
 @token_required
 def removing_task(current_user_id: int):
     data=request.json
-    result = remove_task(data=data,current_user_id=current_user_id)
-    if result:
-        return jsonify({'message': 'Removed habit successfully'}), 201
-    else:
-        return jsonify({'message': 'Failed to emove habbit'}), 401
+    code,message = remove_task(data=data,current_user_id=current_user_id)
+    return jsonify({'message': message}), code
+
 
 
 if __name__ == "__main__":

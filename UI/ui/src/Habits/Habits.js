@@ -119,7 +119,7 @@ const Habits = () => {
                 categories_data.push(key)
             }
         } 
-        const response=await axios.post('http://127.0.0.1:5000/add-habit',{'habit':newHabit.toLowerCase(),'category':categories_data},{
+        const response=await axios.post('http://127.0.0.1:5000/save-habit',{'habit':newHabit.toLowerCase(),'category':categories_data},{
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': token
@@ -151,12 +151,15 @@ const Habits = () => {
                 'Authorization': token
             }
         })
-        
+        if (response.status===204) {
+            console.log("No categories found.");
+            setCategories({});
+            return;
+        }
         const newCategories = response.data.category.reduce((acc, category) => {
-            acc[category] = false;
-            console.log('acc',acc)
-            return acc;
-            }, {});
+                acc[category] = false;
+                return acc;
+        }, {});
         setCategories(newCategories);
     
     }
@@ -168,7 +171,12 @@ const Habits = () => {
                 'Authorization': token
             }
         })
-        console.log('HABITS',response.data.habit)
+        console.log('HABITS',response)
+        if (response.status===204) {
+            console.log("No habits found.");
+            setHabits([]);
+            return;
+        }
         setHabits(response.data.habit)
     }
 
@@ -182,7 +190,12 @@ const Habits = () => {
                 'Authorization': token
             }
         })
-        console.log('tasks',response.data.task)
+        console.log('tasks',response)
+        if (response.status===204) {
+            console.log("No tasks found.");
+           setDroppedItems([]);
+            return;
+        }
         setDroppedItems(response.data.task)
         const convertedTasks = response.data.task.map(task => ({
         ...task,
@@ -196,7 +209,7 @@ const Habits = () => {
         console.log(category,category.toLowerCase())
         e.preventDefault();
         const token = localStorage.getItem('token')
-        const response=await axios.post('http://127.0.0.1:5000/add-category',{'category':category.toLowerCase()},{
+        const response=await axios.post('http://127.0.0.1:5000/save-category',{'category':category.toLowerCase()},{
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': token
@@ -338,7 +351,7 @@ const Habits = () => {
                     <p className='to-do-list-header-p'>Habits</p>
                 </div>
                 <div className='to-do-list-items'>
-                    {Object.entries(habits)?.map(([name, data], index) => (
+                    {habits && Object.entries(habits)?.map(([name, data], index) => (
                         <DragItem name={data.habit} categories={data.categories} />
                     ))}
                     
