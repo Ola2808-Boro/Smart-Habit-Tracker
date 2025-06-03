@@ -1,5 +1,5 @@
 import './Habits.css';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState,useRef } from 'react';
 import PageTitle from '../Components/PageTitle/PageTitle';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowLeft,faArrowRight} from '@fortawesome/free-solid-svg-icons';
@@ -32,7 +32,7 @@ const Habits = () => {
             quote: '',
             type: 'info',
             });
-
+    const selectedDateRef = useRef(selectedDate);
 
 
     useEffect(() => {
@@ -47,17 +47,25 @@ const Habits = () => {
     useEffect(() => {
         const fetchData = async () => {
                 await getTasks()
+                selectedDateRef.current = selectedDate;
             };
             fetchData();
         }, [selectedDate]);
-
+    
     useEffect(() => {
         console.log("Nowe droppedItems:", droppedItems);
+        let doneTask=0
+        Object.entries(droppedItems)?.forEach(([name, data]) => {
+            if (data['done'] === true) {
+                doneTask+=1;
+            }
+        });
+        setProgressValue(doneTask)
     }, [droppedItems]);
 
-    async function saveTask(name,time) {
+    async function saveTask(name,time,date) {
         const token=localStorage.getItem('token')
-        const response=await axios.post('http://127.0.0.1:5000/save-task',{'task':name,'time':time},{
+        const response=await axios.post('http://127.0.0.1:5000/save-task',{'task':name,'time':time,'date':date},{
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': token
@@ -66,15 +74,25 @@ const Habits = () => {
         console.log('add task ',response)
     }
     const handleDrop = (item) => {
-        console.log(handleDrop)
-        setDroppedItems(prev => {
-            const newState = [...prev];
-            newState.push({'task':item.name,'done':false,'time':'0:00','categories':item.categories});
-            console.log('new Task',newState)
-            return newState;
-        })
-        console.log('time: ',item.time)
-        saveTask(item.name,'0:00')
+        if (selectedDateRef.current!==`${months[new Date().getMonth()]} ${new Date().getDate()},${new Date().getFullYear()}`){
+            setAlert({
+                visible: true,
+                title: 'Adding new task',
+                quote: 'Cannot add task for past/future todo lists ',
+                type: 'warning',
+            })
+        }
+        else{
+            setDroppedItems(prev => {
+                const newState = [...prev];
+                newState.push({'task':item.name,'done':false,'time':'0:00','categories':item.categories});
+                console.log('new Task',newState)
+                return newState;
+            })
+            console.log('time: ',item.time)
+            saveTask(item.name,'0:00:00',selectedDate)
+        }
+        
     };
 
     const handleRemoveItem = (index) => {
@@ -126,7 +144,7 @@ const Habits = () => {
             }
         })
         console.log(response.data.message)
-        if (response.data['message']=='Habit already exists'){
+        if (response.data['message']==='Habit already exists'){
             console.log('open')
             setAlert({
                 visible: true,
@@ -216,7 +234,7 @@ const Habits = () => {
             }
         })
         console.log(response.data.message)
-        if (response.data['message']=='Category already exists'){
+        if (response.data['message']==='Category already exists'){
             console.log('open')
             setAlert({
                 visible: true,
@@ -225,7 +243,7 @@ const Habits = () => {
                 type: 'info',
             })
         }
-        else if (response.data['message']=='Added successfully category'){
+        else if (response.data['message']==='Added successfully category'){
             setCategories(prev=>{
                 const newState = { ...prev };
                 newState[category]=false;
@@ -255,6 +273,7 @@ const Habits = () => {
         );
     }
     async function handleChangeDate(e) {
+        console.log('handleChangeDate')
         e.preventDefault()
         const arrow = e.currentTarget.dataset.arrow;
         let newDate=new Date(selectedDate)
@@ -263,35 +282,59 @@ const Habits = () => {
         }
         else{
             if(arrow==='right'){
-            newDate.setDate(newDate.getDate() + 1);
+                newDate.setDate(newDate.getDate() + 1);
             }
             else{
                 newDate.setDate(newDate.getDate() - 1);
             }
-                const newSelectedDate=`${months[newDate.getMonth()]} ${newDate.getDate()},${newDate.getFullYear()}`
-                setSelectedDate(newSelectedDate)
+            const newSelectedDate=`${months[newDate.getMonth()]} ${newDate.getDate()},${newDate.getFullYear()}`
+            console.log('newSelectedDate',newSelectedDate)
+            setSelectedDate(newSelectedDate)
         } 
        
     }
     async function handleCheckBoxClick(e){
-        const taskName=e.target.dataset.task
-        const isChecked=e.target.checked
-
-        const parentDiv=e.target.closest('div')
-        const timeInput = parentDiv.querySelector('input[type="time"]');
-        const selectedTime = timeInput?.value || '';
-        console.log(taskName,isChecked,selectedTime)
-        setDroppedItems(prev => {
-            const newState = prev.map(item => {
-                if (item.task === taskName) {
-                    return { ...item, done: isChecked, time: selectedTime };
-                }
-                return item;
-            });
-            console.log('newState',newState)
-            return newState;
-        })
-        saveTask(taskName,selectedTime)
+        if (selectedDateRef.current!==`${months[new Date().getMonth()]} ${new Date().getDate()},${new Date().getFullYear()}`){
+            setAlert({
+                visible: true,
+                title: 'Completion of the task',
+                quote: 'Cannot finish the task for past/future todo lists ',
+                type: 'warning',
+            })
+        }
+        else{
+            const parentDiv=e.target.closest('div')
+            const timeInput = parentDiv.querySelector('input[type="time"]');
+            const selectedTime = timeInput?.value || '';
+            if(selectedTime===''){
+                console.log('0:00:00')
+                setAlert({
+                    visible: true,
+                    title: 'Completion of the task',
+                    quote: 'Cannot finish the task, time is zero ',
+                    type: 'warning',
+                })
+            }
+            else{
+                const taskName=e.target.dataset.task
+                const isChecked=e.target.checked
+                const selectedTime = timeInput?.value || '';
+                console.log(taskName,isChecked,selectedTime)
+                setDroppedItems(prev => {
+                    const newState = prev.map(item => {
+                        if (item.task === taskName) {
+                            return { ...item, done: isChecked, time: selectedTime };
+                        }
+                        return item;
+                    });
+                    console.log('newState',newState)
+                    return newState;
+                })
+                saveTask(taskName,selectedTime,selectedDate)
+            }
+            
+        }
+        
         
     }
     
@@ -311,7 +354,7 @@ const Habits = () => {
                     </div>
                 </div>
                 <div className='to-do-list-header'>
-                    <p className='to-do-list-header-p'>To do list</p>
+                    <p className='to-do-list-header-p' style={{ textAlign: 'left' }}>To do list</p>
                 </div>
                 
                 <div className='to-do-list-items'>
@@ -343,7 +386,7 @@ const Habits = () => {
                                         
                 </div>
                 <div className='to-do-list-progress-bar-container'>
-                    <progress value={progressValue} className='to-do-list-progress-bar'/>
+                    <progress value={progressValue} className='to-do-list-progress-bar' max={droppedItems.length}/>
                 </div>
             </div>
             <div className='habits-container'>
