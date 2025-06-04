@@ -1,12 +1,12 @@
 import './Habits.css';
 import React, { useEffect, useState,useRef } from 'react';
-import PageTitle from '../Components/PageTitle/PageTitle';
+import PageTitle from '../../atoms/PageTitle/PageTitle.js';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowLeft,faArrowRight} from '@fortawesome/free-solid-svg-icons';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-import DragItem from '../Components/DragItem/DragItem'
-import DropZone from '../Components/DropZone/DropZone.js'
+import DragItem from '../../DragItem/DragItem.js'
+import DropZone from '../../DropZone/DropZone.js'
 import axios from 'axios';
 import Popup from 'reactjs-popup';
 import ReactJsAlert from "reactjs-alert";

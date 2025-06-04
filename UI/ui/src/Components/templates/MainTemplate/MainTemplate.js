@@ -1,9 +1,9 @@
-import './MainPage.css';
+import './MainTemplate.css';
 import React from 'react';
-import Navbar from '../Navbar/Navbar';
+import Navbar from '../../organisms/Navbar/Navbar';
 import { Outlet } from 'react-router-dom';
 
-const MainPage = () => {
+const MainTemplate = () => {
 
 
     return (
@@ -17,4 +17,4 @@ const MainPage = () => {
     );
 };
 
-export default MainPage;
+export default MainTemplate;

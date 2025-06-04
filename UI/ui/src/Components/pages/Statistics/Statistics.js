@@ -1,6 +1,6 @@
 import './Statistics.css';
 import React from 'react';
-import PageTitle from '../Components/PageTitle/PageTitle';
+import PageTitle from '../../atoms/PageTitle/PageTitle';
 const Statistics = () => {
     return(
        <p>Notes</p>

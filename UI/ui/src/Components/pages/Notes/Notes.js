@@ -1,7 +1,7 @@
 import './Notes.css';
 import React,{ use, useState } from 'react';
 import Calendar from 'react-calendar'
-import PageTitle from '../Components/PageTitle/PageTitle';
+import PageTitle from '../../atoms/PageTitle/PageTitle';
 import 'react-calendar/dist/Calendar.css';
 import axios from 'axios';
 import Popup from 'reactjs-popup';

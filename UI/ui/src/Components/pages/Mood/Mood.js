@@ -1,6 +1,6 @@
 import './Mood.css';
 import React, { useState,useEffect } from 'react';
-import PageTitle from '../Components/PageTitle/PageTitle';
+import PageTitle from '../../atoms/PageTitle/PageTitle';
 import axios from 'axios';
 import Popup from 'reactjs-popup';
 import { HexColorPicker } from "react-colorful";
