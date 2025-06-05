@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { StyledCategory } from './customCategory.styles';
+import { StyledCategory } from './Category.styles';
 
 const Category = ({
   size,
@@ -28,8 +28,8 @@ Category.defaultProps={
   text:"Text",
   fontSize:"16px",
   type:"text",
-  color:"white",
-  backgroundColor:" #ddd6f3",
+  color:"black",
+  backgroundColor:" #987afa",
   click:()=>{},
 };
 

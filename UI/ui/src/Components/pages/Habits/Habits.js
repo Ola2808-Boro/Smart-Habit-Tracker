@@ -1,15 +1,15 @@
 import './Habits.css';
 import React, { useEffect, useState,useRef } from 'react';
 import PageTitle from '../../atoms/PageTitle/PageTitle.js';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faArrowLeft,faArrowRight} from '@fortawesome/free-solid-svg-icons';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-import DragItem from '../../DragItem/DragItem.js'
-import DropZone from '../../DropZone/DropZone.js'
 import axios from 'axios';
-import Popup from 'reactjs-popup';
+import ProgressBar from '../../atoms/ProgressBar/ProgressBar.js';
 import ReactJsAlert from "reactjs-alert";
+import ToDoListHeader from '../../molecules/ToDoListHeader/ToDoListHeader.js';
+import ToDoList from '../../organisms/ToDoList/ToDoList.js';
+import HabitList from '../../organisms/HabitList/HabitList.js';
+import Popup from '../../organisms/Popup/Popup.js'
 const Habits = () => {
 
     
@@ -344,96 +344,43 @@ const Habits = () => {
         <div className='main-container'>
         <DndProvider backend={HTML5Backend}>
             <div className='to-do-list-container'>
-                <div className='to-do-list-date'>
-                    <div className='to-do-list-date-arrow' data-arrow='left' onClick={e=>handleChangeDate(e)}>
-                        <FontAwesomeIcon icon={faArrowLeft} />
-                    </div>
-                    <p className='to-do-list-date-p'>{selectedDate}</p>
-                    <div className='to-do-list-date-arrow' data-arrow='right' onClick={e=>handleChangeDate(e)}>
-                        <FontAwesomeIcon icon={faArrowRight} />
-                    </div>
-                </div>
+                <ToDoListHeader date={selectedDate} handleChangeDate={handleChangeDate}/>
                 <div className='to-do-list-header'>
                     <p className='to-do-list-header-p' style={{ textAlign: 'left' }}>To do list</p>
                 </div>
-                
-                <div className='to-do-list-items'>
-                   
-                    {Object.entries(droppedItems)?.map(([name, data], index) => (
-                        <div className='to-do-list-item' key={index}>
-                            <div className='to-do-list-item-container'>
-                                <input type="checkbox" checked={data?.['done']} data-task={data.task} onChange={handleCheckBoxClick}></input>
-                                <p className={data?.done ? 'task-done' : ''}>{data.task}</p>
-                                <input aria-label="Time" type="time" data-task={data.task} value={data.time || ''}  onChange={(e) => handleTimeChange(data.task, e.target.value)}/>    
-                            </div>
-                            <div className='categories'>
-                                    {
-                                    data?.categories.map((category,index)=>(
-                                        <div key={index} className='category'>
-                                            {category}
-                                        </div>
-                                   ))
-                                }
-                                </div>
-                            <button onClick={
-                                () => handleRemoveItem(index)}>
-                                Remove
-                            </button>
-                        </div>
-                        
-                    ))}
-                    <DropZone onDrop={handleDrop} />
-                                        
-                </div>
-                <div className='to-do-list-progress-bar-container'>
-                    <progress value={progressValue} className='to-do-list-progress-bar' max={droppedItems.length}/>
-                </div>
+                <ToDoList
+                    droppedItems={droppedItems}
+                    handleTimeChange={handleTimeChange}
+                    handleCheckBoxClick={handleCheckBoxClick}
+                    handleRemoveItem={handleRemoveItem}
+                    handleDrop={handleDrop}
+                />
+                <ProgressBar value={progressValue} max={droppedItems.length}/>
             </div>
             <div className='habits-container'>
                  <div className='to-do-list-header'>
                     <p className='to-do-list-header-p'>Habits</p>
                 </div>
-                <div className='to-do-list-items'>
-                    {habits && Object.entries(habits)?.map(([name, data], index) => (
-                        <DragItem name={data.habit} categories={data.categories} />
-                    ))}
-                    
-                </div>
-                <button className='form-button' onClick={() => setIsHabitPopupOpen(true)}>
-                        + Add habit
-                    </button>
-                    <button className='form-button' onClick={() => setIsCategoryPopupOpen(true)}>
-                        + Add category
-                    </button>
-                    <Popup open={isHabitPopupOpen} onClose={() => setIsHabitPopupOpen(false)} modal>
-                        <form className='form-card' onSubmit={handleAddHabit}>
-                            <p className='form-question'>Add habit</p>
-                            <input type='text' value={newHabit} maxLength={30} onChange={e=>{setNewHabit(e.target.value)}}/>
-                            <div className='categories-container'>
-                                {
-                                    Object.entries(categories)?.map(([category, isSelected], index) => (
-                                    <div
-                                        className={`category ${isSelected ? 'selected' : ''}`}
-                                        key={index}
-                                        data-category={category}
-                                        onClick={handleSelectCategory}
-                                    >
-                                        {category}
-                                    </div>
-                                    ))
-                                }
-                                </div>
-                            <button className='form-button' type='submit'>Save habit</button>
-                        </form>
-                    </Popup>
-
-                    <Popup open={isCategoryPopupOpen} onClose={() => setIsCategoryPopupOpen(false)} modal>
-                        <form className='form-card' onSubmit={handleAddCategory}>
-                            <p className='form-question'>Add category</p>
-                            <input type='text' value={category} maxLength={20} onChange={e=>{setCategory(e.target.value)}}/>
-                            <button className='form-button' type='submit'>Save category</button>
-                        </form>
-                    </Popup>  
+                <HabitList habits={habits} setIsHabitPopupOpen={setIsHabitPopupOpen} setIsCategoryPopupOpen={setIsCategoryPopupOpen}/>
+               <Popup
+                open={isHabitPopupOpen}
+                type='save-habit'
+                setIsOpen={setIsHabitPopupOpen}
+                handleAdd={handleAddHabit}
+                handleSelectCategory={handleSelectCategory}
+                value={newHabit}
+                setNewValue={setNewHabit}
+                categories={categories}
+               />
+                <Popup
+                open={isCategoryPopupOpen}
+                type='save-category'
+                setIsOpen={setIsCategoryPopupOpen}
+                handleAdd={handleAddCategory}
+                value={category}
+                categories={categories}
+                handleSelectCategory={handleSelectCategory}
+                setNewValue={setCategory}/>
             </div>
         </DndProvider>
 

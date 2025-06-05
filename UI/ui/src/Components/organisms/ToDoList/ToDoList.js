@@ -4,7 +4,7 @@ import { StyledToDoList,StyledToDoItem } from './ToDoList.styles';
 import TaskHeader from '../../molecules/TaskHeader/TaskHeader';
 import Categories from '../../molecules/Categories/Categories';
 import Button from '../../atoms/Button/Button'
-import DropZone from '../../DropZone/DropZone';
+import DropZone from '../../organisms/DropZone/DropZone';
 
 const ToDoList = ({
     droppedItems,

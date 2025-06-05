@@ -29,7 +29,6 @@ Button.defaultProps={
   size:'small',
   text:"Text",
   fontSize:"16px",
-  type:"text",
   color:"white",
   backgroundColor:" #6366f1",
   click:()=>{},
@@ -38,12 +37,12 @@ Button.defaultProps={
 Button.propTypes = {
   /**size of button */
   size: PropTypes.string,
-    /**font-size of text  in button */
+  /**font-size of text  in button */
   fontSize: PropTypes.string,
-    /** text  in button */
+  /** text  in button */
   text: PropTypes.string.isRequired,
   /**type of button */
-  type: PropTypes.string.isRequired,
+  type: PropTypes.string,
     /**color of text button */
   color: PropTypes.string,
    /**background-color of button */

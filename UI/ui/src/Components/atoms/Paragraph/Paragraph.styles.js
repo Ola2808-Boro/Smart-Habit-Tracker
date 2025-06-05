@@ -30,5 +30,6 @@ export const StyledParagraph=styled.p`
   color: ${({ color }) => color};
   font-weight:${({fontWeight})=>fontWeight};
   align-self:${({align})=>align};
+  font-size:${({fontSize})=>fontSize};
 
 `;

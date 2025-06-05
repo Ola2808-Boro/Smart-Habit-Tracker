@@ -1,10 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { StyledInput } from './Input.styles';
+import { StyledInput } from './Input.styles.js';
 
 const Input = ({
   size,
-  text,
   fontSize,
   type,
   color,
@@ -24,7 +23,6 @@ const Input = ({
       checked={checked}
       value={value}
     >
-      {text}
     </StyledInput>
   );
 };

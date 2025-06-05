@@ -1,26 +1,29 @@
 import styled from "styled-components";
 
 export const StyledButton = styled.button`
-  ${({ size }) => {
+${({ size }) => {
     if (size === "medium") {
       return `
-            width: 285px;
-            height: 45px;
+            width:60%;
             `;
     } else if (size === "small") {
       return `
-            width: 200px;
-            height: 45px;
+            width:40%;
             `;
     }
+    else if (size === "big") {
+      return `
+            width:100%;
+            `;
+    }
+    
   }}
   font-size: ${({ fontSize }) => fontSize};
-  font-family: ${({ theme }) => theme.font.family.poppins};
   background-color: ${({ backgroundColor }) => backgroundColor};
   color: ${({ color }) => color};
-  border: 1px solid ${({ theme }) => theme.color.grey};
-  border-radius: 10px;
-  margin: 0;
-  padding: 0;
+  border:none;
+  border-radius: 5px;
+  padding: 0.5rem; 
   cursor: pointer;
+  margin-top:0.5rem;
 `;

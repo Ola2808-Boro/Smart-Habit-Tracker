@@ -22,6 +22,7 @@ export const StyledToDoItem=styled.div`
     padding: 10px;
     border-radius: 5px;
     margin: 5px 0px;
+    align-items:center;
   
 
 `;
