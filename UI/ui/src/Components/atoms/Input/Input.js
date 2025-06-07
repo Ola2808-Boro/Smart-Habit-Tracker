@@ -1,6 +1,6 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { StyledInput } from './Input.styles.js';
+import React from "react";
+import PropTypes from "prop-types";
+import { StyledInput } from "./Input.styles.js";
 
 const Input = ({
   size,
@@ -10,7 +10,7 @@ const Input = ({
   onChange,
   data,
   checked,
-  value
+  value,
 }) => {
   return (
     <StyledInput
@@ -22,22 +22,19 @@ const Input = ({
       data={data}
       checked={checked}
       value={value}
-    >
-    </StyledInput>
+    ></StyledInput>
   );
 };
 
-Input.defaultProps={
-  size:'small',
-  text:"Text",
-  fontSize:"16px",
-  type:"text",
-  color:"black",
-  click:()=>{},
+Input.defaultProps = {
+  size: "small",
+  text: "Text",
+  fontSize: "16px",
+  type: "text",
+  color: "black",
+  click: () => {},
 };
 
-Input.propTypes = {
-
-};
+Input.propTypes = {};
 
 export default Input;

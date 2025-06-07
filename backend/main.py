@@ -305,8 +305,8 @@ def retrieved_task(current_user_id: int):
 @token_required
 def saving_task(current_user_id: int):
     data = request.json
-    print(f"data: {data}")
     code, message = save_task(data=data, current_user_id=current_user_id)
+    print(f"code:{code} mess: {message}")
     return jsonify({"message": message}), code
 
 

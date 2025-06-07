@@ -1,13 +1,10 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { StyledCategories } from './Categories.styles';
-import Category from '../../atoms/Category/Category';
-const Categories = ({
-  categories
-}) => {
+import React from "react";
+import PropTypes from "prop-types";
+import { StyledCategories } from "./Categories.styles";
+import Category from "../../atoms/Category/Category";
+const Categories = ({ categories }) => {
   return (
-    <StyledCategories
-    >
+    <StyledCategories>
       {categories.map((cat, index) => (
         <Category key={index} text={cat} />
       ))}
@@ -15,13 +12,8 @@ const Categories = ({
   );
 };
 
-Categories.defaultProps={
+Categories.defaultProps = {};
 
-};
-
-Categories.propTypes = {
-
-
-};
+Categories.propTypes = {};
 
 export default Categories;

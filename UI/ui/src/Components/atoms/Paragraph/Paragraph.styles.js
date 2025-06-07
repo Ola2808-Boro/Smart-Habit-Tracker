@@ -1,7 +1,7 @@
 import styled from "styled-components";
 
-export const StyledParagraph=styled.p`
-    ${({ size }) => {
+export const StyledParagraph = styled.p`
+  ${({ size }) => {
     if (size === "medium") {
       return `
             font-size:18px;
@@ -11,7 +11,6 @@ export const StyledParagraph=styled.p`
             font-size:16px;
             `;
     }
-    
   }}
   ${({ checked }) => {
     if (checked === true) {
@@ -19,17 +18,15 @@ export const StyledParagraph=styled.p`
             text-decoration: line-through;
             color: gray;
             `;
-    } else if (checked ===false) {
+    } else if (checked === false) {
       return `
             text-decoration: none;
             color: ${({ color }) => color};
             `;
     }
-    
   }}
   color: ${({ color }) => color};
-  font-weight:${({fontWeight})=>fontWeight};
-  align-self:${({align})=>align};
-  font-size:${({fontSize})=>fontSize};
-
+  font-weight: ${({ fontWeight }) => fontWeight};
+  align-self: ${({ align }) => align};
+  font-size: ${({ fontSize }) => fontSize};
 `;

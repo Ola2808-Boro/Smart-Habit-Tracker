@@ -398,6 +398,7 @@ def get_task(data: dict, current_user_id: int):
 
 
 def save_task(data: dict, current_user_id: int):
+    print(f"save task data:{data}")
     conn = create_connection()
     try:
         if not data.get("task") or not data.get("time"):
@@ -429,7 +430,7 @@ def save_task(data: dict, current_user_id: int):
                 )
             )
             return 404, "Habit_tracker_detail_id not found."
-        if data["time"] == "0:00":
+        if data["time"] == "0:00:00":
             sql_upsert = """
                 INSERT INTO habit_tracker.habit_tracker(habit_id,duration,habit_tracker_detail_id)
                 VALUES(%s,%s,%s)

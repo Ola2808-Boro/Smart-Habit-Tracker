@@ -1,6 +1,6 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { StyledButton } from './Button.styles';
+import React from "react";
+import PropTypes from "prop-types";
+import { StyledButton } from "./Button.styles";
 
 const Button = ({
   size,
@@ -25,13 +25,13 @@ const Button = ({
   );
 };
 
-Button.defaultProps={
-  size:'small',
-  text:"Text",
-  fontSize:"16px",
-  color:"white",
-  backgroundColor:" #6366f1",
-  click:()=>{},
+Button.defaultProps = {
+  size: "small",
+  text: "Text",
+  fontSize: "16px",
+  color: "white",
+  backgroundColor: " #6366f1",
+  click: () => {},
 };
 
 Button.propTypes = {
@@ -43,9 +43,9 @@ Button.propTypes = {
   text: PropTypes.string.isRequired,
   /**type of button */
   type: PropTypes.string,
-    /**color of text button */
+  /**color of text button */
   color: PropTypes.string,
-   /**background-color of button */
+  /**background-color of button */
   backgroundColor: PropTypes.string,
 };
 

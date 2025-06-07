@@ -1,6 +1,6 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { StyledParagraph } from './Paragraph.styles';
+import React from "react";
+import PropTypes from "prop-types";
+import { StyledParagraph } from "./Paragraph.styles";
 
 const Paragraph = ({
   size,
@@ -9,8 +9,7 @@ const Paragraph = ({
   color,
   fontWeight,
   align,
-  checked
-
+  checked,
 }) => {
   return (
     <StyledParagraph
@@ -26,25 +25,25 @@ const Paragraph = ({
   );
 };
 
-Paragraph.defaultProps={
-  size:'small',
-  text:"Text",
-  fontSize:"16px",
-  fontWeight:"bold",
-  align:"self-start",
+Paragraph.defaultProps = {
+  size: "small",
+  text: "Text",
+  fontSize: "16px",
+  fontWeight: "bold",
+  align: "self-start",
 };
 
 Paragraph.propTypes = {
   /**size of button */
   size: PropTypes.string,
-    /**font-size of text  in button */
+  /**font-size of text  in button */
   fontSize: PropTypes.string,
-    /** text  in button */
+  /** text  in button */
   text: PropTypes.string.isRequired,
 
-  fontWeight:PropTypes.string,
-  
-  align:PropTypes.string
+  fontWeight: PropTypes.string,
+
+  align: PropTypes.string,
 };
 
 export default Paragraph;

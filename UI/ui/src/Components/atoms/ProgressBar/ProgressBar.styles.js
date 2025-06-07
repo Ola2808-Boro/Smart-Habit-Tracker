@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-export const StyledProgressBar=styled.progress`
+export const StyledProgressBar = styled.progress`
   width: 100%;
   height: 100%;
   appearance: none
@@ -8,13 +8,12 @@ export const StyledProgressBar=styled.progress`
 
 `;
 
-export const StyledProgressBarConatiner=styled.div`
+export const StyledProgressBarConatiner = styled.div`
   display: flex;
   justify-content: center;
-  width:100%;
-  background-color:rgb(254, 254, 255); 
+  width: 100%;
+  background-color: rgb(254, 254, 255);
   border-radius: 9999px;
   height: 2rem;
   overflow: hidden;
-
 `;
