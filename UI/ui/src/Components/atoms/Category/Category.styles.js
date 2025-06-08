@@ -6,4 +6,8 @@ export const StyledCategory = styled.div`
   color: ${({ color }) => color};
   border-radius: 10px;
   padding: 0.3rem;
+  @media (max-width: 768px) {
+    width: 60%;
+    font-size: 20px;
+  }
 `;

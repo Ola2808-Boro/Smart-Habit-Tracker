@@ -1,6 +1,6 @@
-import "./PageTitle.css";
 import React from "react";
 import { useLocation } from "react-router-dom";
+import { Title } from "./PageTitle.styles";
 
 const PageTitle = () => {
   const location = useLocation();
@@ -15,7 +15,7 @@ const PageTitle = () => {
     "/mood": "Mood",
   };
   const title = titles[location.pathname] || "Smart Habit Tracker";
-  return <h1 className="page-title">{title}</h1>;
+  return <Title>{title}</Title>;
 };
 
 export default PageTitle;

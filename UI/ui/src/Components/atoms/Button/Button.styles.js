@@ -24,4 +24,8 @@ export const StyledButton = styled.button`
   padding: 0.5rem;
   cursor: pointer;
   margin-top: 0.5rem;
+  @media (max-width: 768px) {
+    width: 60%;
+    font-size: 20px;
+  }
 `;

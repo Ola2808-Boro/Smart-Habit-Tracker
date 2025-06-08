@@ -1,5 +1,4 @@
-import "./Habits.css";
-import React, { useEffect, useState, useRef } from "react";
+import React, { useState, useRef } from "react";
 import PageTitle from "../../atoms/PageTitle/PageTitle.js";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
@@ -7,6 +6,7 @@ import ReactJsAlert from "reactjs-alert";
 import ToDoList from "../../organisms/ToDoList/ToDoList.js";
 import HabitList from "../../organisms/HabitList/HabitList.js";
 import Popup from "../../organisms/Popup/Popup.js";
+import { MainContainer } from "./Habits.styles.js";
 import {
   useDroppedItemse,
   useCategories,
@@ -218,7 +218,7 @@ const Habits = () => {
   return (
     <>
       <PageTitle />
-      <div className="main-container">
+      <MainContainer>
         <DndProvider backend={HTML5Backend}>
           <ToDoList
             droppedItems={droppedItems}
@@ -266,7 +266,7 @@ const Habits = () => {
           quote={alert.quote}
           Close={() => setAlert((prev) => ({ ...prev, visible: false }))}
         />
-      </div>
+      </MainContainer>
     </>
   );
 };

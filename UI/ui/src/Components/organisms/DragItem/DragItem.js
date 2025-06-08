@@ -1,6 +1,6 @@
 import React from "react";
 import { useDrag } from "react-dnd";
-import "./DragItem.css";
+import { StyledDragItem, Categories, Category } from "./DragItem.styles";
 
 const DragItem = ({ name, categories }) => {
   const [{ isDragging }, drag] = useDrag(() => ({
@@ -12,7 +12,7 @@ const DragItem = ({ name, categories }) => {
   }));
 
   return (
-    <div
+    <StyledDragItem
       key={name}
       ref={drag}
       className="drag-item"
@@ -21,14 +21,14 @@ const DragItem = ({ name, categories }) => {
       }}
     >
       {name}
-      <div className="categories">
+      <Categories>
         {categories?.map((category, index) => (
-          <div key={index} className="category">
+          <Category key={index} className="category">
             {category}
-          </div>
+          </Category>
         ))}
-      </div>
-    </div>
+      </Categories>
+    </StyledDragItem>
   );
 };
 

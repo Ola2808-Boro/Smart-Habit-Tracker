@@ -30,4 +30,8 @@ export const StyledToDoItemContainer = styled.div`
   padding: 10px;
   min-width: 40%;
   align-items: center;
+  @media (max-width: 768px) {
+    width: 90%;
+    margin-bottom: 20px;
+  }
 `;

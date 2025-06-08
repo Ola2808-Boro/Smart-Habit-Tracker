@@ -4,6 +4,11 @@ import Popup from "reactjs-popup";
 import Paragraph from "../../atoms/Paragraph/Paragraph";
 import Input from "../../atoms/Input/Input";
 import Button from "../../atoms/Button/Button";
+import {
+  StyledForm,
+  StyledCategoriesContainer,
+  StyledCategory,
+} from "./Popup.styles";
 const CustomPopup = ({
   open,
   value,
@@ -17,7 +22,7 @@ const CustomPopup = ({
   if (type === "save-habit") {
     return (
       <Popup open={open} onClose={() => setIsOpen(false)} modal>
-        <form className="form-card" onSubmit={handleAdd}>
+        <StyledForm onSubmit={handleAdd}>
           <Paragraph text="Add habit" />
           <Input
             type="text"
@@ -27,28 +32,28 @@ const CustomPopup = ({
               setNewValue(e.target.value);
             }}
           />
-          <div className="categories-container">
+          <StyledCategoriesContainer>
             {Object.entries(categories)?.map(
               ([category, isSelected], index) => (
-                <div
-                  className={`category ${isSelected ? "selected" : ""}`}
+                <StyledCategory
+                  isSelected={isSelected}
                   key={index}
                   data-category={category}
                   onClick={handleSelectCategory}
                 >
                   {category}
-                </div>
-              ),
+                </StyledCategory>
+              )
             )}
-          </div>
+          </StyledCategoriesContainer>
           <Button type="submit" text="Save habit" />
-        </form>
+        </StyledForm>
       </Popup>
     );
   } else if (type === "save-category") {
     return (
       <Popup open={open} onClose={() => setIsOpen(false)} modal>
-        <form className="form-card" onSubmit={handleAdd}>
+        <StyledForm onSubmit={handleAdd}>
           <Paragraph text="Add category" />
           <Input
             type="text"
@@ -59,7 +64,7 @@ const CustomPopup = ({
             }}
           />
           <Button type="submit" text="Save category" />
-        </form>
+        </StyledForm>
       </Popup>
     );
   }
