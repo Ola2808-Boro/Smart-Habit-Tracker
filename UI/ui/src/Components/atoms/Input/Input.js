@@ -1,20 +1,10 @@
-import React from "react";
 import PropTypes from "prop-types";
 import { StyledInput } from "./Input.styles.js";
 
-const Input = ({
-  size,
-  fontSize,
-  type,
-  color,
-  onChange,
-  data,
-  checked,
-  value,
-}) => {
+// Input component renders a custom styled input field
+const Input = ({ fontSize, type, color, onChange, data, checked, value }) => {
   return (
     <StyledInput
-      size={size}
       fontSize={fontSize}
       type={type}
       color={color}
@@ -26,15 +16,23 @@ const Input = ({
   );
 };
 
+// Default props for the Input component
 Input.defaultProps = {
-  size: "small",
   text: "Text",
   fontSize: "16px",
   type: "text",
   color: "black",
-  click: () => {},
+  onChange: () => {},
 };
 
-Input.propTypes = {};
+Input.propTypes = {
+  fontSize: PropTypes.string,
+  type: PropTypes.string.isRequired,
+  color: PropTypes.string,
+  onChange: PropTypes.func,
+  data: PropTypes.string,
+  checked: PropTypes.string,
+  value: PropTypes.string,
+};
 
 export default Input;

@@ -1,19 +1,10 @@
-import React from "react";
 import PropTypes from "prop-types";
 import { StyledParagraph } from "./Paragraph.styles";
 
-const Paragraph = ({
-  size,
-  text,
-  fontSize,
-  color,
-  fontWeight,
-  align,
-  checked,
-}) => {
+// Paragraph component renders a styled text block with customizable styles
+const Paragraph = ({ text, fontSize, color, fontWeight, align, checked }) => {
   return (
     <StyledParagraph
-      size={size}
       fontSize={fontSize}
       color={color}
       fontWeight={fontWeight}
@@ -24,26 +15,21 @@ const Paragraph = ({
     </StyledParagraph>
   );
 };
-
+// Default props for the Paragraph component
 Paragraph.defaultProps = {
-  size: "small",
   text: "Text",
   fontSize: "16px",
   fontWeight: "bold",
   align: "self-start",
+  checked: false,
 };
 
 Paragraph.propTypes = {
-  /**size of button */
-  size: PropTypes.string,
-  /**font-size of text  in button */
   fontSize: PropTypes.string,
-  /** text  in button */
   text: PropTypes.string.isRequired,
-
   fontWeight: PropTypes.string,
-
   align: PropTypes.string,
+  checked: PropTypes.bool.isRequired,
 };
 
 export default Paragraph;

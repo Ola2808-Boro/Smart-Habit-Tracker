@@ -1,19 +1,10 @@
-import React from "react";
 import PropTypes from "prop-types";
 import { StyledButton } from "./Button.styles";
 
-const Button = ({
-  size,
-  text,
-  fontSize,
-  type,
-  color,
-  backgroundColor,
-  click,
-}) => {
+// Button component renders a customizable styled button
+const Button = ({ text, fontSize, type, color, backgroundColor, click }) => {
   return (
     <StyledButton
-      size={size}
       fontSize={fontSize}
       type={type}
       color={color}
@@ -24,9 +15,8 @@ const Button = ({
     </StyledButton>
   );
 };
-
+// Default props for Button
 Button.defaultProps = {
-  size: "small",
   text: "Text",
   fontSize: "16px",
   color: "white",
@@ -34,19 +24,20 @@ Button.defaultProps = {
   click: () => {},
 };
 
+// Prop types for Button
 Button.propTypes = {
-  /**size of button */
-  size: PropTypes.string,
-  /**font-size of text  in button */
+  /** Font size of the button text */
   fontSize: PropTypes.string,
-  /** text  in button */
+  /** Button text */
   text: PropTypes.string.isRequired,
-  /**type of button */
-  type: PropTypes.string,
-  /**color of text button */
+  /** Button type (e.g. "submit", "button") */
+  type: PropTypes.string.isRequired,
+  /** Text color */
   color: PropTypes.string,
-  /**background-color of button */
+  /** Background color */
   backgroundColor: PropTypes.string,
+  /** Click handler */
+  click: PropTypes.func,
 };
 
 export default Button;

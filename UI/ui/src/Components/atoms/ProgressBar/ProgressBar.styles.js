@@ -8,7 +8,7 @@ export const StyledProgressBar = styled.progress`
 
 `;
 
-export const StyledProgressBarConatiner = styled.div`
+export const StyledProgressBarContainer = styled.div`
   display: flex;
   justify-content: center;
   width: 100%;

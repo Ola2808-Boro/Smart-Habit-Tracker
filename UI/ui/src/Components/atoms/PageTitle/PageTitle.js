@@ -1,7 +1,6 @@
-import React from "react";
 import { useLocation } from "react-router-dom";
 import { Title } from "./PageTitle.styles";
-
+// PageTitle component returns a title based on the current URL path
 const PageTitle = () => {
   const location = useLocation();
   const titles = {
@@ -14,6 +13,7 @@ const PageTitle = () => {
     "/": "Login",
     "/mood": "Mood",
   };
+  // Match the pathname with title or show default
   const title = titles[location.pathname] || "Smart Habit Tracker";
   return <Title>{title}</Title>;
 };

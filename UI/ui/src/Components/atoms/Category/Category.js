@@ -1,11 +1,10 @@
-import React from "react";
 import PropTypes from "prop-types";
 import { StyledCategory } from "./Category.styles";
 
-const Category = ({ size, text, fontSize, color, backgroundColor, click }) => {
+// Category component renders a styled category button
+const Category = ({ text, fontSize, color, backgroundColor, click }) => {
   return (
     <StyledCategory
-      size={size}
       fontSize={fontSize}
       color={color}
       backgroundColor={backgroundColor}
@@ -15,28 +14,27 @@ const Category = ({ size, text, fontSize, color, backgroundColor, click }) => {
     </StyledCategory>
   );
 };
-
+// Default props for Category
 Category.defaultProps = {
-  size: "small",
   text: "Text",
   fontSize: "16px",
-  type: "text",
   color: "black",
   backgroundColor: " #987afa",
   click: () => {},
 };
 
+// Prop types for Category
 Category.propTypes = {
-  /**size of button */
-  size: PropTypes.string,
-  /**font-size of text  in button */
+  /** Font size of the text */
   fontSize: PropTypes.string,
-  /** text  in button */
+  /** Category name (text) */
   text: PropTypes.string.isRequired,
-  /**color of text button */
+  /** Text color */
   color: PropTypes.string,
-  /**background-color of button */
+  /** Background color */
   backgroundColor: PropTypes.string,
+  /** Click handler */
+  click: PropTypes.func,
 };
 
 export default Category;

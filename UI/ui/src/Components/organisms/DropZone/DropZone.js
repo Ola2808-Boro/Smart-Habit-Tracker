@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import React from "react";
 import { useDrop } from "react-dnd";
 
@@ -21,6 +22,11 @@ const DropZone = ({ onDrop }) => {
       Drop here
     </div>
   );
+};
+
+// Prop types for DropZone
+DropZone.propTypes = {
+  onDrop: PropTypes.func,
 };
 
 export default DropZone;

@@ -1,9 +1,9 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowLeft, faArrowRight } from "@fortawesome/free-solid-svg-icons";
-import React from "react";
 import PropTypes from "prop-types";
 import { StyledIcon } from "./Icon.styles";
 
+// Icon component displays a left or right arrow depending on the "type" prop
 const Icon = ({ type, handleChangeDate }) => {
   if (type === "left-arrow") {
     return (
@@ -20,8 +20,9 @@ const Icon = ({ type, handleChangeDate }) => {
   }
 };
 
-Icon.defaultProps = {};
-
-Icon.propTypes = {};
+Icon.propTypes = {
+  type: PropTypes.string.isRequired, // "left-arrow" or "right-arrow"
+  handleChangeDate: PropTypes.func.isRequired, // Function to handle date change
+};
 
 export default Icon;

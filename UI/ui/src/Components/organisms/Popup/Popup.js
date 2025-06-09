@@ -1,4 +1,3 @@
-import React from "react";
 import PropTypes from "prop-types";
 import Popup from "reactjs-popup";
 import Paragraph from "../../atoms/Paragraph/Paragraph";
@@ -72,6 +71,15 @@ const CustomPopup = ({
 
 CustomPopup.defaultProps = {};
 
-CustomPopup.propTypes = {};
+CustomPopup.propTypes = {
+  open: PropTypes.bool.isRequired,
+  value: PropTypes.string.isRequired,
+  categories: PropTypes.object.isRequired,
+  type: PropTypes.string.isRequired,
+  setNewValue: PropTypes.func.isRequired,
+  handleSelectCategory: PropTypes.func.isRequired,
+  setIsOpen: PropTypes.func.isRequired,
+  handleAdd: PropTypes.func.isRequired,
+};
 
 export default CustomPopup;

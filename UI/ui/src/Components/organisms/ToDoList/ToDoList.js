@@ -35,7 +35,11 @@ const ToDoList = ({
               handleCheckBoxClick={handleCheckBoxClick}
             />
             <Categories categories={data.categories} />
-            <Button text="Remove" click={() => handleRemoveItem(index)} />
+            <Button
+              type="button"
+              text="Remove"
+              click={() => handleRemoveItem(index)}
+            />
           </StyledToDoItem>
         ))}
         <DropZone onDrop={handleDrop} />
@@ -47,6 +51,15 @@ const ToDoList = ({
 
 ToDoList.defaultProps = {};
 
-ToDoList.propTypes = {};
+ToDoList.propTypes = {
+  droppedItems: PropTypes.object.isRequired,
+  handleTimeChange: PropTypes.func.isRequired,
+  handleCheckBoxClick: PropTypes.func.isRequired,
+  handleRemoveItem: PropTypes.func.isRequired,
+  handleDrop: PropTypes.func.isRequired,
+  selectedDate: PropTypes.string.isRequired,
+  progressValue: PropTypes.number.isRequired,
+  handleChangeDate: PropTypes.func.isRequired,
+};
 
 export default ToDoList;

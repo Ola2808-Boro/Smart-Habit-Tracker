@@ -1,17 +1,7 @@
 import styled from "styled-components";
 
 export const StyledParagraph = styled.p`
-  ${({ size }) => {
-    if (size === "medium") {
-      return `
-            font-size:18px;
-            `;
-    } else if (size === "small") {
-      return `
-            font-size:16px;
-            `;
-    }
-  }}
+  font-size: 18px;
   ${({ checked }) => {
     if (checked === true) {
       return `
