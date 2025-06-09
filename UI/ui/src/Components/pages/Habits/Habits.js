@@ -1,7 +1,7 @@
 import React, { useState, useRef } from "react";
 import PageTitle from "../../atoms/PageTitle/PageTitle.js";
 import { DndProvider } from "react-dnd";
-import { HTML5Backend } from "react-dnd-html5-backend";
+import { TouchBackend } from "react-dnd-touch-backend";
 import ReactJsAlert from "reactjs-alert";
 import ToDoList from "../../organisms/ToDoList/ToDoList.js";
 import HabitList from "../../organisms/HabitList/HabitList.js";
@@ -219,7 +219,10 @@ const Habits = () => {
     <>
       <PageTitle />
       <MainContainer>
-        <DndProvider backend={HTML5Backend}>
+        <DndProvider
+          backend={TouchBackend}
+          options={{ enableMouseEvents: true }}
+        >
           <ToDoList
             droppedItems={droppedItems}
             handleTimeChange={handleTimeChange}
@@ -236,27 +239,27 @@ const Habits = () => {
             setIsHabitPopupOpen={setIsHabitPopupOpen}
             setIsCategoryPopupOpen={setIsCategoryPopupOpen}
           />
-          <Popup
-            open={isHabitPopupOpen}
-            type="save-habit"
-            setIsOpen={setIsHabitPopupOpen}
-            handleAdd={handleAddHabit}
-            handleSelectCategory={handleSelectCategory}
-            value={newHabit}
-            setNewValue={setNewHabit}
-            categories={categories}
-          />
-          <Popup
-            open={isCategoryPopupOpen}
-            type="save-category"
-            setIsOpen={setIsCategoryPopupOpen}
-            handleAdd={handleAddCategory}
-            value={category}
-            categories={categories}
-            handleSelectCategory={handleSelectCategory}
-            setNewValue={setCategory}
-          />
         </DndProvider>
+        <Popup
+          open={isHabitPopupOpen}
+          type="save-habit"
+          setIsOpen={setIsHabitPopupOpen}
+          handleAdd={handleAddHabit}
+          handleSelectCategory={handleSelectCategory}
+          value={newHabit}
+          setNewValue={setNewHabit}
+          categories={categories}
+        />
+        <Popup
+          open={isCategoryPopupOpen}
+          type="save-category"
+          setIsOpen={setIsCategoryPopupOpen}
+          handleAdd={handleAddCategory}
+          value={category}
+          categories={categories}
+          handleSelectCategory={handleSelectCategory}
+          setNewValue={setCategory}
+        />
 
         <ReactJsAlert
           status={alert.visible}

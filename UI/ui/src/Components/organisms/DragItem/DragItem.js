@@ -1,6 +1,7 @@
 import { useDrag } from "react-dnd";
 import { StyledDragItem, Categories, Category } from "./DragItem.styles";
 import PropTypes from "prop-types";
+
 const DragItem = ({ name, categories }) => {
   const [{ isDragging }, drag] = useDrag(() => ({
     type: "item",
