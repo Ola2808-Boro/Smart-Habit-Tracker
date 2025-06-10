@@ -78,6 +78,7 @@ const Habits = () => {
   useProgressValue(droppedItems, setProgressValue);
   useTasksOnDateChange(getTasks, selectedDateRef, selectedDate);
   useUpdatedHabits(newHabit, getHabits);
+
   async function handleDrop(item) {
     const dateValidation = await validateDate(selectedDateRef, months);
     if (dateValidation) {
@@ -89,14 +90,24 @@ const Habits = () => {
       });
     } else {
       addDroppedItems(item);
-      await saveTaskRequest(item.name, "0:00:00", selectedDate);
+      await saveTaskRequest(item.name, "0:00:00", selectedDate, false);
     }
   }
 
   async function handleRemoveItem(index) {
-    const updatedHabits = [...droppedItems];
-    await removeTaskRequest(updatedHabits[index]);
-    removeDroppedItems(index);
+    const dateValidation = await validateDate(selectedDateRef, months);
+    if (dateValidation) {
+      setAlert({
+        visible: true,
+        title: "Remove task",
+        quote: "Cannot remove task for past/future todo lists ",
+        type: "warning",
+      });
+    } else {
+      const updatedHabits = [...droppedItems];
+      await removeTaskRequest(updatedHabits[index], selectedDate);
+      removeDroppedItems(index);
+    }
   }
 
   async function handleSelectCategory(e) {
@@ -155,6 +166,7 @@ const Habits = () => {
       ...task,
       time: convertPythonTimeToInputTime(task.time),
     }));
+    console.log(convertedTasks);
     updateDroppedItems(convertedTasks);
   }
 
@@ -177,6 +189,7 @@ const Habits = () => {
 
   async function handleTimeChange(taskName, newTime) {
     updateDroppedItemTime(taskName, newTime);
+    saveTaskRequest(taskName, newTime, selectedDate, false);
   }
   async function handleChangeDate(e) {
     e.preventDefault();
@@ -198,6 +211,7 @@ const Habits = () => {
       const parentDiv = e.target.closest("div");
       const timeInput = parentDiv.querySelector('input[type="time"]');
       const selectedTime = timeInput?.value || "";
+      console.log(parentDiv, timeInput, selectedTime);
       if (selectedTime === "") {
         setAlert({
           visible: true,
@@ -210,7 +224,8 @@ const Habits = () => {
         const isChecked = e.target.checked;
         const selectedTime = timeInput?.value || "";
         updateDroppedItemChecked(taskName, selectedTime, isChecked);
-        await saveTaskRequest(taskName, selectedTime, selectedDate);
+        await saveTaskRequest(taskName, selectedTime, selectedDate, true);
+        await getTasks();
       }
     }
   }

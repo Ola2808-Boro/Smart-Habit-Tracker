@@ -320,7 +320,7 @@ def get_task(data: dict, current_user_id: int):
             )
             return 204, "Habit_tracker_detail_id not found.", None
         sql_select_habit_id = """
-        SELECT habit_id,duration FROM habit_tracker.habit_tracker WHERE  habit_tracker_detail_id=%s
+        SELECT habit_id,duration,done FROM habit_tracker.habit_tracker WHERE  habit_tracker_detail_id=%s
         """
         cursor.execute(sql_select_habit_id, (habit_tracker_detail_id,))
         habit_id_duration_results = cursor.fetchall()
@@ -333,7 +333,7 @@ def get_task(data: dict, current_user_id: int):
             )
             return 204, "Results not found.", []
         tasks_data = []
-        for habit_id, duration in habit_id_duration_results:
+        for habit_id, duration, done in habit_id_duration_results:
             habit_name = get_habit_name(cursor, current_user_id, habit_id)
             if habit_name is None:
                 logging.warning(
@@ -373,7 +373,7 @@ def get_task(data: dict, current_user_id: int):
                     "task": habit_name,
                     "categories": categories,
                     "time": str(duration),
-                    "done": False if str(duration) == "0:00:00" else True,
+                    "done": done,
                 }
             )
         logging.info(HTTP_LOG_MESSAGES[200].format(function_name="get_task"))
@@ -432,22 +432,24 @@ def save_task(data: dict, current_user_id: int):
             return 404, "Habit_tracker_detail_id not found."
         if data["time"] == "0:00:00":
             sql_upsert = """
-                INSERT INTO habit_tracker.habit_tracker(habit_id,duration,habit_tracker_detail_id)
-                VALUES(%s,%s,%s)
+                INSERT INTO habit_tracker.habit_tracker(habit_id,duration,habit_tracker_detail_id,done)
+                VALUES(%s,%s,%s,%s)
             """
             cursor.execute(
-                sql_upsert, (habit_id, data["time"], habit_tracker_detail_id)
+                sql_upsert,
+                (habit_id, data["time"], habit_tracker_detail_id, data["done"]),
             )
             logging.info(
                 HTTP_LOG_MESSAGES[201].format(function_name="save_task-insert")
             )
         else:
             sql_update = """
-                UPDATE habit_tracker.habit_tracker SET duration=%s
+                UPDATE habit_tracker.habit_tracker SET duration=%s, done=%s
                 WHERE habit_id=%s AND habit_tracker_detail_id=%s
             """
             cursor.execute(
-                sql_update, (data["time"], habit_id, habit_tracker_detail_id)
+                sql_update,
+                (data["time"], data["done"], habit_id, habit_tracker_detail_id),
             )
             logging.info(
                 HTTP_LOG_MESSAGES[201].format(function_name="save_task-update")
@@ -476,11 +478,7 @@ def save_task(data: dict, current_user_id: int):
 def remove_task(data: dict, current_user_id: int):
     conn = create_connection()
     try:
-        if (
-            not data.get("task")
-            or not data.get("category")
-            or not data.get("selectedDate")
-        ):
+        if not data.get("task") or not data.get("selectedDate"):
             logging.warning(
                 HTTP_LOG_MESSAGES[400].format(
                     function_name="remove_task",

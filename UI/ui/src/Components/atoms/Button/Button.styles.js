@@ -1,7 +1,21 @@
 import styled from "styled-components";
 
 export const StyledButton = styled.button`
-  width: 100%;
+  ${({ size }) => {
+    if (size === "medium") {
+      return `
+            width:50%;
+            `;
+    } else if (size === "small") {
+      return `
+            width:30%;
+            `;
+    } else if (size === "big") {
+      return `
+            width:100%;
+            `;
+    }
+  }}
   font-size: ${({ fontSize }) => fontSize};
   background-color: ${({ backgroundColor }) => backgroundColor};
   color: ${({ color }) => color};

@@ -1,10 +1,10 @@
 import axios from "axios";
 
-export async function saveTaskRequest(name, time, date) {
+export async function saveTaskRequest(name, time, date, done) {
   const token = localStorage.getItem("token");
   const response = await axios.post(
     "http://127.0.0.1:5000/save-task",
-    { task: name, time: time, date: date },
+    { task: name, time: time, date: date, done: done },
     {
       headers: {
         "Content-Type": "application/json",

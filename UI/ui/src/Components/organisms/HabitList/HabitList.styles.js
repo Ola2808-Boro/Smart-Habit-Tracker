@@ -14,6 +14,7 @@ export const StyledHabitContainer = styled.div`
   flex-direction: column;
   padding: 10px;
   max-height: 80%;
+  min-width: 20%;
   @media (max-width: 768px) {
     width: 90%;
     align-items: center;

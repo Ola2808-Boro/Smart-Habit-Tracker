@@ -28,7 +28,7 @@ export const StyledToDoItemContainer = styled.div`
   display: flex;
   flex-direction: column;
   padding: 10px;
-  min-width: 40%;
+  min-width: 30%;
   align-items: center;
   @media (max-width: 768px) {
     width: 90%;

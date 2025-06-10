@@ -22,11 +22,13 @@ const HabitList = ({ habits, setIsHabitPopupOpen, setIsCategoryPopupOpen }) => {
         type="button"
         text="+ Add habit"
         click={() => setIsHabitPopupOpen(true)}
+        size="big"
       />
       <Button
         type="button"
         text="+ Add category"
         click={() => setIsCategoryPopupOpen(true)}
+        size="big"
       />
     </StyledHabitContainer>
   );

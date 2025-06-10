@@ -2,7 +2,15 @@ import PropTypes from "prop-types";
 import { StyledButton } from "./Button.styles";
 
 // Button component renders a customizable styled button
-const Button = ({ text, fontSize, type, color, backgroundColor, click }) => {
+const Button = ({
+  size,
+  text,
+  fontSize,
+  type,
+  color,
+  backgroundColor,
+  click,
+}) => {
   return (
     <StyledButton
       fontSize={fontSize}
@@ -10,6 +18,7 @@ const Button = ({ text, fontSize, type, color, backgroundColor, click }) => {
       color={color}
       backgroundColor={backgroundColor}
       onClick={click}
+      size={size}
     >
       {text}
     </StyledButton>
@@ -20,6 +29,7 @@ Button.defaultProps = {
   text: "Text",
   fontSize: "16px",
   color: "white",
+  size: "medium",
   backgroundColor: " #6366f1",
   click: () => {},
 };

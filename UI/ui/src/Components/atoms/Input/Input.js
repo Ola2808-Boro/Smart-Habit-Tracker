@@ -9,7 +9,7 @@ const Input = ({ fontSize, type, color, onChange, data, checked, value }) => {
       type={type}
       color={color}
       onChange={onChange}
-      data={data}
+      data-task={data}
       checked={checked}
       value={value}
     ></StyledInput>
