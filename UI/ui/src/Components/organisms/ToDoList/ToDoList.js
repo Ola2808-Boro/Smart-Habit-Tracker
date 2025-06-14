@@ -42,8 +42,8 @@ const ToDoList = ({
             />
           </StyledToDoItem>
         ))}
-        <DropZone onDrop={handleDrop} />
       </StyledToDoList>
+      <DropZone onDrop={handleDrop} />
       <ProgressBar value={progressValue} max={droppedItems.length} />
     </StyledToDoItemContainer>
   );

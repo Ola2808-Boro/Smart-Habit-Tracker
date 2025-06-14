@@ -29,7 +29,7 @@ import {
   saveHabitRequest,
   retrieveCategoriesRequest,
 } from "../../../api/habits/habits.js";
-
+import WeaklyProgressGraph from "../../atoms/WeaklyProgressGraph/WeaklyProgressGraph.js";
 const Habits = () => {
   const months = [
     "January",
@@ -255,6 +255,7 @@ const Habits = () => {
             setIsCategoryPopupOpen={setIsCategoryPopupOpen}
           />
         </DndProvider>
+        <WeaklyProgressGraph value={[20, 35, 50, 70, 90, 60, 30]} max={100} />
         <Popup
           open={isHabitPopupOpen}
           type="save-habit"

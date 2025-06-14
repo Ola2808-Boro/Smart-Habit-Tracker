@@ -3,11 +3,20 @@ import {
   StyledProgressBar,
   StyledProgressBarContainer,
 } from "./ProgressBar.styles";
+import Paragraph from "../Paragraph/Paragraph";
 // ProgressBar component displays a horizontal progress bar with given value and max
 const ProgressBar = ({ value, max }) => {
   return (
     <StyledProgressBarContainer>
       <StyledProgressBar value={value} max={max} />
+      <Paragraph
+        align="center"
+        text={
+          isNaN(parseFloat(value / max))
+            ? "0%"
+            : `${(parseFloat(value / max).toFixed(2) * 100).toFixed(0)}%`
+        }
+      />
     </StyledProgressBarContainer>
   );
 };

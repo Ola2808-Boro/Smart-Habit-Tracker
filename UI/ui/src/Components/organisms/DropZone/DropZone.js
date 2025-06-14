@@ -1,5 +1,4 @@
 import PropTypes from "prop-types";
-import React from "react";
 import { useDrop } from "react-dnd";
 
 const DropZone = ({ onDrop }) => {
@@ -17,6 +16,7 @@ const DropZone = ({ onDrop }) => {
       style={{
         border: `1px dashed ${isOver ? "green" : "black"}`,
         padding: "10px",
+        width: "100%",
       }}
     >
       Drop here

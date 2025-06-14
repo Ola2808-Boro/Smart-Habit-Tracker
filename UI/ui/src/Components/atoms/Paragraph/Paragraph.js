@@ -22,6 +22,7 @@ Paragraph.defaultProps = {
   fontWeight: "bold",
   align: "self-start",
   checked: false,
+  color: "black",
 };
 
 Paragraph.propTypes = {
