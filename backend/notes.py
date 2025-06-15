@@ -85,6 +85,7 @@ def read_note(data: dict, current_user_id: int):
         conn.close()
 
 
+#add validation by user_id
 def get_number_of_questions():
     conn = create_connection()
     try:
