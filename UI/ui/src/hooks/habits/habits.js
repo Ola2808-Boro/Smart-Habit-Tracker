@@ -85,18 +85,28 @@ export function useCategories() {
   };
 }
 
-export const useInitialData = (getCategories, getHabits, getTasks) => {
+export const useInitialData = (
+  getCategories,
+  getHabits,
+  getTasks,
+  getWeaklyProgressStats
+) => {
   useEffect(() => {
     const fetchData = async () => {
       await getCategories();
       await getHabits();
       await getTasks();
+      await getWeaklyProgressStats();
     };
     fetchData();
   }, []);
 };
 
-export const useProgressValue = (droppedItems, setProgressValue) => {
+export const useProgressValue = (
+  droppedItems,
+  setProgressValue,
+  getWeaklyProgressStats
+) => {
   useEffect(() => {
     let doneTask = 0;
     Object.values(droppedItems).forEach((data) => {
@@ -105,6 +115,10 @@ export const useProgressValue = (droppedItems, setProgressValue) => {
       }
     });
     setProgressValue(doneTask);
+    const fetchData = async () => {
+      await getWeaklyProgressStats();
+    };
+    fetchData();
   }, [droppedItems]);
 };
 

@@ -28,6 +28,7 @@ import {
   saveTaskRequest,
   saveHabitRequest,
   retrieveCategoriesRequest,
+  retrieveWeaklyProgressStatsRequest,
 } from "../../../api/habits/habits.js";
 import WeaklyProgressGraph from "../../atoms/WeaklyProgressGraph/WeaklyProgressGraph.js";
 const Habits = () => {
@@ -66,6 +67,7 @@ const Habits = () => {
     useCategories();
   const [newHabit, setNewHabit] = useState("");
   const [habits, setHabits] = useState([]);
+  const [weaklyStats, setWeaklyStats] = useState([]);
   const [alert, setAlert] = useState({
     visible: false,
     title: "",
@@ -74,8 +76,8 @@ const Habits = () => {
   });
   const selectedDateRef = useRef(selectedDate);
 
-  useInitialData(getCategories, getHabits, getTasks);
-  useProgressValue(droppedItems, setProgressValue);
+  useInitialData(getCategories, getHabits, getTasks, getWeaklyProgressStats);
+  useProgressValue(droppedItems, setProgressValue, getWeaklyProgressStats);
   useTasksOnDateChange(getTasks, selectedDateRef, selectedDate);
   useUpdatedHabits(newHabit, getHabits);
 
@@ -150,6 +152,15 @@ const Habits = () => {
       return;
     }
     setHabits(response.data.habit);
+  }
+
+  async function getWeaklyProgressStats() {
+    const response = await retrieveWeaklyProgressStatsRequest();
+    if (response.status === 204) {
+      setWeaklyStats([]);
+      return;
+    }
+    setWeaklyStats(response.data.progress_rates);
   }
 
   async function getTasks() {
@@ -255,7 +266,7 @@ const Habits = () => {
             setIsCategoryPopupOpen={setIsCategoryPopupOpen}
           />
         </DndProvider>
-        <WeaklyProgressGraph value={[20, 35, 50, 70, 90, 60, 30]} max={100} />
+        <WeaklyProgressGraph value={weaklyStats} max={100} />
         <Popup
           open={isHabitPopupOpen}
           type="save-habit"

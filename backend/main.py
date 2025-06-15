@@ -15,6 +15,7 @@ from habits import (
     save_category,
     save_habit,
     save_task,
+    weakly_progress_stats,
 )
 from mood import (
     get_mood_option,
@@ -315,6 +316,16 @@ def removing_task(current_user_id: int):
     data = request.json
     code, message = remove_task(data=data, current_user_id=current_user_id)
     return jsonify({"message": message}), code
+
+
+@app.route("/weakly-progress-stats", methods=["POST"])
+@token_required
+def removing_weakly_progress_stats(current_user_id: int):
+    data = request.json
+    code, message, progress_rates = weakly_progress_stats(
+        data=data, current_user_id=current_user_id
+    )
+    return jsonify({"message": message, "progress_rates": progress_rates}), code
 
 
 if __name__ == "__main__":

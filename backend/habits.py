@@ -528,3 +528,60 @@ def remove_task(data: dict, current_user_id: int):
         return 500, "Unexpected server error."
     finally:
         conn.close()
+
+
+def weakly_progress_stats(data: dict, current_user_id: int):
+    conn = create_connection()
+    progress_rates = []
+    try:
+        if not data.get("startDate") or not data.get("endDate"):
+            logging.warning(
+                HTTP_LOG_MESSAGES[400].format(
+                    function_name="weakly_progress_stats",
+                    details="Missing 'startDate' or 'endDate'",
+                )
+            )
+            return 400, "Missing 'startDate' or 'endDate' in request."
+        cursor = conn.cursor()
+        sql_select_habit_tracker_detail_id = """
+            SELECT habit_tracker_detail_id from habit_tracker.activity WHERE activity_date BETWEEN %s AND %s AND user_id=%s;
+        """
+        cursor.execute(
+            sql_select_habit_tracker_detail_id,
+            (data["startDate"], data["endDate"], current_user_id),
+        )
+        habit_tracker_detail_id = cursor.fetchall()
+        for detail_id in habit_tracker_detail_id:
+            sql_select_progress_rate = """
+            WITH DoneData AS (SELECT done FROM habit_tracker.habit_tracker WHERE habit_tracker_detail_id=%s)
+            SELECT 
+                ROUND(
+                    100.0 * SUM(CASE WHEN done THEN 1 ELSE 0 END) / COUNT(*), 
+                    2
+                ) AS progress_rate
+            FROM DoneData;
+            """
+            cursor.execute(sql_select_progress_rate, (detail_id,))
+            progress_rate = cursor.fetchone()[0]
+            progress_rates.append(progress_rate)
+        while len(progress_rates) < 7:
+            progress_rates.append(0)
+        logging.info(HTTP_LOG_MESSAGES[200].format(function_name="remove_task"))
+        return 200, "Habit removed successfully.", progress_rates
+    except ProgrammingError as e:
+        logging.error(f"SQL syntax or logic error: {e}")
+        return 500, "Database programming error.", None
+    except IntegrityError as e:
+        logging.error(f"Constraint violation: {e}")
+        return 500, "Data integrity error.", None
+    except OperationalError as e:
+        logging.error(f"Database connection or transaction error: {e}")
+        return 503, "Database operational error.", None
+    except DatabaseError as e:
+        logging.error(f"General database error: {e}")
+        return 500, "Database error.", None
+    except Exception as e:
+        logging.error(f"Unexpected error: {e}")
+        return 500, "Unexpected server error.", None
+    finally:
+        conn.close()

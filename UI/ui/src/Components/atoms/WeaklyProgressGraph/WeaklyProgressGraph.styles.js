@@ -5,7 +5,8 @@ export const StyledWeaklyProgressGraphContainer = styled.div`
   padding: 1rem;
   border-radius: 12px;
   @media (max-width: 768px) {
-    width: 60%;
+    width: 100%;
     font-size: 20px;
+    margin: 1rem 0rem;
   }
 `;

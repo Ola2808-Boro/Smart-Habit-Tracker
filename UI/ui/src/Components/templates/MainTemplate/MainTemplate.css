@@ -1,6 +1,6 @@
 .main-page-container {
-  width: 100vw;
-  min-height: 100vh;
+  width: 100%;
+  min-height: 100%;
   display: flex;
   flex-direction: row;
 }
@@ -10,4 +10,9 @@
   display: flex;
   flex-direction: column;
   padding: 20px;
+}
+@media (max-width: 768px) {
+  .main-page-container {
+    min-height: auto;
+  }
 }

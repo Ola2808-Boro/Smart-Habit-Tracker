@@ -108,3 +108,24 @@ export async function addCategoryRequest(category) {
   );
   return response;
 }
+
+export async function retrieveWeaklyProgressStatsRequest() {
+  const today = new Date();
+  const dayOfWeek = today.getDay();
+  const startDate = new Date(today);
+  startDate.setDate(today.getDate() - dayOfWeek);
+  const formattedStartDate = startDate.toISOString().split("T")[0];
+  const formattedEndDate = today.toISOString().split("T")[0];
+  const token = localStorage.getItem("token");
+  console.log("aaaa", formattedStartDate, formattedEndDate);
+  const response = axios.post(
+    "http://127.0.0.1:5000/weakly-progress-stats",
+    { startDate: formattedStartDate, endDate: formattedEndDate },
+    {
+      headers: {
+        Authorization: token,
+      },
+    }
+  );
+  return response;
+}
