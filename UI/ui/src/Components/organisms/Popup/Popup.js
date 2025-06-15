@@ -26,7 +26,7 @@ const CustomPopup = ({
           <Input
             type="text"
             value={value}
-            maxLength={30}
+            maxLength={60}
             onChange={(e) => {
               setNewValue(e.target.value);
             }}
