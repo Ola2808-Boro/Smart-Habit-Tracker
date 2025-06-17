@@ -29,3 +29,13 @@ export const StyledCategory = styled.div`
 
 }
 `;
+
+export const StyledTextArea = styled.textarea`
+  width: 100%;
+  resize: none;
+  overflow: hidden;
+  font-family: inherit;
+  font-size: 1rem;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+`;
