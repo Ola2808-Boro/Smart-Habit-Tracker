@@ -2,6 +2,8 @@ import logging
 from datetime import datetime
 
 from database.connection_db import create_connection
+from database.http_messages import HTTP_LOG_MESSAGES
+from psycopg2 import DatabaseError, IntegrityError, OperationalError, ProgrammingError
 
 
 def read_note(data: dict, current_user_id: int):
@@ -85,7 +87,7 @@ def read_note(data: dict, current_user_id: int):
         conn.close()
 
 
-#add validation by user_id
+# add validation by user_id
 def get_number_of_questions():
     conn = create_connection()
     try:
@@ -145,10 +147,22 @@ def insert_answer(data: dict, current_user_id: int):
         cursor.execute(sql_update_activity, (note_id, current_user_id))
         conn.commit()
         logging.info(f"Correctly added note with note_id:{note_id}")
-        return True
+        return 201, "Answer added successfully."
+    except ProgrammingError as e:
+        logging.error(f"SQL syntax or logic error: {e}")
+        return 500, "Database programming error."
+    except IntegrityError as e:
+        logging.error(f"Constraint violation: {e}")
+        return 500, "Data integrity error."
+    except OperationalError as e:
+        logging.error(f"Database connection or transaction error: {e}")
+        return 503, "Database operational error."
+    except DatabaseError as e:
+        logging.error(f"General database error: {e}")
+        return 500, "Database error."
     except Exception as e:
-        logging.info(f"Error: {e}")
-        return None
+        logging.error(f"Unexpected error: {e}")
+        return 500, "Unexpected server error."
     finally:
         conn.close()
 
@@ -163,10 +177,22 @@ def insert_question(data: dict):
         cursor.execute(sql_insert_question, (data["new_question"],))
         conn.commit()
         logging.info(f"Correctly added question")
-        return True
+        return 201, "Correctly added question"
+    except ProgrammingError as e:
+        logging.error(f"SQL syntax or logic error: {e}")
+        return 500, "Database programming error."
+    except IntegrityError as e:
+        logging.error(f"Constraint violation: {e}")
+        return 500, "Data integrity error."
+    except OperationalError as e:
+        logging.error(f"Database connection or transaction error: {e}")
+        return 503, "Database operational error."
+    except DatabaseError as e:
+        logging.error(f"General database error: {e}")
+        return 500, "Database error."
     except Exception as e:
-        logging.info(f"Error: {e}")
-        return None
+        logging.error(f"Unexpected error: {e}")
+        return 500, "Unexpected server error."
     finally:
         conn.close()
 
@@ -185,9 +211,21 @@ def check_answer_exists(current_user_id: int):
             return note_id
         else:
             logging.info(f"Note for the day is null")
-            return True
+            return 200, "Answer exists", True
+    except ProgrammingError as e:
+        logging.error(f"SQL syntax or logic error: {e}")
+        return 500, "Database programming error.", None
+    except IntegrityError as e:
+        logging.error(f"Constraint violation: {e}")
+        return 500, "Data integrity error.", None
+    except OperationalError as e:
+        logging.error(f"Database connection or transaction error: {e}")
+        return 503, "Database operational error.", None
+    except DatabaseError as e:
+        logging.error(f"General database error: {e}")
+        return 500, "Database error.", None
     except Exception as e:
-        logging.info(f"Error: {e}")
-        return None
+        logging.error(f"Unexpected error: {e}")
+        return 500, "Unexpected server error.", None
     finally:
         conn.close()

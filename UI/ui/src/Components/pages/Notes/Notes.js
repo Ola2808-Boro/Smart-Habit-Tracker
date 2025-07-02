@@ -17,7 +17,7 @@ import {
   retrieveNotes,
 } from "../../../api/notes/notes";
 import { randomQuestionIdx } from "../../../utils/notes/notes";
-//min-date
+import { MainContainer } from "./Notes.styles.js";
 
 const Notes = () => {
   const [calDate, setCalDate] = useState(new Date());
@@ -99,7 +99,7 @@ const Notes = () => {
   return (
     <>
       <PageTitle />
-      <>
+      <MainContainer>
         <CalendarSection
           value={calDate}
           handleClosePopupAddQuestion={handleClosePopupAddQuestion}
@@ -140,7 +140,7 @@ const Notes = () => {
           setNewValue={setAnswer}
           question={question}
         />
-      </>
+      </MainContainer>
     </>
   );
 };
