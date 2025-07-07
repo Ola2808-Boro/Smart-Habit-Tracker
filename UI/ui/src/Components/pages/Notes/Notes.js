@@ -14,6 +14,7 @@ import {
   checkNoteLimit,
   saveQuestion,
   retrieveQuestion,
+  getNumberOFQuestion,
   retrieveNotes,
 } from "../../../api/notes/notes";
 import { randomQuestionIdx } from "../../../utils/notes/notes";
@@ -38,7 +39,9 @@ const Notes = () => {
 
   async function handleOpenPopupQandA() {
     const response = await checkNoteLimit();
-    if (response["data"]["message"] === "A note has note_id null") {
+    console.log(response);
+    if (response["data"]["task"]) {
+      console.log("aaa");
       await getQuestion();
       setIsOpenQandA(true);
     } else {
@@ -51,20 +54,12 @@ const Notes = () => {
     }
   }
 
-  async function handleClosePopupQandA() {
-    setIsOpenQandA(false);
-  }
-
-  async function handleClosePopupAddQuestion() {
-    setIsOpenAddQuestion(false);
-  }
-
   async function handleSaveAnswer(e) {
     e.preventDefault();
     const response = await saveAnswerRequest();
     setQuestion("");
     setAnswer("");
-    handleClosePopupQandA();
+    setIsOpenQandA(false);
   }
 
   async function onChangeDate(calDate) {
@@ -77,15 +72,12 @@ const Notes = () => {
   async function handleAddQuestion(e) {
     e.preventDefault();
     const response = await saveQuestion(newQuestion);
-    handleClosePopupAddQuestion();
+    setIsOpenAddQuestion(false);
   }
 
   async function getQuestion() {
-    const response = await axios.get("http://127.0.0.1:5000/num_of_questions");
-    console.log(response);
-    if (
-      response["data"]["message"] !== "Failed to retrieve number of questions"
-    ) {
+    const response = await getNumberOFQuestion();
+    if ((response["data"]["task"] !== 0) & (response["status"] === 200)) {
       const max = response.data.max;
       const random_idx = randomQuestionIdx(max, lastQuestionIdx);
       setLastQuestionIdx(random_idx);
@@ -102,9 +94,9 @@ const Notes = () => {
       <MainContainer>
         <CalendarSection
           value={calDate}
-          handleClosePopupAddQuestion={handleClosePopupAddQuestion}
-          handleOpenPopupQandA={handleOpenPopupQandA}
           onChange={onChangeDate}
+          handleOpenPopupQandA={handleOpenPopupQandA}
+          setIsOpenAddQuestion={setIsOpenAddQuestion}
         />
         <NotesList
           retrievedQandA={retrievedQandA}

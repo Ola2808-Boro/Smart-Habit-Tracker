@@ -10,7 +10,7 @@ export const StyledCalendarContainer = styled.div`
   @media (max-width: 768px) {
     display: flex;
     flex-direction: column;
-    justify-content: space-around
+    justify-content: space-around;
     align-items: stretch;
   }
 `;

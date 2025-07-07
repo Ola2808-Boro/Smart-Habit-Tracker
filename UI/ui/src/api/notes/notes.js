@@ -28,6 +28,16 @@ export async function retrieveQuestion(random_idx) {
   return response;
 }
 
+export async function getNumberOFQuestion() {
+  const token = localStorage.getItem("token");
+  const response = await axios.get("http://127.0.0.1:5000/num_of_questions", {
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: token,
+    },
+  });
+  return response;
+}
 export async function saveQuestion(newQuestion) {
   const response = await axios.post(
     "http://127.0.0.1:5000/add-question",

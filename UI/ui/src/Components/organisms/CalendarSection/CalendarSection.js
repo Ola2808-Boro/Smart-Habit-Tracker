@@ -7,15 +7,15 @@ import Calendar from "react-calendar";
 export const CalendarSection = ({
   onChange,
   calDate,
-  handleClosePopupAddQuestion,
   handleOpenPopupQandA,
+  setIsOpenAddQuestion,
 }) => {
   return (
     <StyledCalendarContainer>
       <Calendar onChange={onChange} value={calDate} selectRange={true} />
       <QuestionAndAnswer
         handleOpenPopupQandA={handleOpenPopupQandA}
-        handleOpenPopupAddQuestion={handleClosePopupAddQuestion}
+        setIsOpenAddQuestion={setIsOpenAddQuestion}
       />
     </StyledCalendarContainer>
   );

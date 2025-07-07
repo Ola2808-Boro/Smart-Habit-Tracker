@@ -2,20 +2,17 @@ import PropTypes from "prop-types";
 import { StyledQandAContainer } from "./QuestionAndAnswer.styles";
 import Button from "../../atoms/Button/Button";
 
-const QuestionAndAnswer = ({
-  handleOpenPopupAddQuestion,
-  handleOpenPopupQandA,
-}) => {
+const QuestionAndAnswer = ({ handleOpenPopupQandA, setIsOpenAddQuestion }) => {
   return (
     <StyledQandAContainer>
       <Button
         type="button"
-        onClick={handleOpenPopupQandA}
+        click={() => handleOpenPopupQandA()}
         text="Get a random question"
       />
       <Button
         type="button"
-        onClick={handleOpenPopupAddQuestion}
+        click={() => setIsOpenAddQuestion(true)}
         text="Add a new question"
       />
     </StyledQandAContainer>
