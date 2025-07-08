@@ -117,7 +117,6 @@ export async function retrieveWeaklyProgressStatsRequest() {
   const formattedStartDate = startDate.toISOString().split("T")[0];
   const formattedEndDate = today.toISOString().split("T")[0];
   const token = localStorage.getItem("token");
-  console.log("aaaa", formattedStartDate, formattedEndDate);
   const response = axios.post(
     "http://127.0.0.1:5000/weakly-progress-stats",
     { startDate: formattedStartDate, endDate: formattedEndDate },

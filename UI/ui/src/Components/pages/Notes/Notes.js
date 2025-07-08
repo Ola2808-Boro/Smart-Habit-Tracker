@@ -39,7 +39,6 @@ const Notes = () => {
 
   async function handleOpenPopupQandA() {
     const response = await checkNoteLimit();
-    console.log(response);
     if (response["data"]["exists"]) {
       await getQuestion();
       setIsOpenQandA(true);
@@ -65,7 +64,6 @@ const Notes = () => {
     setCalDate(calDate);
     setVisibleNotes(2);
     const response = await retrieveNotes(calDate);
-    console.log(response);
     setRetrievedQandA(response["data"]["answer_question_date"]);
   }
 
