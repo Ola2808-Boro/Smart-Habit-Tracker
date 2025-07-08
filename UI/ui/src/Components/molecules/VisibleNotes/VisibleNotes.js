@@ -8,12 +8,13 @@ import Button from "../../atoms/Button/Button";
 const VisibleNotes = ({ visibleNotes, retrievedQandA, setVisibleNotes }) => {
   return (
     <>
-      {visibleNotes < retrievedQandA.length && (
+      {retrievedQandA && visibleNotes < retrievedQandA.length && (
         <StyledVisibleNotes>
           <Button
             type="button"
             onClick={() => setVisibleNotes(visibleNotes + 6)}
             text="See more"
+            size="small"
           />
         </StyledVisibleNotes>
       )}

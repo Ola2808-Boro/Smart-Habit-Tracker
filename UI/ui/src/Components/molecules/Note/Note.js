@@ -15,7 +15,7 @@ const Note = ({ data }) => {
     <StyledRetrievedNote>
       <StyledRetrievedQuestion>
         {/* Display the question */}
-        <Paragraph text={data[0]} />
+        <Paragraph text={data[1]} />
         <StyledRetrievedDate>
           {/* Display the date (extracted and trimmed) */}
           <Paragraph text={data[2]?.split(",")[1]?.slice(0, 12)} />
@@ -23,7 +23,7 @@ const Note = ({ data }) => {
       </StyledRetrievedQuestion>
       <StyledNoteAnswer>
         {/* Display the answer */}
-        <Paragraph text={data[1]} />
+        <Paragraph text={data[0]} />
       </StyledNoteAnswer>
     </StyledRetrievedNote>
   );

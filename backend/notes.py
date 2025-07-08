@@ -44,21 +44,29 @@ def read_note(data: dict, current_user_id: int):
                 answers.append(results[idx][0])
                 acitivity_dates.append(results_acitivity_date[idx][0])
             placeholders = ",".join(["%s"] * len(questions_id))
-            sql_select_questions = f"""
-                SELECT  question_id,question FROM habit_tracker.question WHERE question_id IN ({placeholders}); 
-            """
-            cursor.execute(sql_select_questions, questions_id)
-            questions_results = cursor.fetchall()
-            questions_dict = {qid: qtext for qid, qtext in questions_results}
-            questions = [questions_dict[qid] for qid in questions_id]
-            logging.info(
-                f"Answer: {answers}, question: {questions}, questions_id: {questions_id}"
-            )
-            return (
-                200,
-                "Successfully selected notes.",
-                [answers, questions, acitivity_dates],
-            )
+
+            if len(placeholders) > 0:
+                sql_select_questions = f"""
+                    SELECT  question_id,question FROM habit_tracker.question WHERE question_id IN ({placeholders}); 
+                """
+                cursor.execute(sql_select_questions, questions_id)
+                questions_results = cursor.fetchall()
+                questions_dict = {qid: qtext for qid, qtext in questions_results}
+                questions = [questions_dict[qid] for qid in questions_id]
+                logging.info(
+                    f"Answer: {answers}, question: {questions}, questions_id: {questions_id}"
+                )
+                return (
+                    200,
+                    "Successfully selected notes.",
+                    [answers, questions, acitivity_dates],
+                )
+            else:
+                return (
+                    200,
+                    "Sselected 0 notes.",
+                    [],
+                )
         else:
             data_dt = datetime.strptime(data["calDate"], "%Y-%m-%dT%H:%M:%S.%fZ")
             activity_date = data_dt.date().isoformat()
@@ -91,19 +99,19 @@ def read_note(data: dict, current_user_id: int):
             )
     except ProgrammingError as e:
         logging.error(f"SQL syntax or logic error: {e}")
-        return 500, "Database programming error."
+        return 500, "Database programming error.", None
     except IntegrityError as e:
         logging.error(f"Constraint violation: {e}")
-        return 500, "Data integrity error."
+        return 500, "Data integrity error.", None
     except OperationalError as e:
         logging.error(f"Database connection or transaction error: {e}")
-        return 503, "Database operational error."
+        return 503, "Database operational error.", None
     except DatabaseError as e:
         logging.error(f"General database error: {e}")
-        return 500, "Database error."
+        return 500, "Database error.", None
     except Exception as e:
         logging.error(f"Unexpected error: {e}")
-        return 500, "Unexpected server error."
+        return 500, "Unexpected server error.", None
     finally:
         conn.close()
 
@@ -118,7 +126,6 @@ def get_number_of_questions(current_user_id: int):
         """
         cursor.execute(sql_select_num_of_questions, (current_user_id,))
         num_of_questions = cursor.fetchone()
-        print(num_of_questions)
         if num_of_questions is None:
             logging.info(f"Zero questions in question table")
             return 200, "Zero question in db.", 0
@@ -126,19 +133,19 @@ def get_number_of_questions(current_user_id: int):
         return 200, "Number of question successfully selected.", num_of_questions[0]
     except ProgrammingError as e:
         logging.error(f"SQL syntax or logic error: {e}")
-        return 500, "Database programming error."
+        return 500, "Database programming error.", None
     except IntegrityError as e:
         logging.error(f"Constraint violation: {e}")
-        return 500, "Data integrity error."
+        return 500, "Data integrity error.", None
     except OperationalError as e:
         logging.error(f"Database connection or transaction error: {e}")
-        return 503, "Database operational error."
+        return 503, "Database operational error.", None
     except DatabaseError as e:
         logging.error(f"General database error: {e}")
-        return 500, "Database error."
+        return 500, "Database error.", None
     except Exception as e:
         logging.error(f"Unexpected error: {e}")
-        return 500, "Unexpected server error."
+        return 500, "Unexpected server error.", None
     finally:
         conn.close()
 
@@ -158,19 +165,19 @@ def select_question(question_id: int):
         return 200, "Question successfully selected.", question
     except ProgrammingError as e:
         logging.error(f"SQL syntax or logic error: {e}")
-        return 500, "Database programming error."
+        return 500, "Database programming error.", None
     except IntegrityError as e:
         logging.error(f"Constraint violation: {e}")
-        return 500, "Data integrity error."
+        return 500, "Data integrity error.", None
     except OperationalError as e:
         logging.error(f"Database connection or transaction error: {e}")
-        return 503, "Database operational error."
+        return 503, "Database operational error.", None
     except DatabaseError as e:
         logging.error(f"General database error: {e}")
-        return 500, "Database error."
+        return 500, "Database error.", None
     except Exception as e:
         logging.error(f"Unexpected error: {e}")
-        return 500, "Unexpected server error."
+        return 500, "Unexpected server error.", None
     finally:
         conn.close()
 

@@ -29,7 +29,7 @@ const Notes = () => {
   const [retrievedQandA, setRetrievedQandA] = useState([]);
   const [isOpenQandA, setIsOpenQandA] = useState(false);
   const [isOpenAddQuestion, setIsOpenAddQuestion] = useState(false);
-  const [visibleNotes, setVisibleNotes] = useState(2);
+  const [visibleNotes, setVisibleNotes] = useState(6);
   const [alert, setAlert] = useState({
     visible: false,
     title: "",
@@ -40,8 +40,7 @@ const Notes = () => {
   async function handleOpenPopupQandA() {
     const response = await checkNoteLimit();
     console.log(response);
-    if (response["data"]["task"]) {
-      console.log("aaa");
+    if (response["data"]["exists"]) {
       await getQuestion();
       setIsOpenQandA(true);
     } else {
@@ -66,6 +65,7 @@ const Notes = () => {
     setCalDate(calDate);
     setVisibleNotes(2);
     const response = await retrieveNotes(calDate);
+    console.log(response);
     setRetrievedQandA(response["data"]["answer_question_date"]);
   }
 
@@ -77,8 +77,11 @@ const Notes = () => {
 
   async function getQuestion() {
     const response = await getNumberOFQuestion();
-    if ((response["data"]["task"] !== 0) & (response["status"] === 200)) {
-      const max = response.data.max;
+    if (
+      (response["data"]["num_of_questions"] !== 0) &
+      (response["status"] === 200)
+    ) {
+      const max = response["data"]["num_of_questions"];
       const random_idx = randomQuestionIdx(max, lastQuestionIdx);
       setLastQuestionIdx(random_idx);
       const response2 = await retrieveQuestion(random_idx);
