@@ -177,7 +177,6 @@ const Habits = () => {
       ...task,
       time: convertPythonTimeToInputTime(task.time),
     }));
-    console.log(convertedTasks);
     updateDroppedItems(convertedTasks);
   }
 
@@ -222,7 +221,6 @@ const Habits = () => {
       const parentDiv = e.target.closest("div");
       const timeInput = parentDiv.querySelector('input[type="time"]');
       const selectedTime = timeInput?.value || "";
-      console.log(parentDiv, timeInput, selectedTime);
       if (selectedTime === "") {
         setAlert({
           visible: true,

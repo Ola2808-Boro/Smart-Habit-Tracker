@@ -1,14 +1,24 @@
-import "./Notes.css";
-import React, { use, useState } from "react";
-import Calendar from "react-calendar";
+import "./Notes.styles.js";
+import React, { useState } from "react";
 import PageTitle from "../../atoms/PageTitle/PageTitle";
 import "react-calendar/dist/Calendar.css";
 import axios from "axios";
-import Popup from "reactjs-popup";
 import "reactjs-popup/dist/index.css";
 import ReactJsAlert from "reactjs-alert";
-
-//min-date
+import CustomPopup from "../../organisms/Popup/Popup";
+import NotesList from "../../organisms/NotesList/NotesList";
+import { CalendarSection } from "../../organisms/CalendarSection/CalendarSection.js";
+import VisibleNotes from "../../molecules/VisibleNotes/VisibleNotes";
+import {
+  saveAnswerRequest,
+  checkNoteLimit,
+  saveQuestion,
+  retrieveQuestion,
+  getNumberOFQuestion,
+  retrieveNotes,
+} from "../../../api/notes/notes";
+import { randomQuestionIdx } from "../../../utils/notes/notes";
+import { MainContainer } from "./Notes.styles.js";
 
 const Notes = () => {
   const [calDate, setCalDate] = useState(new Date());
@@ -16,130 +26,63 @@ const Notes = () => {
   const [question, setQuestion] = useState("");
   const [newQuestion, setNewQuestion] = useState("");
   const [answer, setAnswer] = useState("");
-  const [retreivedQandA, setRetreivedQandA] = useState([]);
+  const [retrievedQandA, setRetrievedQandA] = useState([]);
   const [isOpenQandA, setIsOpenQandA] = useState(false);
   const [isOpenAddQuestion, setIsOpenAddQuestion] = useState(false);
-  const [visibleNotes, setVisibleNotes] = useState(2);
-  const [noMoreQuestionAlert, setNoMoreQuestionAlert] = useState(false);
+  const [visibleNotes, setVisibleNotes] = useState(6);
+  const [alert, setAlert] = useState({
+    visible: false,
+    title: "",
+    quote: "",
+    type: "info",
+  });
 
   async function handleOpenPopupQandA() {
-    const token = localStorage.getItem("token");
-    const response_check_answer = await axios.get(
-      "http://127.0.0.1:5000/check-answer-exists",
-      {
-        headers: {
-          Authorization: token,
-        },
-      },
-    );
-    if (
-      response_check_answer["data"]["message"] === "A note has note_id null"
-    ) {
+    const response = await checkNoteLimit();
+    if (response["data"]["exists"]) {
       await getQuestion();
       setIsOpenQandA(true);
     } else {
-      setNoMoreQuestionAlert(true);
+      setAlert({
+        visible: false,
+        title: "Adding notes",
+        quote: "Added note today. You can add one note per day.",
+        type: "info",
+      });
     }
-  }
-
-  async function handleClosePopupQandA() {
-    setIsOpenQandA(false);
-  }
-
-  async function handleOpenPopupAddQuestion() {
-    setIsOpenAddQuestion(true);
-  }
-
-  async function handleClosePopupAddQuestion() {
-    setIsOpenAddQuestion(false);
   }
 
   async function handleSaveAnswer(e) {
     e.preventDefault();
-    console.log("Add");
-    const response = await axios.post(
-      "http://127.0.0.1:5000/save-answer",
-      { answer: answer, question_id: lastQuestionIdx },
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      },
-    );
+    const response = await saveAnswerRequest();
     setQuestion("");
     setAnswer("");
-    handleClosePopupQandA();
-    console.log(`Answer: ${answer}, question: ${question}`);
+    setIsOpenQandA(false);
   }
 
-  function randomQuestionIdx(max) {
-    console.log(max, "max");
-    let random_idx;
-    if (max > 1) {
-      do {
-        random_idx = Math.floor(Math.random() * max) + 1;
-      } while (random_idx === lastQuestionIdx);
-    } else {
-      random_idx = 1;
-    }
-    setLastQuestionIdx(random_idx);
-    return random_idx;
-  }
-  async function onChange(calDate) {
-    const token = localStorage.getItem("token");
+  async function onChangeDate(calDate) {
     setCalDate(calDate);
-    console.log(calDate, typeof calDate);
-    const response = await axios.post(
-      "http://127.0.0.1:5000/notes-read",
-      { calDate: calDate },
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: token,
-        },
-      },
-    );
-    console.log(`Response onChange calendar: ${response["data"]}`);
-    setRetreivedQandA(response["data"]["answer_question_date"]);
-    console.log(retreivedQandA);
+    setVisibleNotes(2);
+    const response = await retrieveNotes(calDate);
+    setRetrievedQandA(response["data"]["answer_question_date"]);
   }
 
   async function handleAddQuestion(e) {
     e.preventDefault();
-    const response = await axios.post(
-      "http://127.0.0.1:5000/add-question",
-      { new_question: newQuestion },
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      },
-    );
-    console.log(response["data"]);
-    handleClosePopupAddQuestion();
+    const response = await saveQuestion(newQuestion);
+    setIsOpenAddQuestion(false);
   }
 
   async function getQuestion() {
-    const response = await axios.get("http://127.0.0.1:5000/num_of_questions");
-    console.log(response);
+    const response = await getNumberOFQuestion();
     if (
-      response["data"]["message"] !== "Failed to retrieve number of questions"
+      (response["data"]["num_of_questions"] !== 0) &
+      (response["status"] === 200)
     ) {
-      const max = response.data.max;
-      const random_idx = randomQuestionIdx(max);
-      const token = localStorage.getItem("token");
-      const response2 = await axios.post(
-        "http://127.0.0.1:5000/get_question",
-        { random_idx: random_idx },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: token,
-          },
-        },
-      );
-      console.log(response2);
-
+      const max = response["data"]["num_of_questions"];
+      const random_idx = randomQuestionIdx(max, lastQuestionIdx);
+      setLastQuestionIdx(random_idx);
+      const response2 = await retrieveQuestion(random_idx);
       setQuestion(response2["data"]["question"]);
     } else {
       return "incorrectly downloaded number of questions";
@@ -149,107 +92,48 @@ const Notes = () => {
   return (
     <>
       <PageTitle />
-      <div>
-        <div className="calandera-note-container">
-          <Calendar onChange={onChange} value={calDate} selectRange={true} />
-          <div className="q-a-container">
-            <Popup
-              open={isOpenAddQuestion}
-              onClose={() => setIsOpenAddQuestion(false)}
-              modal
-            >
-              <form className="form-card" onSubmit={handleAddQuestion}>
-                <p className="form-question">Add question</p>
-                <textarea
-                  value={newQuestion}
-                  className="form-input"
-                  maxLength={255}
-                  onChange={(e) => {
-                    setNewQuestion(e.target.value);
-                    e.target.style.height = "auto";
-                    e.target.style.height = `${e.target.scrollHeight}px`;
-                  }}
-                  rows={1}
-                />
-                <button className="form-button" type="submit">
-                  Save question
-                </button>
-              </form>
-            </Popup>
-            <Popup
-              open={isOpenQandA}
-              onClose={() => setIsOpenQandA(false)}
-              modal
-            >
-              <form className="form-card" onSubmit={handleSaveAnswer}>
-                <p className="form-question">{question}</p>
-                <textarea
-                  value={answer}
-                  className="form-input"
-                  maxLength={255}
-                  onChange={(e) => {
-                    setAnswer(e.target.value);
-                    e.target.style.height = "auto";
-                    e.target.style.height = `${e.target.scrollHeight}px`;
-                  }}
-                  rows={1}
-                />
-                <button className="form-button" type="submit">
-                  Save answer
-                </button>
-              </form>
-            </Popup>
-
-            <button className="form-button" onClick={handleOpenPopupQandA}>
-              Get a random question
-            </button>
-            <button
-              className="form-button"
-              onClick={handleOpenPopupAddQuestion}
-            >
-              Add a new question
-            </button>
-          </div>
-        </div>
-        <div className="retrieved-notes-conatiner">
-          {retreivedQandA &&
-            retreivedQandA.slice(0, visibleNotes).map((item, index) => {
-              console.log(item, index);
-              return (
-                <div key={index} className="retrieved-note">
-                  <div className="retrieved-note-question">
-                    <p>{item[0]}</p>{" "}
-                    <div className="retrieved-note-date">
-                      {item[2].split(",")[1].slice(0, 12)}
-                    </div>
-                  </div>
-                  <div className="retrieved-note-answer">
-                    <p>{item[1]}</p>
-                  </div>
-                </div>
-              );
-            })}
-        </div>
-        {visibleNotes < retreivedQandA.length && (
-          <div className="more-notes-container">
-            <button
-              className="form-button"
-              onClick={() => setVisibleNotes(visibleNotes + 6)}
-            >
-              See more
-            </button>
-          </div>
-        )}
-
-        <ReactJsAlert
-          status={noMoreQuestionAlert}
-          type="info"
-          title="Adding notes"
-          isQuotes={true}
-          quote="Added note today. You can add one note per day."
-          Close={() => setNoMoreQuestionAlert(false)}
+      <MainContainer>
+        <CalendarSection
+          value={calDate}
+          onChange={onChangeDate}
+          handleOpenPopupQandA={handleOpenPopupQandA}
+          setIsOpenAddQuestion={setIsOpenAddQuestion}
         />
-      </div>
+        <NotesList
+          retrievedQandA={retrievedQandA}
+          visibleNotes={visibleNotes}
+        />
+        <VisibleNotes
+          visibleNotes={visibleNotes}
+          retrievedQandA={retrievedQandA}
+          setVisibleNotes={setVisibleNotes}
+        />
+        <ReactJsAlert
+          status={alert.visible}
+          type={alert.type}
+          title={alert.title}
+          isQuotes={true}
+          quote={alert.quote}
+          Close={() => setAlert((prev) => ({ ...prev, visible: false }))}
+        />
+        <CustomPopup
+          type="add-question"
+          open={isOpenAddQuestion}
+          setIsOpen={setIsOpenAddQuestion}
+          handleAdd={handleAddQuestion}
+          value={newQuestion}
+          setNewValue={setNewQuestion}
+        />
+        <CustomPopup
+          type="question-answer"
+          open={isOpenQandA}
+          setIsOpen={setIsOpenQandA}
+          handleAdd={handleSaveAnswer}
+          value={answer}
+          setNewValue={setAnswer}
+          question={question}
+        />
+      </MainContainer>
     </>
   );
 };

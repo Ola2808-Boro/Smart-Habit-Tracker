@@ -96,108 +96,64 @@ def sign_up():
 @token_required
 def read_notes_for_a_date(current_user_id: int):
     data = request.json
-    answer, question, activity_date = read_note(data, current_user_id)
-    answer_question_date = [
-        [question[i], answer[i], activity_date[i]] for i in range(len(answer))
-    ]
-    if answer or question:
-        return (
-            jsonify(
-                {
-                    "message": "Data retrieved successfully",
-                    "answer_question_date": answer_question_date,
-                }
-            ),
-            201,
-        )
-    else:
-        return (
-            jsonify(
-                {
-                    "message": "Failed to retrieve data",
-                    "answer_question_date": answer_question_date,
-                }
-            ),
-            401,
-        )
+    code, message, results = read_note(data, current_user_id)
+    answer_question_date = []
+
+    if len(results) > 0:
+        answer_question_date = [
+            [results[0][i], results[1][i], results[2][i]]
+            for i in range(len(results[0]))
+        ]
+    print(answer_question_date)
+    return (
+        jsonify({"message": message, "answer_question_date": answer_question_date}),
+        code,
+    )
 
 
 @app.route("/num_of_questions", methods=["GET"])
-def get_num_of_questions():
-    result = get_number_of_questions()
-    if result:
-        return (
-            jsonify(
-                {"message": "Number of questions retrieved successfully", "max": result}
-            ),
-            201,
-        )
-    else:
-        return (
-            jsonify(
-                {"message": "Failed to retrieve number of questions", "max": result}
-            ),
-            401,
-        )
+@token_required
+def get_num_of_questions(current_user_id: int):
+    print("num of questions")
+    code, message, results = get_number_of_questions(current_user_id)
+    return jsonify({"message": message, "num_of_questions": results}), code
 
 
 @app.route("/get_question", methods=["POST"])
 def get_question():
     data = request.json
-    result = select_question(question_id=data["random_idx"])
-    if result:
-        return (
-            jsonify({"message": "Data retrieved successfully", "question": result}),
-            201,
-        )
-    else:
-        return jsonify({"message": "Failed to retrieve data", "question": result}), 401
+    code, message, results = select_question(question_id=data["random_idx"])
+    return jsonify({"message": message, "question": results}), code
 
 
 @app.route("/save-answer", methods=["POST"])
 @token_required
 def save_answer(current_user_id: int):
     data = request.json
-    result = insert_answer(data, current_user_id)
-    if result:
-        return jsonify({"message": "Note saved successfully"}), 201
-    else:
-        return jsonify({"message": "Failed to save note"}), 401
+    code, message = insert_answer(data, current_user_id)
+    return jsonify({"message": message}), code
 
 
 @app.route("/add-question", methods=["POST"])
-def add_qestion():
+@token_required
+def add_qestion(current_user_id: int):
     data = request.json
-    result = insert_question(data)
-    if result:
-        return jsonify({"message": "Question added successfully"}), 201
-    else:
-        return jsonify({"message": "Failed to add question"}), 401
+    code, message = insert_question(data, current_user_id)
+    return jsonify({"message": message}), code
 
 
 @app.route("/check-answer-exists", methods=["GET"])
 @token_required
 def check_answer(current_user_id: int):
-    result = check_answer_exists(current_user_id)
-    if type(result) == int:
-        return jsonify({"message": "A note already exists for this date"}), 201
-    elif result is True:
-        return jsonify({"message": "A note has note_id null"}), 201
-    else:
-        return jsonify({"message": "No note found for this date"}), 401
+    code, message, results = check_answer_exists(current_user_id)
+    return jsonify({"message": message, "exists": results}), code
 
 
 @app.route("/check-joined-date", methods=["GET"])
 @token_required
 def check_joined_date(current_user_id: int):
-    result = check_user_joined_date(current_user_id=current_user_id)
-    if result:
-        return (
-            jsonify({"message": "Joined date found for user", "date_join": result}),
-            201,
-        )
-    else:
-        return jsonify({"message": "Joined date not found for user"}), 401
+    code, message, results = check_user_joined_date(current_user_id=current_user_id)
+    return jsonify({"message": message, "task": results}), code
 
 
 @app.route("/add-new-mood-option", methods=["POST"])
