@@ -2,11 +2,27 @@ import logging
 import os
 from datetime import datetime
 from functools import wraps
-from mood import insert_new_mood_option,update_user_mood,retrieved_mood_data,get_mood_option
+
 import jwt
 from dotenv import load_dotenv
 from flask import Flask, jsonify, request
 from flask_cors import CORS
+from habits import (
+    get_category,
+    get_habit,
+    get_task,
+    remove_task,
+    save_category,
+    save_habit,
+    save_task,
+    weakly_progress_stats,
+)
+from mood import (
+    get_mood_option,
+    insert_new_mood_option,
+    retrieved_mood_data,
+    update_user_mood,
+)
 from notes import (
     check_answer_exists,
     get_number_of_questions,
@@ -15,7 +31,7 @@ from notes import (
     read_note,
     select_question,
 )
-from user import add_user, check_user, select_user,check_user_joined_date
+from user import add_user, check_user, check_user_joined_date, select_user
 
 app = Flask(__name__)
 CORS(app)
@@ -48,7 +64,7 @@ def login():
     if result:
         token = jwt.encode(
             {"user_id": result[0]}, app.config["SECRET_KEY"], algorithm="HS256"
-        )  # exp
+        )
         return (
             jsonify(
                 {
@@ -72,7 +88,6 @@ def sign_up():
         result = add_user(data)
         if result:
             return jsonify({"message": "User created", "redirect": "/"}), 201
-
         else:
             return jsonify({"message": "Invalid credentials"}), 401
 
@@ -81,271 +96,193 @@ def sign_up():
 @token_required
 def read_notes_for_a_date(current_user_id: int):
     data = request.json
-    answer, question, activity_date = read_note(data, current_user_id)
+    code, message, results = read_note(data, current_user_id)
     answer_question_date = []
-    for i in range(len(answer)):
-        answer_question_date.append([question[i], answer[i], activity_date[i]])
-    if answer or question:
-        return (
-            jsonify(
-                {
-                    "message": "Data retrieved successfully",
-                    "answer_question_date": answer_question_date,
-                }
-            ),
-            201,
-        )
-    else:
-        return (
-            jsonify(
-                {
-                    "message": "Failed to retrieve data",
-                    "answer_question_date": answer_question_date,
-                }
-            ),
-            401,
-        )
+
+    if len(results) > 0:
+        answer_question_date = [
+            [results[0][i], results[1][i], results[2][i]]
+            for i in range(len(results[0]))
+        ]
+    print(answer_question_date)
+    return (
+        jsonify({"message": message, "answer_question_date": answer_question_date}),
+        code,
+    )
 
 
 @app.route("/num_of_questions", methods=["GET"])
-def get_num_of_questions():
-    result = get_number_of_questions()
-    if result:
-        return (
-            jsonify(
-                {"message": "Number of questions retrieved successfully", "max": result}
-            ),
-            201,
-        )
-
-    else:
-        return (
-            jsonify(
-                {"message": "Failed to retrieve number of questions", "max": result}
-            ),
-            401,
-        )
+@token_required
+def get_num_of_questions(current_user_id: int):
+    print("num of questions")
+    code, message, results = get_number_of_questions(current_user_id)
+    return jsonify({"message": message, "num_of_questions": results}), code
 
 
 @app.route("/get_question", methods=["POST"])
 def get_question():
     data = request.json
-    result = select_question(question_id=data["random_idx"])
-    if result:
-        return (
-            jsonify(
-                {
-                    "message": "Data retrieved successfully",
-                    "question": result,
-                }
-            ),
-            201,
-        )
-    else:
-        return (
-            jsonify(
-                {
-                    "message": "Failed to retrieve data",
-                    "question": result,
-                }
-            ),
-            401,
-        )
+    code, message, results = select_question(question_id=data["random_idx"])
+    return jsonify({"message": message, "question": results}), code
 
 
 @app.route("/save-answer", methods=["POST"])
 @token_required
 def save_answer(current_user_id: int):
     data = request.json
-    result = insert_answer(data, current_user_id)
-    if result:
-        return (
-            jsonify(
-                {
-                    "message": "Note saved successfully",
-                }
-            ),
-            201,
-        )
-    else:
-        return (
-            jsonify(
-                {
-                    "message": "Failed to save note",
-                }
-            ),
-            401,
-        )
+    code, message = insert_answer(data, current_user_id)
+    return jsonify({"message": message}), code
 
 
 @app.route("/add-question", methods=["POST"])
-def add_qestion():
+@token_required
+def add_qestion(current_user_id: int):
     data = request.json
-    result = insert_question(data)
-    if result:
-        return (
-            jsonify(
-                {
-                    "message": "Question added successfully",
-                }
-            ),
-            201,
-        )
-    else:
-        return (
-            jsonify(
-                {
-                    "message": "Failed to add question",
-                }
-            ),
-            401,
-        )
+    code, message = insert_question(data, current_user_id)
+    return jsonify({"message": message}), code
 
 
 @app.route("/check-answer-exists", methods=["GET"])
 @token_required
 def check_answer(current_user_id: int):
-    result = check_answer_exists(current_user_id)
-    if type(result) == int:
-        return (
-            jsonify(
-                {
-                    "message": "A note already exists for this date",
-                }
-            ),
-            201,
-        )
-    elif result == True:
-        return (
-            jsonify(
-                {
-                    "message": "A note has note_id null",
-                }
-            ),
-            201,
-        )
-    else:
-        return (
-            jsonify(
-                {
-                    "message": "No note found for this date",
-                }
-            ),
-            401,
-        )
+    code, message, results = check_answer_exists(current_user_id)
+    return jsonify({"message": message, "exists": results}), code
+
 
 @app.route("/check-joined-date", methods=["GET"])
 @token_required
-def check_joined_date(current_user_id:int):
-    result=check_user_joined_date(current_user_id=current_user_id)
-    if result:
-         return (
-            jsonify(
-                {
-                    'message':'Joined date found for user',
-                    'date_join':result
-                }
-            ),
-            201,
-        )
-    else:
-        return(
-            jsonify(
-                {
-                    'message':'Joined date no found for user'
-                },
-                401
-            )
-        )
-    
-@app.route('/add-new-mood-option',methods=['POST'])
+def check_joined_date(current_user_id: int):
+    code, message, results = check_user_joined_date(current_user_id=current_user_id)
+    return jsonify({"message": message, "task": results}), code
+
+
+@app.route("/add-new-mood-option", methods=["POST"])
 @token_required
-def add_new_mood_option(current_user_id:int):
-    data=request.json
-    result=insert_new_mood_option(data,current_user_id)
+def add_new_mood_option(current_user_id: int):
+    data = request.json
+    result = insert_new_mood_option(data, current_user_id)
     if result:
-        return jsonify({
-            'message':'Mood option added successfully'
-        },201)
+        return jsonify({"message": "Mood option added successfully"}), 201
     else:
-        return jsonify({
-            'message':'Failed to add mood option'
-        },401)
-        
-        
+        return jsonify({"message": "Failed to add mood option"}), 401
+
+
 @app.route("/update-mood", methods=["POST"])
 @token_required
-def update_mood(current_user_id:int):
-    data=request.json
-    result=update_user_mood(data=data,current_user_id=current_user_id)
+def update_mood(current_user_id: int):
+    data = request.json
+    result = update_user_mood(data=data, current_user_id=current_user_id)
     if result:
-         return (
-            jsonify(
-                {
-                    'message':'Mood updated uccessfully',
-                    'date_join':result
-                }
-            ),
+        return (
+            jsonify({"message": "Mood updated successfully", "date_join": result}),
             201,
         )
     else:
-        return(
-            jsonify(
-                {
-                    'message':'Failed to update mood'
-                },
-                401
-            )
-        )
-    
+        return jsonify({"message": "Failed to update mood"}), 401
+
+
 @app.route("/retrieved-mood-data", methods=["GET"])
 @token_required
-def retrieved_mood(current_user_id:int):
-    result=retrieved_mood_data(current_user_id=current_user_id)
+def retrieved_mood(current_user_id: int):
+    result = retrieved_mood_data(current_user_id=current_user_id)
     if result:
-         return (
-            jsonify(
-                {
-                    'message':'Retrieved mood successfully',
-                    'mood_data':result
-                }
-            ),
+        return (
+            jsonify({"message": "Retrieved mood successfully", "mood_data": result}),
             201,
         )
     else:
-        return(
-            jsonify(
-                {
-                    'message':'Failed to retrieve mood data'
-                },
-                401
-            )
-        )  
-        
+        return jsonify({"message": "Failed to retrieve mood data"}), 201
+
+
 @app.route("/get-mood-option", methods=["GET"])
 @token_required
-def retrieved_mood_option(current_user_id:int):
-    result=get_mood_option(current_user_id=current_user_id)
+def retrieved_mood_option(current_user_id: int):
+    result = get_mood_option(current_user_id=current_user_id)
     if result:
-         return (
+        return (
             jsonify(
-                {
-                    'message':'Retrieved mood option successfully',
-                    'mood_option':result
-                }
+                {"message": "Retrieved mood option successfully", "mood_option": result}
             ),
             201,
         )
     else:
-        return(
-            jsonify(
-                {
-                    'message':'Failed to retrieve mood data'
-                },
-                401
-            )
-        )  
-        
-        
+        return jsonify({"message": "Failed to retrieve mood data"}), 401
+
+
+# Habits+tasks
+@app.route("/save-category", methods=["POST"])
+@token_required
+def saving_category(current_user_id: int):
+    data = request.json
+    result = save_category(data=data, current_user_id=current_user_id)
+    if result:
+        return jsonify({"message": "Added successfully category"}), 201
+    elif result is False:
+        return jsonify({"message": "Category already exists"}), 201
+    else:
+        return jsonify({"message": "Failed to add category"}), 401
+
+
+@app.route("/save-habit", methods=["POST"])
+@token_required
+def saving_habit(current_user_id: int):
+    data = request.json
+    result = save_habit(data=data, current_user_id=current_user_id)
+    if result:
+        return jsonify({"message": "Added successfully habit"}), 201
+    elif result is False:
+        return jsonify({"message": "Habit already exists"}), 201
+    else:
+        return jsonify({"message": "Failed to add habit"}), 401
+
+
+@app.route("/get-category", methods=["GET"])
+@token_required
+def retrieved_category(current_user_id: int):
+    code, message, results = get_category(current_user_id=current_user_id)
+    return jsonify({"message": message, "category": results}), code
+
+
+@app.route("/get-habit", methods=["GET"])
+@token_required
+def retrieved_habit(current_user_id: int):
+    code, message, results = get_habit(current_user_id=current_user_id)
+    return jsonify({"message": message, "habit": results}), code
+
+
+@app.route("/get-task", methods=["POST"])
+@token_required
+def retrieved_task(current_user_id: int):
+    data = request.json
+    code, message, results = get_task(data=data, current_user_id=current_user_id)
+    return jsonify({"message": message, "task": results}), code
+
+
+@app.route("/save-task", methods=["POST"])
+@token_required
+def saving_task(current_user_id: int):
+    data = request.json
+    code, message = save_task(data=data, current_user_id=current_user_id)
+    return jsonify({"message": message}), code
+
+
+@app.route("/remove-task", methods=["POST"])
+@token_required
+def removing_task(current_user_id: int):
+    data = request.json
+    code, message = remove_task(data=data, current_user_id=current_user_id)
+    return jsonify({"message": message}), code
+
+
+@app.route("/weakly-progress-stats", methods=["POST"])
+@token_required
+def removing_weakly_progress_stats(current_user_id: int):
+    data = request.json
+    code, message, progress_rates = weakly_progress_stats(
+        data=data, current_user_id=current_user_id
+    )
+    return jsonify({"message": message, "progress_rates": progress_rates}), code
+
+
 if __name__ == "__main__":
     app.run(debug=True)
