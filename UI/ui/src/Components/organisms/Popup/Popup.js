@@ -9,7 +9,7 @@ import {
   StyledCategory,
   StyledTextArea,
 } from "./Popup.styles";
-
+import { HexColorPicker } from "react-colorful";
 /**
  * Reusable popup modal for saving habits, categories, questions, or answers.
  */
@@ -23,6 +23,15 @@ const CustomPopup = ({
   setIsOpen,
   handleAdd,
   question,
+  newMoodColor,
+  setNewMoodColor,
+  visibleLegendOptions,
+  moodOptions,
+  setVisibleLegendOptions,
+  addMood,
+  selectedYear,
+  selectedMonth,
+  selectedDay,
 }) => {
   const closePopup = () => setIsOpen(false);
 
@@ -140,6 +149,87 @@ const CustomPopup = ({
       </Popup>
     );
   }
+  if (type === "add-mood-option") {
+    return (
+      <Popup
+        open={open}
+        onClose={closePopup}
+        modal
+        closeOnEscape={true}
+        closeOnDocumentClick={true}
+      >
+        <StyledForm onSubmit={handleAdd}>
+          <Paragraph text="Add mood option" />
+          <HexColorPicker color={newMoodColor} onChange={setNewMoodColor} />
+          <StyledTextArea
+            value={value}
+            maxLength={255}
+            onChange={(e) => {
+              setNewValue(e.target.value);
+              e.target.style.height = "auto";
+              e.target.style.height = `${e.target.scrollHeight}px`;
+            }}
+            rows={1}
+          />
+          <Button type="submit" text="Save mood type" />
+        </StyledForm>
+      </Popup>
+    );
+  }
+  if (type === "add-mood") {
+    return (
+      <Popup
+        open={open}
+        onClose={closePopup}
+        modal
+        closeOnEscape={true}
+        closeOnDocumentClick={true}
+      >
+        <StyledForm onSubmit={handleAdd}>
+          <div className="mood-legend-container">
+            {moodOptions &&
+              moodOptions
+                .slice(0, visibleLegendOptions)
+                .map(([mood, color], index) => {
+                  return (
+                    <div
+                      key={index}
+                      className="mood-legend-type-container"
+                      onClick={(e) =>
+                        addMood(e, selectedYear, selectedMonth, selectedDay)
+                      }
+                    >
+                      <div
+                        className={`mood-type-container`}
+                        data-mood={mood}
+                        data-color={color}
+                        style={{ backgroundColor: color }}
+                      ></div>
+                      <div>
+                        <p>{mood}</p>
+                      </div>
+                    </div>
+                  );
+                })}
+            {visibleLegendOptions < moodOptions.length && (
+              <div className="more-notes-container">
+                <button
+                  className="form-button"
+                  type="button"
+                  onClick={() =>
+                    setVisibleLegendOptions(visibleLegendOptions + 6)
+                  }
+                >
+                  See more
+                </button>
+              </div>
+            )}
+          </div>
+          <Button type="submit" text="Save mood" />
+        </StyledForm>
+      </Popup>
+    );
+  }
 
   return null;
 };
@@ -152,6 +242,8 @@ CustomPopup.propTypes = {
     "save-category",
     "add-question",
     "question-answer",
+    "add-mood",
+    "add-mood-option",
   ]).isRequired,
   setNewValue: PropTypes.func.isRequired,
   setIsOpen: PropTypes.func.isRequired,

@@ -1,149 +1,81 @@
 import "./Mood.css";
-import React, { useState, useEffect } from "react";
 import PageTitle from "../../atoms/PageTitle/PageTitle";
-import axios from "axios";
-import Popup from "reactjs-popup";
-import { HexColorPicker } from "react-colorful";
-
+import {
+  getMoodLegendData,
+  addNewMoodLegendData,
+  getMoodData,
+  updateMoodData,
+  getJoinedDateData,
+} from "../../../api/mood/mood";
+import { useInitialData, useNewMoodData } from "../../../hooks/mood/mood";
+import { months, daysInMonth, nameOfDays } from "../../../utils/mood/mood";
+import { useDate, useMood } from "../../../hooks/mood/mood";
+import Popup from "../../organisms/Popup/Popup.js";
 const Mood = () => {
-  const months = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-  ];
-  const [selectedMonth, setSelectedMonth] = useState(
-    months[new Date().getMonth()],
-  );
-  const [selectedDay, setSelectedDay] = useState(new Date().getDay());
-  const [selectedYear, setSelecteYear] = useState(new Date().getFullYear());
-  const [selectedMoods, setSelectedMoods] = useState({});
-  const [years, setYears] = useState([]);
-  const [moodOptions, setMoodOptions] = useState([]);
-  const [isMoodPopupOpen, setIsMoodPopupOpen] = useState(false);
-  const [isAddMoodLegendOpen, setIsAddMoodLegendOpen] = useState(false);
-  const [newMoodColor, setNewMoodColor] = useState("#aabbcc");
-  const [newMoodName, setNewMoodName] = useState("");
-  const [visibleLegendOptions, setVisibleLegendOptions] = useState(10);
+  const {
+    selectedMonth,
+    setSelectedMonth,
+    selectedDay,
+    setSelectedDay,
+    selectedYear,
+    setSelectedYear,
+    years,
+    setYears,
+  } = useDate();
+  const {
+    selectedMoods,
+    setSelectedMoods,
+    moodOptions,
+    setMoodOptions,
+    isMoodPopupOpen,
+    setIsMoodPopupOpen,
+    isAddMoodLegendOpen,
+    setIsAddMoodLegendOpen,
+    newMoodColor,
+    setNewMoodColor,
+    newMoodName,
+    setNewMoodName,
+    visibleLegendOptions,
+    setVisibleLegendOptions,
+    addMoodToLegend,
+    setInactiveMoodDays,
+    addMood,
+  } = useMood();
 
-  const nameOfDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   const days = [];
   const weekChunks = [];
   const firstDay = new Date(selectedYear, new Date().getMonth()).getDay();
   const totalDays = daysInMonth(selectedYear, new Date().getMonth());
 
-  function daysInMonth(year, month) {
-    return new Date(year, month + 1, 0).getDate();
+  async function getMoodLegend() {
+    const response = await getMoodLegendData();
+    console.log("getMoodLegend", response, response.data["mood"]);
+    setMoodOptions(response.data["mood"]);
   }
-
-  async function getMoodLegendData() {
-    const token = localStorage.getItem("token");
-    const response = await axios.get("http://127.0.0.1:5000/get-mood-option", {
-      headers: {
-        Authorization: token,
-      },
-    });
-    setMoodOptions(response.data["mood_option"]);
-  }
-  async function addMoodToLegend(e) {
+  async function addMoodLegend(e) {
     e.preventDefault();
-    const token = localStorage.getItem("token");
-    console.log("Click");
-    const response = await axios.post(
-      "http://127.0.0.1:5000/add-new-mood-option",
-      { newMoodOption: newMoodName, newMoodOptionColor: newMoodColor },
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: token,
-        },
-      },
-    );
-    setIsAddMoodLegendOpen(false);
-    setMoodOptions((prev) => [...prev, [newMoodName, newMoodColor]]);
-    setNewMoodName("");
-    setNewMoodColor("");
+    const response = addNewMoodLegendData(newMoodName, newMoodColor);
+    addMoodToLegend();
   }
   async function handleOpenAddMoodLegendPopup() {
     setIsAddMoodLegendOpen(true);
   }
 
-  async function setInactiveMoodDays(currentDate) {
-    setSelectedMoods((prev) => {
-      const newState = { ...prev };
-      if (!newState[selectedYear]) newState[selectedYear] = {};
-      if (!newState[selectedYear][selectedMonth])
-        newState[selectedYear][selectedMonth] = {};
-      for (let i = 1; i <= totalDays; i += 1) {
-        if (!newState[selectedYear][selectedMonth][i] && i !== currentDate) {
-          newState[selectedYear][selectedMonth][i] = {
-            mood: "inactive",
-            color: "gray",
-          };
-          console.log(newState[selectedYear][selectedMonth][i]);
-        }
-      }
-      return newState;
-    });
-  }
   async function setMoods(day) {
-    console.log("click");
     setSelectedDay(day);
     setIsMoodPopupOpen(true);
   }
-  async function handleAddMood(e) {
-    e.preventDefault();
-    console.log(selectedMoods);
-    setSelectedMoods((prev) => {
-      const newState = { ...prev };
-      if (!newState[selectedYear]) newState[selectedYear] = {};
-      if (!newState[selectedYear][selectedMonth])
-        newState[selectedYear][selectedMonth] = {};
-      newState[selectedYear][selectedMonth][selectedDay] = {
-        mood: e.target.dataset.mood,
-        color: e.target.dataset.color,
-      };
-      return newState;
-    });
-    console.log(selectedMoods);
-  }
+
   async function updateMood(e) {
     e.preventDefault();
-    const token = localStorage.getItem("token");
     const day = selectedDay;
     const mood = selectedMoods[selectedYear][selectedMonth][day].mood;
-    console.log(token, mood);
-    const response = await axios.post(
-      "http://127.0.0.1:5000/update-mood",
-      { selectedMood: mood },
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: token,
-        },
-      },
-    );
-    console.log(response);
+    const response = await updateMoodData(mood);
     setIsMoodPopupOpen(false);
   }
   async function getJoinedDate() {
-    const token = localStorage.getItem("token");
-    const response = await axios.get(
-      "http://127.0.0.1:5000/check-joined-date",
-      {
-        headers: {
-          Authorization: token,
-        },
-      },
-    );
+    const response = await getJoinedDateData();
+    console.log("getJoinedDate", response);
     const dateJoinYear = new Date(response["data"]["date_join"]).getFullYear();
     const years = [];
     for (let i = selectedYear; i >= dateJoinYear; i -= 1) {
@@ -152,21 +84,12 @@ const Mood = () => {
     setYears(years);
   }
 
-  async function getMoodData() {
-    console.log("Get mood data");
-    const token = localStorage.getItem("token");
-    const response = await axios.get(
-      "http://127.0.0.1:5000/retrieved-mood-data",
-      {
-        headers: {
-          Authorization: token,
-        },
-      },
-    );
-    console.log("Mood ", response);
+  async function getMood() {
+    const response = await getMoodData();
+    console.log("getMood", response.data["mood"]);
     const newMoods = { ...selectedMoods };
 
-    response.data["mood_data"]?.forEach(([mood_id, dateStr, mood, color]) => {
+    response.data["mood"]?.forEach(([mood_id, dateStr, mood, color]) => {
       const date = new Date(dateStr);
       const y = date.getFullYear();
       const m = months[date.getMonth()];
@@ -190,31 +113,16 @@ const Mood = () => {
     weekChunks.push(days.slice(i, i + 7));
   }
 
-  useEffect(() => {
-    const today = new Date().getDate();
-    const fetchData = async () => {
-      await getMoodLegendData();
-      await getMoodData();
-      await setInactiveMoodDays(today);
-      await getJoinedDate();
-    };
-
-    fetchData();
-  }, []);
-
-  useEffect(() => {
-    const today = new Date().getDate();
-    const fetchData = async () => {
-      await getMoodData();
-      await setInactiveMoodDays(today);
-    };
-
-    fetchData();
-  }, [selectedMonth, selectedYear]);
-
-  useEffect(() => {
-    console.log("selectedMoods updated:", selectedMoods);
-  }, [selectedMoods]);
+  useInitialData(
+    getMoodLegend,
+    getMood,
+    setInactiveMoodDays,
+    getJoinedDate,
+    selectedYear,
+    selectedMonth,
+    totalDays
+  );
+  useNewMoodData(getMood, setInactiveMoodDays, selectedMonth, selectedYear);
 
   return (
     <>
@@ -227,77 +135,81 @@ const Mood = () => {
               value={selectedMonth}
               onChange={(e) => setSelectedMonth(e.target.value)}
             >
-              {months.map((month, index) => (
-                <option key={index} value={month}>
-                  {month}
-                </option>
-              ))}
+              {months &&
+                months.map((month, index) => (
+                  <option key={index} value={month}>
+                    {month}
+                  </option>
+                ))}
             </select>
             <select
               className="select-option"
               value={selectedYear}
-              onChange={(e) => setSelecteYear(Number(e.target.value))}
+              onChange={(e) => setSelectedYear(Number(e.target.value))}
             >
-              {years.map((year, index) => (
-                <option key={index} value={year}>
-                  {year}
-                </option>
-              ))}
+              {years &&
+                years.map((year, index) => (
+                  <option key={index} value={year}>
+                    {year}
+                  </option>
+                ))}
             </select>
           </div>
           <div className="mood-tracker-days-name">
-            {nameOfDays.map((dayName, idx) => (
-              <div key={idx} className="mood-tracker-day-name">
-                {dayName}
-              </div>
-            ))}
-          </div>
-          {weekChunks.map((week, weekIndex) => (
-            <div key={weekIndex} className="mood-tracker-week-row">
-              {week.map((day, dayIndex) => (
-                <div
-                  key={dayIndex}
-                  className={`mood-tracker-day`}
-                  style={{
-                    backgroundColor:
-                      selectedMoods?.[selectedYear]?.[selectedMonth]?.[day]
-                        ?.color,
-                  }}
-                  onClick={
-                    day === new Date().getDate()
-                      ? () => setMoods(day)
-                      : undefined
-                  }
-                >
-                  {day ? day : ""}
+            {nameOfDays &&
+              nameOfDays.map((dayName, idx) => (
+                <div key={idx} className="mood-tracker-day-name">
+                  {dayName}
                 </div>
               ))}
-            </div>
-          ))}
+          </div>
+          {weekChunks &&
+            weekChunks.map((week, weekIndex) => (
+              <div key={weekIndex} className="mood-tracker-week-row">
+                {week.map((day, dayIndex) => (
+                  <div
+                    key={dayIndex}
+                    className={`mood-tracker-day`}
+                    style={{
+                      backgroundColor:
+                        selectedMoods?.[selectedYear]?.[selectedMonth]?.[day]
+                          ?.color,
+                    }}
+                    onClick={
+                      day === new Date().getDate()
+                        ? () => setMoods(day)
+                        : undefined
+                    }
+                  >
+                    {day ? day : ""}
+                  </div>
+                ))}
+              </div>
+            ))}
         </div>
-
-        <div className="mood-legend">
+        {/* <div className="mood-legend">
           <div className="mood-legend-p-container">
             <p>Moods:</p>
           </div>
           <div className="mood-legend-container">
-            {moodOptions
-              .slice(0, visibleLegendOptions)
-              .map(([mood, color], index) => {
-                return (
-                  <div key={index} className="mood-legend-type-container">
-                    <div
-                      className={`mood-type-container`}
-                      data-mood={mood}
-                      data-color={color}
-                      style={{ backgroundColor: color }}
-                    ></div>
-                    <div>
-                      <p>{mood}</p>
+            {moodOptions &&
+              moodOptions
+                .slice(0, visibleLegendOptions)
+                .map(([mood, color], index) => {
+                  return (
+                    <div key={index} className="mood-legend-type-container">
+                      <div
+                        className={`mood-type-container`}
+                        data-mood={mood}
+                        data-color={color}
+                        style={{ backgroundColor: color }}
+                      ></div>
+                      <div>
+                        <p>{mood}</p>
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
           </div>
           {visibleLegendOptions < moodOptions.length && (
             <div className="more-notes-container">
@@ -317,80 +229,24 @@ const Mood = () => {
           >
             Add mood type
           </button>
-        </div>
-        <Popup
-          open={isMoodPopupOpen}
-          onClose={() => setIsMoodPopupOpen(false)}
-          modal
-        >
-          <form className="form-card" onSubmit={updateMood}>
-            <p className="form-question">Add mood</p>
-            <div className="mood-legend-container">
-              {moodOptions
-                .slice(0, visibleLegendOptions)
-                .map(([mood, color], index) => {
-                  return (
-                    <div
-                      key={index}
-                      className="mood-legend-type-container"
-                      onClick={handleAddMood}
-                    >
-                      <div
-                        className={`mood-type-container`}
-                        data-mood={mood}
-                        data-color={color}
-                        style={{ backgroundColor: color }}
-                      ></div>
-                      <div>
-                        <p>{mood}</p>
-                      </div>
-                    </div>
-                  );
-                })}
-              {visibleLegendOptions < moodOptions.length && (
-                <div className="more-notes-container">
-                  <button
-                    className="form-button"
-                    type="button"
-                    onClick={() =>
-                      setVisibleLegendOptions(visibleLegendOptions + 6)
-                    }
-                  >
-                    See more
-                  </button>
-                </div>
-              )}
-            </div>
-            <button className="form-button" type="submit">
-              Save mood
-            </button>
-          </form>
-        </Popup>
+        </div> */}
         <Popup
           open={isAddMoodLegendOpen}
-          onClose={() => setIsAddMoodLegendOpen(false)}
-          modal
-        >
-          <form className="form-card" onSubmit={addMoodToLegend}>
-            <p className="form-question">Add mood</p>
-            <HexColorPicker color={newMoodColor} onChange={setNewMoodColor} />
-            <textarea
-              value={newMoodName}
-              className="form-input"
-              maxLength={255}
-              onChange={(e) => {
-                setNewMoodName(e.target.value);
-                e.target.style.height = "auto";
-                e.target.style.height = `${e.target.scrollHeight}px`;
-              }}
-              rows={1}
-              placeholder="mood name"
-            />
-            <button className="form-button" type="submit">
-              Save mood type
-            </button>
-          </form>
-        </Popup>
+          setIsOpen={setIsAddMoodLegendOpen}
+          newMoodColor={newMoodColor}
+          setNewMoodColor={setNewMoodColor}
+        />
+        <Popup
+          open={isMoodPopupOpen}
+          setIsOpen={setIsMoodPopupOpen}
+          visibleLegendOptions={visibleLegendOptions}
+          moodOptions={moodOptions}
+          setVisibleLegendOptions={setVisibleLegendOptions}
+          addMood={addMood}
+          selectedYear={selectedYear}
+          selectedMonth={selectedMonth}
+          selectedDay={selectedDay}
+        />
       </div>
     </>
   );
