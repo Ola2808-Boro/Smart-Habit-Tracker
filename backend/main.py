@@ -60,7 +60,7 @@ def token_required(func):
 @app.route("/login", methods=["POST"])
 def login():
     data = request.json
-    result = select_user(data)
+    code, message, result = select_user(data)
     if result:
         token = jwt.encode(
             {"user_id": result[0]}, app.config["SECRET_KEY"], algorithm="HS256"
@@ -111,7 +111,6 @@ def read_notes_for_a_date(current_user_id: int):
 @app.route("/num_of_questions", methods=["GET"])
 @token_required
 def get_num_of_questions(current_user_id: int):
-    print("num of questions")
     code, message, results = get_number_of_questions(current_user_id)
     return jsonify({"message": message, "num_of_questions": results}), code
 
@@ -150,7 +149,6 @@ def check_answer(current_user_id: int):
 @token_required
 def check_joined_date(current_user_id: int):
     code, message, results = check_user_joined_date(current_user_id=current_user_id)
-    print(code, message, results)
     return jsonify({"message": message, "date_join": results}), code
 
 

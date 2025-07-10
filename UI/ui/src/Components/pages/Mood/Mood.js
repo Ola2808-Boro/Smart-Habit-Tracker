@@ -11,6 +11,7 @@ import { useInitialData, useNewMoodData } from "../../../hooks/mood/mood";
 import { months, daysInMonth, nameOfDays } from "../../../utils/mood/mood";
 import { useDate, useMood } from "../../../hooks/mood/mood";
 import Popup from "../../organisms/Popup/Popup.js";
+import MoodTracker from "../../organisms/MoodTracker/MoodTracker.js";
 const Mood = () => {
   const {
     selectedMonth,
@@ -128,65 +129,18 @@ const Mood = () => {
     <>
       <PageTitle />
       <div className="mood-container">
-        <div className="mood-tracker-container">
-          <div className="mood-tracker-container-options">
-            <select
-              className="select-option"
-              value={selectedMonth}
-              onChange={(e) => setSelectedMonth(e.target.value)}
-            >
-              {months &&
-                months.map((month, index) => (
-                  <option key={index} value={month}>
-                    {month}
-                  </option>
-                ))}
-            </select>
-            <select
-              className="select-option"
-              value={selectedYear}
-              onChange={(e) => setSelectedYear(Number(e.target.value))}
-            >
-              {years &&
-                years.map((year, index) => (
-                  <option key={index} value={year}>
-                    {year}
-                  </option>
-                ))}
-            </select>
-          </div>
-          <div className="mood-tracker-days-name">
-            {nameOfDays &&
-              nameOfDays.map((dayName, idx) => (
-                <div key={idx} className="mood-tracker-day-name">
-                  {dayName}
-                </div>
-              ))}
-          </div>
-          {weekChunks &&
-            weekChunks.map((week, weekIndex) => (
-              <div key={weekIndex} className="mood-tracker-week-row">
-                {week.map((day, dayIndex) => (
-                  <div
-                    key={dayIndex}
-                    className={`mood-tracker-day`}
-                    style={{
-                      backgroundColor:
-                        selectedMoods?.[selectedYear]?.[selectedMonth]?.[day]
-                          ?.color,
-                    }}
-                    onClick={
-                      day === new Date().getDate()
-                        ? () => setMoods(day)
-                        : undefined
-                    }
-                  >
-                    {day ? day : ""}
-                  </div>
-                ))}
-              </div>
-            ))}
-        </div>
+        <MoodTracker
+          selectedMonth={selectedMonth}
+          setSelectedMonth={setSelectedMonth}
+          months={months}
+          selectedYear={selectedYear}
+          setSelectedYear={setSelectedYear}
+          years={years}
+          nameOfDays={nameOfDays}
+          weekChunks={weekChunks}
+          selectedMoods={selectedMoods}
+          setMoods={setMoods}
+        />
         {/* <div className="mood-legend">
           <div className="mood-legend-p-container">
             <p>Moods:</p>

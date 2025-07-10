@@ -129,15 +129,16 @@ def retrieved_mood_data(current_user_id: int):
             activity_date.append(item[1])
             mood_data.append([item[0], item[1]])
         placeholder = ",".join(["%s"] * len(mood_id))
-        sql_select_moods = f"""
-            SELECT mood_id,mood,color FROM habit_tracker.mood WHERE mood_id IN ({placeholder})
-        """
-        cursor.execute(sql_select_moods, (mood_id))
-        results = cursor.fetchall()
-        for data in mood_data:
-            for item in results:
-                if item[0] == data[0]:
-                    data.extend([item[1], item[2]])
+        if len(placeholder) > 0:
+            sql_select_moods = f"""
+                SELECT mood_id,mood,color FROM habit_tracker.mood WHERE mood_id IN ({placeholder})
+            """
+            cursor.execute(sql_select_moods, (mood_id))
+            results = cursor.fetchall()
+            for data in mood_data:
+                for item in results:
+                    if item[0] == data[0]:
+                        data.extend([item[1], item[2]])
         return 200, "Succesfully retrieved mood data", mood_data
     except ProgrammingError as e:
         logging.error(f"SQL syntax or logic error: {e}")
