@@ -23,15 +23,14 @@ const CustomPopup = ({
   setIsOpen,
   handleAdd,
   question,
-  newMoodColor,
-  setNewMoodColor,
   visibleLegendOptions,
-  moodOptions,
   setVisibleLegendOptions,
+  setNewValueText,
   addMood,
-  selectedYear,
-  selectedMonth,
   selectedDay,
+  selectedMonth,
+  selectedYear,
+  textValue,
 }) => {
   const closePopup = () => setIsOpen(false);
 
@@ -160,12 +159,12 @@ const CustomPopup = ({
       >
         <StyledForm onSubmit={handleAdd}>
           <Paragraph text="Add mood option" />
-          <HexColorPicker color={newMoodColor} onChange={setNewMoodColor} />
+          <HexColorPicker color={value} onChange={setNewValue} />
           <StyledTextArea
-            value={value}
+            value={textValue}
             maxLength={255}
             onChange={(e) => {
-              setNewValue(e.target.value);
+              setNewValueText(e.target.value);
               e.target.style.height = "auto";
               e.target.style.height = `${e.target.scrollHeight}px`;
             }}
@@ -187,8 +186,8 @@ const CustomPopup = ({
       >
         <StyledForm onSubmit={handleAdd}>
           <div className="mood-legend-container">
-            {moodOptions &&
-              moodOptions
+            {value &&
+              value
                 .slice(0, visibleLegendOptions)
                 .map(([mood, color], index) => {
                   return (
@@ -211,7 +210,7 @@ const CustomPopup = ({
                     </div>
                   );
                 })}
-            {visibleLegendOptions < moodOptions.length && (
+            {value && visibleLegendOptions < value.length && (
               <div className="more-notes-container">
                 <button
                   className="form-button"
@@ -236,7 +235,7 @@ const CustomPopup = ({
 
 CustomPopup.propTypes = {
   open: PropTypes.bool.isRequired,
-  value: PropTypes.string.isRequired,
+  value: PropTypes.string.isRequired || PropTypes.array,
   type: PropTypes.oneOf([
     "save-habit",
     "save-category",

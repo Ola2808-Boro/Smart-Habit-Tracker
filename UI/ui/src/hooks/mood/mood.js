@@ -56,7 +56,12 @@ export function useMood() {
             mood: "inactive",
             color: "gray",
           };
-          console.log(newState[selectedYear][selectedMonth][i]);
+          console.log(
+            selectedYear,
+            selectedMonth,
+            i,
+            newState[selectedYear][selectedMonth][i]
+          );
         }
       }
       return newState;
@@ -117,21 +122,4 @@ export const useInitialData = (
     };
     fetchData();
   }, []);
-};
-
-export const useNewMoodData = (
-  getMood,
-  setInactiveMoodDays,
-  selectedMonth,
-  selectedYear
-) => {
-  useEffect(() => {
-    const today = new Date().getDate();
-    const fetchData = async () => {
-      await getMood();
-      await setInactiveMoodDays(today);
-    };
-
-    fetchData();
-  }, [selectedMonth, selectedYear]);
 };

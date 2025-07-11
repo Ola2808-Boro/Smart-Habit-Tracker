@@ -1,31 +1,31 @@
 import PropTypes from "prop-types";
-import { StyledVisibleNotes } from "./VisibleNotes.styles";
+import { StyledVisibleMore } from "./VisibleMore.styles";
 import Button from "../../atoms/Button/Button";
 
 /**
  * Component for displaying the "See more" button when there are more notes to show.
  */
-const VisibleNotes = ({ visibleNotes, retrievedQandA, setVisibleNotes }) => {
+const VisibleMore = ({ visible, retrievedData, setVisible }) => {
   return (
     <>
-      {retrievedQandA && visibleNotes < retrievedQandA.length && (
-        <StyledVisibleNotes>
+      {retrievedData && visible < retrievedData.length && (
+        <StyledVisibleMore>
           <Button
             type="button"
-            onClick={() => setVisibleNotes(visibleNotes + 6)}
+            click={() => setVisible(visible + 6)}
             text="See more"
             size="small"
           />
-        </StyledVisibleNotes>
+        </StyledVisibleMore>
       )}
     </>
   );
 };
 
-VisibleNotes.propTypes = {
+VisibleMore.propTypes = {
   visibleNotes: PropTypes.number.isRequired,
   retrievedQandA: PropTypes.arrayOf(PropTypes.array).isRequired,
   setVisibleNotes: PropTypes.func.isRequired,
 };
 
-export default VisibleNotes;
+export default VisibleMore;

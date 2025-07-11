@@ -8,7 +8,7 @@ import ReactJsAlert from "reactjs-alert";
 import CustomPopup from "../../organisms/Popup/Popup";
 import NotesList from "../../organisms/NotesList/NotesList";
 import { CalendarSection } from "../../organisms/CalendarSection/CalendarSection.js";
-import VisibleNotes from "../../molecules/VisibleNotes/VisibleNotes";
+import VisibleMore from "../../molecules/VisibleMore/VisibleMore";
 import {
   saveAnswerRequest,
   checkNoteLimit,
@@ -103,10 +103,10 @@ const Notes = () => {
           retrievedQandA={retrievedQandA}
           visibleNotes={visibleNotes}
         />
-        <VisibleNotes
-          visibleNotes={visibleNotes}
-          retrievedQandA={retrievedQandA}
-          setVisibleNotes={setVisibleNotes}
+        <VisibleMore
+          visible={visibleNotes}
+          retrievedData={retrievedQandA}
+          setVisible={setVisibleNotes}
         />
         <ReactJsAlert
           status={alert.visible}

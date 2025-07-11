@@ -156,8 +156,8 @@ def check_joined_date(current_user_id: int):
 @token_required
 def add_new_mood_option(current_user_id: int):
     data = request.json
-    code, message, results = insert_new_mood_option(data, current_user_id)
-    return jsonify({"message": message, "mood": results}), code
+    code, message = insert_new_mood_option(data, current_user_id)
+    return jsonify({"message": message}), code
 
 
 @app.route("/update-mood", methods=["POST"])

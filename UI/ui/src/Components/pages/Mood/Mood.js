@@ -11,6 +11,7 @@ import { useInitialData, useNewMoodData } from "../../../hooks/mood/mood";
 import { months, daysInMonth, nameOfDays } from "../../../utils/mood/mood";
 import { useDate, useMood } from "../../../hooks/mood/mood";
 import Popup from "../../organisms/Popup/Popup.js";
+import MoodLegend from "../../organisms/MoodLegend/MoodLegend.js";
 import MoodTracker from "../../organisms/MoodTracker/MoodTracker.js";
 const Mood = () => {
   const {
@@ -54,25 +55,30 @@ const Mood = () => {
     setMoodOptions(response.data["mood"]);
   }
   async function addMoodLegend(e) {
+    setNewMoodColor();
     e.preventDefault();
     const response = addNewMoodLegendData(newMoodName, newMoodColor);
     addMoodToLegend();
   }
   async function handleOpenAddMoodLegendPopup() {
+    console.log("handleOpenAddMoodLegendPopup");
     setIsAddMoodLegendOpen(true);
   }
 
   async function setMoods(day) {
+    console.log("day", day);
     setSelectedDay(day);
     setIsMoodPopupOpen(true);
   }
 
   async function updateMood(e) {
     e.preventDefault();
+    addMood(e, selectedYear, selectedMonth, selectedDay);
     const day = selectedDay;
     const mood = selectedMoods[selectedYear][selectedMonth][day].mood;
     const response = await updateMoodData(mood);
     setIsMoodPopupOpen(false);
+    await getMood();
   }
   async function getJoinedDate() {
     const response = await getJoinedDateData();
@@ -123,7 +129,6 @@ const Mood = () => {
     selectedMonth,
     totalDays
   );
-  useNewMoodData(getMood, setInactiveMoodDays, selectedMonth, selectedYear);
 
   return (
     <>
@@ -141,61 +146,30 @@ const Mood = () => {
           selectedMoods={selectedMoods}
           setMoods={setMoods}
         />
-        {/* <div className="mood-legend">
-          <div className="mood-legend-p-container">
-            <p>Moods:</p>
-          </div>
-          <div className="mood-legend-container">
-            {moodOptions &&
-              moodOptions
-                .slice(0, visibleLegendOptions)
-                .map(([mood, color], index) => {
-                  return (
-                    <div key={index} className="mood-legend-type-container">
-                      <div
-                        className={`mood-type-container`}
-                        data-mood={mood}
-                        data-color={color}
-                        style={{ backgroundColor: color }}
-                      ></div>
-                      <div>
-                        <p>{mood}</p>
-                      </div>
-                    </div>
-                  );
-                })}
-          </div>
-          {visibleLegendOptions < moodOptions.length && (
-            <div className="more-notes-container">
-              <button
-                className="form-button"
-                onClick={() =>
-                  setVisibleLegendOptions(visibleLegendOptions + 6)
-                }
-              >
-                See more
-              </button>
-            </div>
-          )}
-          <button
-            className="form-button"
-            onClick={handleOpenAddMoodLegendPopup}
-          >
-            Add mood type
-          </button>
-        </div> */}
-        <Popup
-          open={isAddMoodLegendOpen}
-          setIsOpen={setIsAddMoodLegendOpen}
-          newMoodColor={newMoodColor}
-          setNewMoodColor={setNewMoodColor}
+        <MoodLegend
+          handleOpenAddMoodLegendPopup={handleOpenAddMoodLegendPopup}
+          moodOptions={moodOptions}
+          visibleLegendOptions={visibleLegendOptions}
+          setVisibleLegendOptions={setVisibleLegendOptions}
         />
         <Popup
+          type="add-mood-option"
+          open={isAddMoodLegendOpen}
+          setIsOpen={setIsAddMoodLegendOpen}
+          value={newMoodColor}
+          handleAdd={addMoodLegend}
+          setNewValue={setNewMoodColor}
+          setNewValueText={setNewMoodName}
+          textValue={newMoodName}
+        />
+        <Popup
+          type="add-mood"
           open={isMoodPopupOpen}
           setIsOpen={setIsMoodPopupOpen}
           visibleLegendOptions={visibleLegendOptions}
-          moodOptions={moodOptions}
+          value={moodOptions}
           setVisibleLegendOptions={setVisibleLegendOptions}
+          handleAdd={updateMood}
           addMood={addMood}
           selectedYear={selectedYear}
           selectedMonth={selectedMonth}
