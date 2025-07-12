@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import { useState, useRef } from "react";
 import PageTitle from "../../atoms/PageTitle/PageTitle.js";
 import { DndProvider } from "react-dnd";
 import { TouchBackend } from "react-dnd-touch-backend";
@@ -21,14 +21,14 @@ import {
   setNewDate,
 } from "../../../utils/habits/habits.js";
 import {
-  retrieveTasksRequest,
-  addCategoryRequest,
-  retrieveHaibtsRequest,
-  removeTaskRequest,
-  saveTaskRequest,
-  saveHabitRequest,
-  retrieveCategoriesRequest,
-  retrieveWeaklyProgressStatsRequest,
+  fetchCategories,
+  fetchHabits,
+  fetchWeeklyProgressStats,
+  createCategory,
+  createHabit,
+  createTask,
+  removeTask,
+  fetchTasks,
 } from "../../../api/habits/habits.js";
 import WeaklyProgressGraph from "../../atoms/WeaklyProgressGraph/WeaklyProgressGraph.js";
 const Habits = () => {
@@ -92,7 +92,7 @@ const Habits = () => {
       });
     } else {
       addDroppedItems(item);
-      await saveTaskRequest(item.name, "0:00:00", selectedDate, false);
+      await createTask(item.name, "0:00:00", selectedDate, false);
     }
   }
 
@@ -107,7 +107,7 @@ const Habits = () => {
       });
     } else {
       const updatedHabits = [...droppedItems];
-      await removeTaskRequest(updatedHabits[index], selectedDate);
+      await removeTask(updatedHabits[index], selectedDate);
       removeDroppedItems(index);
     }
   }
@@ -117,24 +117,34 @@ const Habits = () => {
   }
   async function handleAddHabit(e) {
     e.preventDefault();
-    const response = await saveHabitRequest(categories, newHabit);
-    if (response.data["message"] === "Habit already exists") {
+    if (e.target.value) {
+      const response = await createHabit(categories, newHabit);
+      if (response.data["message"] === "Habit already exists") {
+        setAlert({
+          visible: true,
+          title: "Adding habit",
+          quote: "Habit already exists",
+          type: "info",
+        });
+      }
+      setIsHabitPopupOpen(false);
+      setNewHabit("");
+      const newState = Object.fromEntries(
+        Object.keys(categories).map((key) => [key, false])
+      );
+      resetCategory(newState);
+    } else {
+      setIsHabitPopupOpen(false);
       setAlert({
         visible: true,
         title: "Adding habit",
-        quote: "Habit already exists",
-        type: "info",
+        quote: "Cannot add a habit because it has not been entered",
+        type: "warning",
       });
     }
-    setIsHabitPopupOpen(false);
-    setNewHabit("");
-    const newState = Object.fromEntries(
-      Object.keys(categories).map((key) => [key, false])
-    );
-    resetCategory(newState);
   }
   async function getCategories() {
-    const response = await retrieveCategoriesRequest();
+    const response = await fetchCategories();
     if (response.status === 204) {
       resetCategory({});
       return;
@@ -146,7 +156,7 @@ const Habits = () => {
     resetCategory(newCategories);
   }
   async function getHabits() {
-    const response = await retrieveHaibtsRequest();
+    const response = await fetchHabits();
     if (response.status === 204) {
       setHabits([]);
       return;
@@ -155,7 +165,7 @@ const Habits = () => {
   }
 
   async function getWeaklyProgressStats() {
-    const response = await retrieveWeaklyProgressStatsRequest();
+    const response = await fetchWeeklyProgressStats();
     if (response.status === 204) {
       setWeaklyStats([]);
       return;
@@ -168,7 +178,7 @@ const Habits = () => {
     const newSelectedDate = `${newDate.getFullYear()}-${String(
       newDate.getMonth() + 1
     ).padStart(2, "0")}-${String(newDate.getDate()).padStart(2, "0")}`;
-    const response = await retrieveTasksRequest(newSelectedDate);
+    const response = await fetchTasks(newSelectedDate);
     if (response.status === 204) {
       updateDroppedItems([]);
       return;
@@ -182,24 +192,34 @@ const Habits = () => {
 
   async function handleAddCategory(e) {
     e.preventDefault();
-    const response = await addCategoryRequest(category);
-    if (response.data["message"] === "Category already exists") {
+    if (e.target.value) {
+      const response = await createCategory(category);
+      if (response.data["message"] === "Category already exists") {
+        setAlert({
+          visible: true,
+          title: "Adding category",
+          quote: "Category already exists",
+          type: "info",
+        });
+      } else if (response.data["message"] === "Added successfully category") {
+        addCategory(category);
+      }
+      setIsCategoryPopupOpen(false);
+      setCategory("");
+    } else {
+      setIsCategoryPopupOpen(false);
       setAlert({
         visible: true,
         title: "Adding category",
-        quote: "Category already exists",
-        type: "info",
+        quote: "Cannot add a category because it has not been entered",
+        type: "warning",
       });
-    } else if (response.data["message"] === "Added successfully category") {
-      addCategory(category);
     }
-    setIsCategoryPopupOpen(false);
-    setCategory("");
   }
 
   async function handleTimeChange(taskName, newTime) {
     updateDroppedItemTime(taskName, newTime);
-    saveTaskRequest(taskName, newTime, selectedDate, false);
+    createTask(taskName, newTime, selectedDate, false);
   }
   async function handleChangeDate(e) {
     e.preventDefault();
@@ -233,7 +253,7 @@ const Habits = () => {
         const isChecked = e.target.checked;
         const selectedTime = timeInput?.value || "";
         updateDroppedItemChecked(taskName, selectedTime, isChecked);
-        await saveTaskRequest(taskName, selectedTime, selectedDate, true);
+        await createTask(taskName, selectedTime, selectedDate, true);
         await getTasks();
       }
     }

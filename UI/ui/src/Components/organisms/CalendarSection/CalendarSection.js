@@ -9,10 +9,16 @@ export const CalendarSection = ({
   calDate,
   handleOpenPopupQandA,
   setIsOpenAddQuestion,
+  key,
 }) => {
   return (
     <StyledCalendarContainer>
-      <Calendar onChange={onChange} value={calDate} selectRange={true} />
+      <Calendar
+        key={key}
+        onChange={onChange}
+        value={calDate}
+        selectRange={true}
+      />
       <QuestionAndAnswer
         handleOpenPopupQandA={handleOpenPopupQandA}
         setIsOpenAddQuestion={setIsOpenAddQuestion}

@@ -60,7 +60,7 @@ def token_required(func):
 @app.route("/login", methods=["POST"])
 def login():
     data = request.json
-    result = select_user(data)
+    code, message, result = select_user(data)
     if result:
         token = jwt.encode(
             {"user_id": result[0]}, app.config["SECRET_KEY"], algorithm="HS256"
@@ -82,14 +82,12 @@ def login():
 @app.route("/sign-up", methods=["POST"])
 def sign_up():
     data = request.json
-    if not check_user(data):
-        return jsonify({"message": "Account already exists"}), 201
+    code, message, results = check_user(data)
+    if results:
+        return jsonify({"message": message}), code
     else:
-        result = add_user(data)
-        if result:
-            return jsonify({"message": "User created", "redirect": "/"}), 201
-        else:
-            return jsonify({"message": "Invalid credentials"}), 401
+        code, message, results = add_user(data)
+        return jsonify({"message": message}), code
 
 
 @app.route("/notes-read", methods=["POST"])
@@ -104,7 +102,6 @@ def read_notes_for_a_date(current_user_id: int):
             [results[0][i], results[1][i], results[2][i]]
             for i in range(len(results[0]))
         ]
-    print(answer_question_date)
     return (
         jsonify({"message": message, "answer_question_date": answer_question_date}),
         code,
@@ -114,7 +111,6 @@ def read_notes_for_a_date(current_user_id: int):
 @app.route("/num_of_questions", methods=["GET"])
 @token_required
 def get_num_of_questions(current_user_id: int):
-    print("num of questions")
     code, message, results = get_number_of_questions(current_user_id)
     return jsonify({"message": message, "num_of_questions": results}), code
 
@@ -153,60 +149,37 @@ def check_answer(current_user_id: int):
 @token_required
 def check_joined_date(current_user_id: int):
     code, message, results = check_user_joined_date(current_user_id=current_user_id)
-    return jsonify({"message": message, "task": results}), code
+    return jsonify({"message": message, "date_join": results}), code
 
 
 @app.route("/add-new-mood-option", methods=["POST"])
 @token_required
 def add_new_mood_option(current_user_id: int):
     data = request.json
-    result = insert_new_mood_option(data, current_user_id)
-    if result:
-        return jsonify({"message": "Mood option added successfully"}), 201
-    else:
-        return jsonify({"message": "Failed to add mood option"}), 401
+    code, message = insert_new_mood_option(data, current_user_id)
+    return jsonify({"message": message}), code
 
 
 @app.route("/update-mood", methods=["POST"])
 @token_required
 def update_mood(current_user_id: int):
     data = request.json
-    result = update_user_mood(data=data, current_user_id=current_user_id)
-    if result:
-        return (
-            jsonify({"message": "Mood updated successfully", "date_join": result}),
-            201,
-        )
-    else:
-        return jsonify({"message": "Failed to update mood"}), 401
+    code, message = update_user_mood(data=data, current_user_id=current_user_id)
+    return jsonify({"message": message}), code
 
 
 @app.route("/retrieved-mood-data", methods=["GET"])
 @token_required
 def retrieved_mood(current_user_id: int):
-    result = retrieved_mood_data(current_user_id=current_user_id)
-    if result:
-        return (
-            jsonify({"message": "Retrieved mood successfully", "mood_data": result}),
-            201,
-        )
-    else:
-        return jsonify({"message": "Failed to retrieve mood data"}), 201
+    code, message, results = retrieved_mood_data(current_user_id=current_user_id)
+    return jsonify({"message": message, "mood": results}), code
 
 
 @app.route("/get-mood-option", methods=["GET"])
 @token_required
 def retrieved_mood_option(current_user_id: int):
-    result = get_mood_option(current_user_id=current_user_id)
-    if result:
-        return (
-            jsonify(
-                {"message": "Retrieved mood option successfully", "mood_option": result}
-            ),
-            201,
-        )
-    else:
-        return jsonify({"message": "Failed to retrieve mood data"}), 401
+    code, message, results = get_mood_option(current_user_id=current_user_id)
+    return jsonify({"message": message, "mood": results}), code
 
 
 # Habits+tasks
@@ -214,26 +187,16 @@ def retrieved_mood_option(current_user_id: int):
 @token_required
 def saving_category(current_user_id: int):
     data = request.json
-    result = save_category(data=data, current_user_id=current_user_id)
-    if result:
-        return jsonify({"message": "Added successfully category"}), 201
-    elif result is False:
-        return jsonify({"message": "Category already exists"}), 201
-    else:
-        return jsonify({"message": "Failed to add category"}), 401
+    code, message = save_category(data=data, current_user_id=current_user_id)
+    return jsonify({"message": message}), code
 
 
 @app.route("/save-habit", methods=["POST"])
 @token_required
 def saving_habit(current_user_id: int):
     data = request.json
-    result = save_habit(data=data, current_user_id=current_user_id)
-    if result:
-        return jsonify({"message": "Added successfully habit"}), 201
-    elif result is False:
-        return jsonify({"message": "Habit already exists"}), 201
-    else:
-        return jsonify({"message": "Failed to add habit"}), 401
+    code, message = save_habit
+    return jsonify({"message": message}), code
 
 
 @app.route("/get-category", methods=["GET"])
