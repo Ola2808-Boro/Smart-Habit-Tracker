@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export async function saveTaskRequest(name, time, date, done) {
+export async function createTask(name, time, date, done) {
   const token = localStorage.getItem("token");
   const response = await axios.post(
     "http://127.0.0.1:5000/save-task",
@@ -14,7 +14,7 @@ export async function saveTaskRequest(name, time, date, done) {
   );
 }
 
-export async function removeTaskRequest(task, selectedDate) {
+export async function removeTask(task, selectedDate) {
   const token = localStorage.getItem("token");
   let newDate = new Date(selectedDate);
   const newSelectedDate = `${newDate.getFullYear()}-${String(
@@ -36,7 +36,7 @@ export async function removeTaskRequest(task, selectedDate) {
   );
 }
 
-export async function saveHabitRequest(categories, newHabit) {
+export async function createHabit(categories, newHabit) {
   const token = localStorage.getItem("token");
   const categories_data = [];
   for (const [key, value] of Object.entries(categories)) {
@@ -57,7 +57,7 @@ export async function saveHabitRequest(categories, newHabit) {
   return response;
 }
 
-export async function retrieveCategoriesRequest() {
+export async function fetchCategories() {
   const token = localStorage.getItem("token");
   const response = await axios.get("http://127.0.0.1:5000/get-category", {
     headers: {
@@ -68,7 +68,7 @@ export async function retrieveCategoriesRequest() {
   return response;
 }
 
-export async function retrieveHaibtsRequest() {
+export async function fetchHabits() {
   const token = localStorage.getItem("token");
   const response = await axios.get("http://127.0.0.1:5000/get-habit", {
     headers: {
@@ -79,7 +79,7 @@ export async function retrieveHaibtsRequest() {
   return response;
 }
 
-export async function retrieveTasksRequest(newSelectedDate) {
+export async function fetchTasks(newSelectedDate) {
   const token = localStorage.getItem("token");
   const response = await axios.post(
     "http://127.0.0.1:5000/get-task",
@@ -94,7 +94,7 @@ export async function retrieveTasksRequest(newSelectedDate) {
   return response;
 }
 
-export async function addCategoryRequest(category) {
+export async function createCategory(category) {
   const token = localStorage.getItem("token");
   const response = await axios.post(
     "http://127.0.0.1:5000/save-category",
@@ -109,7 +109,7 @@ export async function addCategoryRequest(category) {
   return response;
 }
 
-export async function retrieveWeaklyProgressStatsRequest() {
+export async function fetchWeeklyProgressStats() {
   const today = new Date();
   const dayOfWeek = today.getDay();
   const startDate = new Date(today);

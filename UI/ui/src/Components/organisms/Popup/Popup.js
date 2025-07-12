@@ -8,8 +8,12 @@ import {
   StyledCategoriesContainer,
   StyledCategory,
   StyledTextArea,
+  MoodLegendContainer,
+  MoodLegendTypeContainer,
+  MoodTypeContainer,
 } from "./Popup.styles";
 import { HexColorPicker } from "react-colorful";
+import VisibleMore from "../../molecules/VisibleMore/VisibleMore";
 /**
  * Reusable popup modal for saving habits, categories, questions, or answers.
  */
@@ -33,6 +37,16 @@ const CustomPopup = ({
   textValue,
 }) => {
   const closePopup = () => setIsOpen(false);
+  const isMobile = window.innerWidth <= 768;
+
+  const popupContentStyle = {
+    width: isMobile ? "90%" : "50%",
+    padding: "5px",
+    background: "#fff",
+    border: "1px solid #d7d7d7",
+    margin: "auto",
+    borderRadius: isMobile ? "0" : "8px",
+  };
 
   if (type === "save-habit") {
     return (
@@ -42,6 +56,7 @@ const CustomPopup = ({
         modal
         closeOnEscape={true}
         closeOnDocumentClick={true}
+        contentStyle={popupContentStyle}
       >
         <StyledForm onSubmit={handleAdd}>
           <Paragraph text="Add habit" />
@@ -80,6 +95,7 @@ const CustomPopup = ({
         modal
         closeOnEscape={true}
         closeOnDocumentClick={true}
+        contentStyle={popupContentStyle}
       >
         <StyledForm onSubmit={handleAdd}>
           <Paragraph text="Add category" />
@@ -103,6 +119,7 @@ const CustomPopup = ({
         modal
         closeOnEscape={true}
         closeOnDocumentClick={true}
+        contentStyle={popupContentStyle}
       >
         <StyledForm onSubmit={handleAdd}>
           <Paragraph text="Add question" />
@@ -130,6 +147,7 @@ const CustomPopup = ({
         modal
         closeOnEscape={true}
         closeOnDocumentClick={true}
+        contentStyle={popupContentStyle}
       >
         <StyledForm onSubmit={handleAdd}>
           <Paragraph text={question || "Answer the question"} />
@@ -156,6 +174,7 @@ const CustomPopup = ({
         modal
         closeOnEscape={true}
         closeOnDocumentClick={true}
+        contentStyle={popupContentStyle}
       >
         <StyledForm onSubmit={handleAdd}>
           <Paragraph text="Add mood option" />
@@ -183,47 +202,36 @@ const CustomPopup = ({
         modal
         closeOnEscape={true}
         closeOnDocumentClick={true}
+        contentStyle={popupContentStyle}
       >
         <StyledForm onSubmit={handleAdd}>
-          <div className="mood-legend-container">
+          <MoodLegendContainer>
             {value &&
               value
                 .slice(0, visibleLegendOptions)
                 .map(([mood, color], index) => {
                   return (
-                    <div
+                    <MoodLegendTypeContainer
                       key={index}
-                      className="mood-legend-type-container"
                       onClick={(e) =>
                         addMood(e, selectedYear, selectedMonth, selectedDay)
                       }
                     >
-                      <div
-                        className={`mood-type-container`}
+                      <MoodTypeContainer
                         data-mood={mood}
                         data-color={color}
-                        style={{ backgroundColor: color }}
-                      ></div>
-                      <div>
-                        <p>{mood}</p>
-                      </div>
-                    </div>
+                        backgroundColor={color}
+                      ></MoodTypeContainer>
+                      <Paragraph text={mood} />
+                    </MoodLegendTypeContainer>
                   );
                 })}
-            {value && visibleLegendOptions < value.length && (
-              <div className="more-notes-container">
-                <button
-                  className="form-button"
-                  type="button"
-                  onClick={() =>
-                    setVisibleLegendOptions(visibleLegendOptions + 6)
-                  }
-                >
-                  See more
-                </button>
-              </div>
-            )}
-          </div>
+          </MoodLegendContainer>
+          <VisibleMore
+            retrievedData={value}
+            visible={visibleLegendOptions}
+            setVisible={setVisibleLegendOptions}
+          />
           <Button type="submit" text="Save mood" />
         </StyledForm>
       </Popup>

@@ -10,7 +10,6 @@ export function useDate() {
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [years, setYears] = useState();
 
-  console.log(selectedDay, selectedMonth, selectedYear);
   return {
     selectedMonth,
     setSelectedMonth,
@@ -54,14 +53,8 @@ export function useMood() {
         if (!newState[selectedYear][selectedMonth][i] && i !== currentDate) {
           newState[selectedYear][selectedMonth][i] = {
             mood: "inactive",
-            color: "gray",
+            color: "white",
           };
-          console.log(
-            selectedYear,
-            selectedMonth,
-            i,
-            newState[selectedYear][selectedMonth][i]
-          );
         }
       }
       return newState;

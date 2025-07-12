@@ -1,13 +1,15 @@
-import "./Mood.css";
+import { MainContainer } from "./Mood.styles.js";
+import { useState } from "react";
 import PageTitle from "../../atoms/PageTitle/PageTitle";
 import {
-  getMoodLegendData,
-  addNewMoodLegendData,
-  getMoodData,
+  fetchJoinedDateData,
+  fetchMoodData,
+  fetchMoodLegendData,
+  createMoodOption,
   updateMoodData,
-  getJoinedDateData,
 } from "../../../api/mood/mood";
-import { useInitialData, useNewMoodData } from "../../../hooks/mood/mood";
+import ReactJsAlert from "reactjs-alert";
+import { useInitialData } from "../../../hooks/mood/mood";
 import { months, daysInMonth, nameOfDays } from "../../../utils/mood/mood";
 import { useDate, useMood } from "../../../hooks/mood/mood";
 import Popup from "../../organisms/Popup/Popup.js";
@@ -43,46 +45,67 @@ const Mood = () => {
     setInactiveMoodDays,
     addMood,
   } = useMood();
-
+  const [alert, setAlert] = useState({
+    visible: false,
+    title: "",
+    quote: "",
+    type: "info",
+  });
   const days = [];
   const weekChunks = [];
   const firstDay = new Date(selectedYear, new Date().getMonth()).getDay();
   const totalDays = daysInMonth(selectedYear, new Date().getMonth());
 
-  async function getMoodLegend() {
-    const response = await getMoodLegendData();
-    console.log("getMoodLegend", response, response.data["mood"]);
+  async function loadMoodLegend() {
+    const response = await fetchMoodLegendData();
     setMoodOptions(response.data["mood"]);
   }
-  async function addMoodLegend(e) {
+  async function handleAddMoodLegend(e) {
     setNewMoodColor();
     e.preventDefault();
-    const response = addNewMoodLegendData(newMoodName, newMoodColor);
-    addMoodToLegend();
+    if (e.target.value) {
+      const response = createMoodOption(newMoodName, newMoodColor);
+      addMoodToLegend();
+    } else {
+      setIsAddMoodLegendOpen(false);
+      setAlert({
+        visible: true,
+        title: "Adding mood type",
+        quote: "Can't add mood type because none has been entered",
+        type: "warning",
+      });
+    }
   }
   async function handleOpenAddMoodLegendPopup() {
-    console.log("handleOpenAddMoodLegendPopup");
     setIsAddMoodLegendOpen(true);
   }
 
   async function setMoods(day) {
-    console.log("day", day);
     setSelectedDay(day);
     setIsMoodPopupOpen(true);
   }
 
-  async function updateMood(e) {
+  async function handleUpdateMood(e) {
     e.preventDefault();
-    addMood(e, selectedYear, selectedMonth, selectedDay);
-    const day = selectedDay;
-    const mood = selectedMoods[selectedYear][selectedMonth][day].mood;
-    const response = await updateMoodData(mood);
-    setIsMoodPopupOpen(false);
-    await getMood();
+    if (e.target.value) {
+      addMood(e, selectedYear, selectedMonth, selectedDay);
+      const day = selectedDay;
+      const mood = selectedMoods[selectedYear][selectedMonth][day].mood;
+      const response = await updateMoodData(mood);
+      setIsMoodPopupOpen(false);
+      await loadMood();
+    } else {
+      setIsMoodPopupOpen(false);
+      setAlert({
+        visible: true,
+        title: "Adding mood",
+        quote: "Can't add mood because none has been selected from the list ",
+        type: "warning",
+      });
+    }
   }
-  async function getJoinedDate() {
-    const response = await getJoinedDateData();
-    console.log("getJoinedDate", response);
+  async function loadUserJoinedDate() {
+    const response = await fetchJoinedDateData();
     const dateJoinYear = new Date(response["data"]["date_join"]).getFullYear();
     const years = [];
     for (let i = selectedYear; i >= dateJoinYear; i -= 1) {
@@ -91,9 +114,8 @@ const Mood = () => {
     setYears(years);
   }
 
-  async function getMood() {
-    const response = await getMoodData();
-    console.log("getMood", response.data["mood"]);
+  async function loadMood() {
+    const response = await fetchMoodData();
     const newMoods = { ...selectedMoods };
 
     response.data["mood"]?.forEach(([mood_id, dateStr, mood, color]) => {
@@ -121,10 +143,10 @@ const Mood = () => {
   }
 
   useInitialData(
-    getMoodLegend,
-    getMood,
+    loadMoodLegend,
+    loadMood,
     setInactiveMoodDays,
-    getJoinedDate,
+    loadUserJoinedDate,
     selectedYear,
     selectedMonth,
     totalDays
@@ -133,7 +155,7 @@ const Mood = () => {
   return (
     <>
       <PageTitle />
-      <div className="mood-container">
+      <MainContainer>
         <MoodTracker
           selectedMonth={selectedMonth}
           setSelectedMonth={setSelectedMonth}
@@ -157,7 +179,7 @@ const Mood = () => {
           open={isAddMoodLegendOpen}
           setIsOpen={setIsAddMoodLegendOpen}
           value={newMoodColor}
-          handleAdd={addMoodLegend}
+          handleAdd={handleAddMoodLegend}
           setNewValue={setNewMoodColor}
           setNewValueText={setNewMoodName}
           textValue={newMoodName}
@@ -169,13 +191,21 @@ const Mood = () => {
           visibleLegendOptions={visibleLegendOptions}
           value={moodOptions}
           setVisibleLegendOptions={setVisibleLegendOptions}
-          handleAdd={updateMood}
+          handleAdd={handleUpdateMood}
           addMood={addMood}
           selectedYear={selectedYear}
           selectedMonth={selectedMonth}
           selectedDay={selectedDay}
         />
-      </div>
+        <ReactJsAlert
+          status={alert.visible}
+          type={alert.type}
+          title={alert.title}
+          isQuotes={true}
+          quote={alert.quote}
+          Close={() => setAlert((prev) => ({ ...prev, visible: false }))}
+        />
+      </MainContainer>
     </>
   );
 };

@@ -20,6 +20,6 @@ export const StyledParagraph = styled.p`
   align-self: ${({ align }) => align};
   font-size: ${({ fontSize }) => fontSize};
   @media (max-width: 768px) {
-    font-size: 25px;
+    font-size: 14px;
   }
 `;

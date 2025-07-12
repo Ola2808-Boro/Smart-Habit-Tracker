@@ -10,12 +10,12 @@ import NotesList from "../../organisms/NotesList/NotesList";
 import { CalendarSection } from "../../organisms/CalendarSection/CalendarSection.js";
 import VisibleMore from "../../molecules/VisibleMore/VisibleMore";
 import {
-  saveAnswerRequest,
-  checkNoteLimit,
-  saveQuestion,
-  retrieveQuestion,
-  getNumberOFQuestion,
-  retrieveNotes,
+  fetchNotes,
+  createAnswer,
+  createQuestion,
+  fetchNumberOfQuestion,
+  fetchQuestion,
+  fetchNoteLimit,
 } from "../../../api/notes/notes";
 import { randomQuestionIdx } from "../../../utils/notes/notes";
 import { MainContainer } from "./Notes.styles.js";
@@ -30,6 +30,7 @@ const Notes = () => {
   const [isOpenQandA, setIsOpenQandA] = useState(false);
   const [isOpenAddQuestion, setIsOpenAddQuestion] = useState(false);
   const [visibleNotes, setVisibleNotes] = useState(6);
+  const [calendarKey, setCalendarKey] = useState(0);
   const [alert, setAlert] = useState({
     visible: false,
     title: "",
@@ -38,7 +39,7 @@ const Notes = () => {
   });
 
   async function handleOpenPopupQandA() {
-    const response = await checkNoteLimit();
+    const response = await fetchNoteLimit();
     if (response["data"]["exists"]) {
       await getQuestion();
       setIsOpenQandA(true);
@@ -54,27 +55,57 @@ const Notes = () => {
 
   async function handleSaveAnswer(e) {
     e.preventDefault();
-    const response = await saveAnswerRequest();
-    setQuestion("");
-    setAnswer("");
-    setIsOpenQandA(false);
+    if (e.target.value) {
+      const response = await createAnswer();
+      setQuestion("");
+      setAnswer("");
+      setIsOpenQandA(false);
+    } else {
+      setIsOpenQandA(false);
+      setAlert({
+        visible: true,
+        title: "Adding answer",
+        quote: "Can't add answer because none has been entered",
+        type: "warning",
+      });
+    }
   }
 
-  async function onChangeDate(calDate) {
+  async function handleChangeDate(calDate) {
     setCalDate(calDate);
     setVisibleNotes(2);
-    const response = await retrieveNotes(calDate);
+    const response = await fetchNotes(calDate);
     setRetrievedQandA(response["data"]["answer_question_date"]);
+    if (response["data"]["answer_question_date"].length === 0) {
+      setAlert({
+        visible: true,
+        title: "Reading notes",
+        quote: "Notes saved for the time period not found",
+        type: "info",
+      });
+      setCalDate(null);
+      setCalendarKey((prev) => prev + 1);
+    }
   }
 
   async function handleAddQuestion(e) {
     e.preventDefault();
-    const response = await saveQuestion(newQuestion);
-    setIsOpenAddQuestion(false);
+    if (e.target.value) {
+      const response = await createQuestion(newQuestion);
+      setIsOpenAddQuestion(false);
+    } else {
+      setIsOpenAddQuestion(false);
+      setAlert({
+        visible: true,
+        title: "Adding answer",
+        quote: "Can't add question because none has been entered",
+        type: "warning",
+      });
+    }
   }
 
   async function getQuestion() {
-    const response = await getNumberOFQuestion();
+    const response = await fetchNumberOfQuestion;
     if (
       (response["data"]["num_of_questions"] !== 0) &
       (response["status"] === 200)
@@ -82,7 +113,7 @@ const Notes = () => {
       const max = response["data"]["num_of_questions"];
       const random_idx = randomQuestionIdx(max, lastQuestionIdx);
       setLastQuestionIdx(random_idx);
-      const response2 = await retrieveQuestion(random_idx);
+      const response2 = await fetchQuestion(random_idx);
       setQuestion(response2["data"]["question"]);
     } else {
       return "incorrectly downloaded number of questions";
@@ -95,9 +126,10 @@ const Notes = () => {
       <MainContainer>
         <CalendarSection
           value={calDate}
-          onChange={onChangeDate}
+          onChange={handleChangeDate}
           handleOpenPopupQandA={handleOpenPopupQandA}
           setIsOpenAddQuestion={setIsOpenAddQuestion}
+          key={calendarKey}
         />
         <NotesList
           retrievedQandA={retrievedQandA}

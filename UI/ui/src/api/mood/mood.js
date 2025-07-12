@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export async function getMoodLegendData() {
+export async function fetchMoodLegendData() {
   const token = localStorage.getItem("token");
   const response = await axios.get("http://127.0.0.1:5000/get-mood-option", {
     headers: {
@@ -10,7 +10,7 @@ export async function getMoodLegendData() {
   return response;
 }
 
-export async function addNewMoodLegendData(newMoodName, newMoodColor) {
+export async function createMoodOption(newMoodName, newMoodColor) {
   const token = localStorage.getItem("token");
   const response = await axios.post(
     "http://127.0.0.1:5000/add-new-mood-option",
@@ -25,8 +25,7 @@ export async function addNewMoodLegendData(newMoodName, newMoodColor) {
   return response;
 }
 
-export async function getMoodData() {
-  console.log("Get mood data");
+export async function fetchMoodData() {
   const token = localStorage.getItem("token");
   const response = await axios.get(
     "http://127.0.0.1:5000/retrieved-mood-data",
@@ -39,7 +38,7 @@ export async function getMoodData() {
   return response;
 }
 
-export async function getJoinedDateData() {
+export async function fetchJoinedDateData() {
   const token = localStorage.getItem("token");
   const response = await axios.get("http://127.0.0.1:5000/check-joined-date", {
     headers: {
