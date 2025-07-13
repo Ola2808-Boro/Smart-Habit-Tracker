@@ -195,7 +195,7 @@ def saving_category(current_user_id: int):
 @token_required
 def saving_habit(current_user_id: int):
     data = request.json
-    code, message = save_habit
+    code, message = save_habit(data=data, current_user_id=current_user_id)
     return jsonify({"message": message}), code
 
 
@@ -247,5 +247,14 @@ def removing_weakly_progress_stats(current_user_id: int):
     return jsonify({"message": message, "progress_rates": progress_rates}), code
 
 
+@app.route("/webhook", methods=["POST"])
+def dialoglow():
+    data = request.json
+    code, message, results = select_question(
+        question_id=data["queryResult"]["parameters"]["number"]
+    )
+    return jsonify({"fulfillmentText": results})
+
+
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(port=5000, debug=True)
