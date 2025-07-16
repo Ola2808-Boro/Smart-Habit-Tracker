@@ -65,6 +65,7 @@ export async function fetchCategories() {
       Authorization: token,
     },
   });
+  console.log(response);
   return response;
 }
 

@@ -1,4 +1,6 @@
 import logging
+from collections import Counter
+from datetime import datetime, timedelta
 
 import psycopg2
 from database.connection_db import create_connection
@@ -52,14 +54,14 @@ def get_all_habits_data(current_user_id: int):
                             current_user_id=current_user_id,
                             habit_id=habit_id,
                         )
-                        print(f"Habit_id: {habit_id}")
+
                         category_ids = get_category_id_by_habit_id(
                             cursor=cursor,
                             current_user_id=current_user_id,
                             habit_id=habit_id,
                         )
                         if category_ids:
-                            print(f"Habit_id yes: {habit_id}")
+
                             categories = []
                             for category_id in category_ids:
                                 category_name = get_category_name(
@@ -79,13 +81,14 @@ def get_all_habits_data(current_user_id: int):
                                 {
                                     "task": habit_name,
                                     "categories": categories,
-                                    "time": str(duration),
+                                    "duration": str(duration),
                                     "done": done,
                                 }
                             )
             logging.info(
                 HTTP_LOG_MESSAGES[200].format(function_name="get_all_habits_data")
             )
+
             return 200, "Retrieved habits successfully.", habits
         else:
             logging.info(
@@ -111,4 +114,50 @@ def get_all_habits_data(current_user_id: int):
         conn.close()
 
 
-get_all_habits_data(current_user_id=2)
+def get_category_statistics(current_user_id):
+    code, message, data = get_all_habits_data(current_user_id=current_user_id)
+    if data:
+        categories_data = {}
+        categories_frequency = []
+        for item in data:
+            categories = item["categories"]
+            duration_str = item["duration"]
+            h, m, s = map(int, duration_str.split(":"))
+            duration = timedelta(hours=h, minutes=m, seconds=s)
+            for category in categories:
+                categories_frequency.append(category)
+                if category not in list(categories_data.keys()):
+                    categories_data.update({category: duration})
+                else:
+
+                    categories_data[category] += duration
+
+        for category, duration in categories_data.items():
+            categories_data[category] = format_duration(duration)
+        counter = Counter(categories_frequency)
+
+        sorted_categories_data = sorted(categories_data.items(), key=lambda x: x[1])
+        return (
+            code,
+            message,
+            [sorted_categories_data, [list(counter.keys()), list(counter.values())]],
+        )
+    else:
+        code, message, data
+
+
+def format_duration(td: timedelta):
+    total_seconds = int(td.total_seconds())
+    hours = total_seconds // 3600
+    minutes = (total_seconds % 3600) // 60
+
+    if hours > 0 and minutes > 0:
+        return f"{hours} h {minutes} min"
+    elif hours > 0:
+        return f"{hours} h"
+    else:
+        return f"{minutes} min"
+
+
+# _, _, results = get_all_habits_data(current_user_id=2)
+# get_category_statistics(results)

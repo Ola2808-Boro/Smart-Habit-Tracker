@@ -1,11 +1,22 @@
 import PropTypes from "prop-types";
 import { StyledIPieChart } from "./PieChart.styles.js";
 import Plot from "react-plotly.js";
-const PieChart = ({}) => {
+const PieChart = ({ data, text }) => {
+  console.log(data, data["values"], data["labels"]);
   return (
     <Plot
-      data={[{ type: "pie", values: [1, 2, 3] }]}
-      layout={{ width: 320, height: 240, title: { text: "A Fancy Plot" } }}
+      data={[
+        {
+          type: "pie",
+          values: data.values,
+          labels: data.labels,
+          text: data.customValues, // etykiety na wykresie
+          textinfo: "text", // pokazuj tylko nasz tekst
+          customdata: data.customValues, // dodatkowe dane do hovera
+          hovertemplate: "%{label}: %{customdata}<extra></extra>", // tekst hovera
+        },
+      ]}
+      layout={{ title: { text: text } }}
     />
   );
 };
