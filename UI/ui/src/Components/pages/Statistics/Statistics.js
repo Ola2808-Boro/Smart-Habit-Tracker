@@ -5,9 +5,13 @@ import PieChart from "../../atoms/PieChart/PieChart";
 import Paragraph from "../../atoms/Paragraph/Paragraph";
 import { parseDurationToMinutes } from "../../../utils/statistics/statistics";
 import { useInitialData } from "../../../hooks/statistics/statistics";
-import { fetchCategoriesStatistsics } from "../../../api/statistics/statistics";
+import {
+  fetchCategoriesStatistsics,
+  fetchMoodsStatistsics,
+} from "../../../api/statistics/statistics";
 const Statistics = () => {
   const [categoryFrequency, setCategoryFrequency] = useState({});
+  const [moodFrequency, setMoodFrequency] = useState({});
   const [categoryDuration, setCategoryDuration] = useState({});
 
   async function setCategoriesStatistics() {
@@ -29,12 +33,6 @@ const Statistics = () => {
         values.push(parseDurationToMinutes(item[1]));
         customValues.push(item[1]);
       });
-      console.log(
-        labels,
-        values,
-        response["data"]["results"][1][0],
-        response["data"]["results"][1][1]
-      );
       setCategoryDuration({
         labels: labels,
         values: values,

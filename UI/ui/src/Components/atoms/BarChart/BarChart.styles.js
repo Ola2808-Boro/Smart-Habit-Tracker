@@ -9,7 +9,7 @@ const PieChart = ({ data, text }) => {
     <Plot
       data={[
         {
-          type: "pie",
+          type: "bar",
           values: data.values,
           labels: data.labels,
           hole: 0.5,

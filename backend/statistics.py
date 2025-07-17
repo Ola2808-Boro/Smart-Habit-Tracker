@@ -114,6 +114,40 @@ def get_all_habits_data(current_user_id: int):
         conn.close()
 
 
+def get_mood_statistics(current_user_id):
+    conn = create_connection()
+    try:
+        cursor = conn.cursor()
+        sql_select_mood_data = """
+            SELECT mood FROM habit_tracker.mood WHERE user_id=%s
+        """
+        cursor.execute(sql_select_mood_data, (current_user_id,))
+        moods = cursor.fetchall()
+        counter = Counter(moods)
+        return (
+            200,
+            "Retrieved 0 habits successfully.",
+            [list(counter.keys()), list(counter.values())],
+        )
+    except ProgrammingError as e:
+        logging.error(f"SQL syntax or logic error: {e}")
+        return 500, "Database programming error.", None
+    except IntegrityError as e:
+        logging.error(f"Constraint violation: {e}")
+        return 500, "Data integrity error.", None
+    except OperationalError as e:
+        logging.error(f"Database connection or transaction error: {e}")
+        return 503, "Database operational error.", None
+    except DatabaseError as e:
+        logging.error(f"General database error: {e}")
+        return 500, "Database error.", None
+    except Exception as e:
+        logging.error(f"Unexpected error: {e}")
+        return 500, "Unexpected server error.", None
+    finally:
+        conn.close()
+
+
 def get_category_statistics(current_user_id):
     code, message, data = get_all_habits_data(current_user_id=current_user_id)
     if data:

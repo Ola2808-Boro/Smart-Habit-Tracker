@@ -10,3 +10,14 @@ export async function fetchCategoriesStatistsics() {
   });
   return response;
 }
+
+export async function fetchMoodsStatistsics() {
+  const token = localStorage.getItem("token");
+  const response = await axios.get("http://127.0.0.1:5000/mood-stats", {
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: token,
+    },
+  });
+  return response;
+}
