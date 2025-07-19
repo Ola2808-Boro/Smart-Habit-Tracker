@@ -2,18 +2,38 @@ import { MainContainer } from "./Statistics.styles";
 import React, { useState } from "react";
 import PageTitle from "../../atoms/PageTitle/PageTitle";
 import PieChart from "../../atoms/PieChart/PieChart";
+import BarChart from "../../atoms/BarChart/BarChart";
 import Paragraph from "../../atoms/Paragraph/Paragraph";
+import WeekSelector from "../../atoms/WeekSelector/WeekSelector";
 import { parseDurationToMinutes } from "../../../utils/statistics/statistics";
 import { useInitialData } from "../../../hooks/statistics/statistics";
 import {
   fetchCategoriesStatistsics,
   fetchMoodsStatistsics,
+  fetchWeeklyProgressStats,
 } from "../../../api/statistics/statistics";
 const Statistics = () => {
   const [categoryFrequency, setCategoryFrequency] = useState({});
   const [moodFrequency, setMoodFrequency] = useState({});
   const [categoryDuration, setCategoryDuration] = useState({});
+  const [weaklyStats, setWeaklyStats] = useState({});
 
+  async function setWeaklyStatistics() {
+    const response = await fetchWeeklyProgressStats();
+    console.log("fetchWeeklyProgressStats", response);
+    setWeaklyStats({
+      labels: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+      values: response.data.results[0],
+    });
+  }
+  async function setMoodStatistics() {
+    const response = await fetchMoodsStatistsics();
+    console.log("setMoodStatistics", response);
+    setMoodFrequency({
+      labels: response.data.results[1][0],
+      values: response.data.results[1][1],
+    });
+  }
   async function setCategoriesStatistics() {
     console.log("setCategoriesStatistics");
     const response = await fetchCategoriesStatistsics();
@@ -46,7 +66,11 @@ const Statistics = () => {
     }
   }
 
-  useInitialData(setCategoriesStatistics);
+  useInitialData(
+    setCategoriesStatistics,
+    setMoodStatistics,
+    setWeaklyStatistics
+  );
 
   return (
     <>
@@ -54,7 +78,10 @@ const Statistics = () => {
       <MainContainer>
         <PieChart text="Category frequency" data={categoryDuration} />
         <PieChart text="Category frequency" data={categoryFrequency} />
+        <BarChart text="Category frequency" data={moodFrequency} />
+        <BarChart text="Category frequency" data={weaklyStats} />
         <Paragraph text="hallo" />
+        <WeekSelector />
       </MainContainer>
     </>
   );
