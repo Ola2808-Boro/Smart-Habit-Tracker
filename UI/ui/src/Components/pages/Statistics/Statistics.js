@@ -4,25 +4,31 @@ import PageTitle from "../../atoms/PageTitle/PageTitle";
 import PieChart from "../../atoms/PieChart/PieChart";
 import BarChart from "../../atoms/BarChart/BarChart";
 import Paragraph from "../../atoms/Paragraph/Paragraph";
-import WeekSelector from "../../atoms/WeekSelector/WeekSelector";
+import WeaklyStats from "../../molecules/WeaklyStats/WeaklyStats";
 import { parseDurationToMinutes } from "../../../utils/statistics/statistics";
-import { useInitialData } from "../../../hooks/statistics/statistics";
+import {
+  useInitialData,
+  useWeekSelector,
+  useWeaklyStats,
+} from "../../../hooks/statistics/statistics";
 import {
   fetchCategoriesStatistsics,
   fetchMoodsStatistsics,
   fetchWeeklyProgressStats,
 } from "../../../api/statistics/statistics";
+
 const Statistics = () => {
   const [categoryFrequency, setCategoryFrequency] = useState({});
   const [moodFrequency, setMoodFrequency] = useState({});
   const [categoryDuration, setCategoryDuration] = useState({});
   const [weaklyStats, setWeaklyStats] = useState({});
-
+  const { handleNextWeek, handlePrevWeek, endDate, startDate, setStartDate } =
+    useWeekSelector();
   async function setWeaklyStatistics() {
-    const response = await fetchWeeklyProgressStats();
+    const response = await fetchWeeklyProgressStats(startDate);
     console.log("fetchWeeklyProgressStats", response);
     setWeaklyStats({
-      labels: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+      labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
       values: response.data.results[0],
     });
   }
@@ -71,7 +77,11 @@ const Statistics = () => {
     setMoodStatistics,
     setWeaklyStatistics
   );
+  useWeaklyStats(startDate, setWeaklyStatistics);
 
+  const handleWeekChange = (newStartDate) => {
+    console.log("Nowy tydzień:", newStartDate.format("YYYY-MM-DD"));
+  };
   return (
     <>
       <PageTitle />
@@ -79,9 +89,13 @@ const Statistics = () => {
         <PieChart text="Category frequency" data={categoryDuration} />
         <PieChart text="Category frequency" data={categoryFrequency} />
         <BarChart text="Category frequency" data={moodFrequency} />
-        <BarChart text="Category frequency" data={weaklyStats} />
-        <Paragraph text="hallo" />
-        <WeekSelector />
+        <WeaklyStats
+          startDate={startDate}
+          endDate={endDate}
+          handleNextWeek={handleNextWeek}
+          handlePrevWeek={handlePrevWeek}
+          weaklyStats={weaklyStats}
+        />
       </MainContainer>
     </>
   );

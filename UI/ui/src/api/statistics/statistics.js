@@ -1,5 +1,5 @@
 import axios from "axios";
-
+import dayjs from "dayjs";
 export async function fetchCategoriesStatistsics() {
   const token = localStorage.getItem("token");
   const response = await axios.get("http://127.0.0.1:5000/categories-stats", {
@@ -22,22 +22,27 @@ export async function fetchMoodsStatistsics() {
   return response;
 }
 
-export async function fetchWeeklyProgressStats() {
-  const today = new Date();
-  const dayOfWeek = today.getDay();
-  const startDate = new Date(today);
-  startDate.setDate(today.getDate() - dayOfWeek);
-  const formattedStartDate = startDate.toISOString().split("T")[0];
-  const formattedEndDate = today.toISOString().split("T")[0];
+export async function fetchWeeklyProgressStats(startDate) {
+  const start = dayjs(startDate).startOf("day");
+  const end = start.add(6, "day");
+
+  const formattedStartDate = start.format("YYYY-MM-DD");
+  const formattedEndDate = end.format("YYYY-MM-DD");
+
   const token = localStorage.getItem("token");
-  const response = axios.post(
+
+  const response = await axios.post(
     "http://127.0.0.1:5000/weakly-habit-mood-stats",
-    { startDate: formattedStartDate, endDate: formattedEndDate },
+    {
+      startDate: formattedStartDate,
+      endDate: formattedEndDate,
+    },
     {
       headers: {
         Authorization: token,
       },
     }
   );
+
   return response;
 }

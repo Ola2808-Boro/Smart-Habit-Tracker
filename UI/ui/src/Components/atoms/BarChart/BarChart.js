@@ -25,6 +25,11 @@ const BarChart = ({ data, text }) => {
         plot_bgcolor: "rgba(0,0,0,0)",
         legend: { bgcolor: "rgba(0,0,0,0)" },
         modebar: { bgcolor: "rgba(0,0,0,0)" },
+        yaxis: {
+          rangemode: "tozero",
+          tickformat: ",d",
+          ticksuffix: "",
+        },
       }}
     />
   );

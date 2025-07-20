@@ -218,17 +218,16 @@ def retrieved_mood_data_per_week(data: dict, current_user_id: int):
             cursor.execute(sql_select_moods, (mood_ids))
             results = cursor.fetchall()
             for mood_id in mood_ids:
-                print(f"mood_id: {mood_id}")
                 if mood_id[0]:
                     for item in results:
                         if item[0] == mood_id:
                             mood_data.append([item[0], item[1], item[2]])
                 else:
-                    print(f"Add []")
+
                     mood_data.append([None, None, None])
         while len(mood_data) < 7:
             mood_data.append([None, None, None])
-        print("mood data", mood_data, mood_ids)
+
         return 200, "Succesfully retrieved mood data", mood_data
     except ProgrammingError as e:
         logging.error(f"SQL syntax or logic error: {e}")
