@@ -274,7 +274,6 @@ def retrieved_weklay_habit_mood_statistics(current_user_id: int):
     code, message, results = get_weakly_statistics(
         data=data, current_user_id=current_user_id
     )
-    print(f"weakly-habit-mood-stats:{results}")
     return jsonify({"message": message, "results": results}), code
 
 

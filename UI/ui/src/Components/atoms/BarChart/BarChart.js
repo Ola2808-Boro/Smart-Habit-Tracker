@@ -1,10 +1,20 @@
 import PropTypes from "prop-types";
 import { PALETTE } from "./BarChart.styles.js";
 import Plot from "react-plotly.js";
-const BarChart = ({ data, text }) => {
-  const sliceCount = data["values"]?.length;
-  const colors = PALETTE.slice(0, sliceCount);
-
+const BarChart = ({ data, text, fixedYAxis }) => {
+  const yaxis = fixedYAxis
+    ? {
+        range: [0, 100],
+        tickformat: ",d",
+        ticksuffix: "%",
+      }
+    : {
+        rangemode: "tozero",
+        tickformat: ",d",
+        ticksuffix: "",
+        tickmode: "linear",
+      };
+  const colors = data.moods?.map((moodArray) => moodArray?.[2] || "#d3d3d3");
   return (
     <Plot
       data={[
@@ -25,11 +35,7 @@ const BarChart = ({ data, text }) => {
         plot_bgcolor: "rgba(0,0,0,0)",
         legend: { bgcolor: "rgba(0,0,0,0)" },
         modebar: { bgcolor: "rgba(0,0,0,0)" },
-        yaxis: {
-          rangemode: "tozero",
-          tickformat: ",d",
-          ticksuffix: "",
-        },
+        yaxis: yaxis,
       }}
     />
   );

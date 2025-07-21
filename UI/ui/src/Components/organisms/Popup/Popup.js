@@ -35,6 +35,7 @@ const CustomPopup = ({
   selectedMonth,
   selectedYear,
   textValue,
+  setSelectedMood,
 }) => {
   const closePopup = () => setIsOpen(false);
   const isMobile = window.innerWidth <= 768;
@@ -213,9 +214,10 @@ const CustomPopup = ({
                   return (
                     <MoodLegendTypeContainer
                       key={index}
-                      onClick={(e) =>
-                        addMood(e, selectedYear, selectedMonth, selectedDay)
-                      }
+                      onClick={(e) => {
+                        setSelectedMood(e.target.dataset.mood);
+                        addMood(e, selectedYear, selectedMonth, selectedDay);
+                      }}
                     >
                       <MoodTypeContainer
                         data-mood={mood}

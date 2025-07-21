@@ -24,6 +24,7 @@ export function useDate() {
 
 export function useMood() {
   const [selectedMoods, setSelectedMoods] = useState({});
+  const [selectedMood, setSelectedMood] = useState(null);
   const [moodOptions, setMoodOptions] = useState([]);
   const [isMoodPopupOpen, setIsMoodPopupOpen] = useState(false);
   const [isAddMoodLegendOpen, setIsAddMoodLegendOpen] = useState(false);
@@ -93,6 +94,8 @@ export function useMood() {
     addMoodToLegend,
     setInactiveMoodDays,
     addMood,
+    selectedMood,
+    setSelectedMood,
   };
 }
 

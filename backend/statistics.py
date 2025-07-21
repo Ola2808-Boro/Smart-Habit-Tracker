@@ -220,7 +220,7 @@ def retrieved_mood_data_per_week(data: dict, current_user_id: int):
             for mood_id in mood_ids:
                 if mood_id[0]:
                     for item in results:
-                        if item[0] == mood_id:
+                        if item[0] == mood_id[0]:
                             mood_data.append([item[0], item[1], item[2]])
                 else:
 
@@ -259,3 +259,42 @@ def get_weakly_statistics(data: dict, current_user_id: int):
     )
 
     return code, message, [progress_stats_data, mood_data]
+
+
+def get_habits_stats(current_user_id: int):
+    conn = create_connection()
+    try:
+        cursor = conn.cursor()
+        sql_select_habit_tracker_detail_id = """
+            SELECT habit_tracker_detail_id from habit_tracker.activity WHERE user_id=%s;
+        """
+        cursor.execute(
+            sql_select_habit_tracker_detail_id,
+            (current_user_id,),
+        )
+        habit_tracker_detail_id = cursor.fetchall()
+        placeholder = ",".join(["%s"] * len(habit_tracker_detail_id))
+        if len(placeholder) > 0:
+            sql_select_habits_data = f"""
+               SELECT habit_id,done,habit_tracker_detail_id FROM habit_tracker.habit_tracker WHERE habit_tracker_detail_id IN ({placeholder})
+                """
+            cursor.execute(sql_select_habits_data, (habit_tracker_detail_id))
+            habits_data = cursor.fetchall()
+
+    except ProgrammingError as e:
+        logging.error(f"SQL syntax or logic error: {e}")
+        return 500, "Database programming error.", None
+    except IntegrityError as e:
+        logging.error(f"Constraint violation: {e}")
+        return 500, "Data integrity error.", None
+    except OperationalError as e:
+        logging.error(f"Database connection or transaction error: {e}")
+        return 503, "Database operational error.", None
+    except DatabaseError as e:
+        logging.error(f"General database error: {e}")
+        return 500, "Database error.", None
+    except Exception as e:
+        logging.error(f"Unexpected error: {e}")
+        return 500, "Unexpected server error.", None
+    finally:
+        conn.close()

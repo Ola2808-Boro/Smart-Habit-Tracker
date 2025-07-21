@@ -1,6 +1,7 @@
 // import {} from "./WeaklyStats.syles";
 import BarChart from "../../atoms/BarChart/BarChart";
 import WeekSelector from "../../atoms/WeekSelector/WeekSelector";
+import MoodTypes from "../../molecules/MoodTypes/MoodTypes";
 
 const WeaklyStats = ({
   weaklyStats,
@@ -8,6 +9,8 @@ const WeaklyStats = ({
   endDate,
   handleNextWeek,
   handlePrevWeek,
+  moodOptions,
+  visibleLegendOptions,
 }) => {
   return (
     <>
@@ -17,7 +20,11 @@ const WeaklyStats = ({
         handleNextWeek={handleNextWeek}
         handlePrevWeek={handlePrevWeek}
       />
-      <BarChart text="Category frequency" data={weaklyStats} />
+      <MoodTypes
+        moodOptions={moodOptions}
+        visibleLegendOptions={visibleLegendOptions}
+      />
+      <BarChart text="Weakly statistics" data={weaklyStats} fixedYAxis={true} />
     </>
   );
 };

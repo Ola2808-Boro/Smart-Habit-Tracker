@@ -11,6 +11,7 @@ import {
   useWeekSelector,
   useWeaklyStats,
 } from "../../../hooks/statistics/statistics";
+import { fetchMoodLegendData } from "../../../api/mood/mood";
 import {
   fetchCategoriesStatistsics,
   fetchMoodsStatistsics,
@@ -20,35 +21,37 @@ import {
 const Statistics = () => {
   const [categoryFrequency, setCategoryFrequency] = useState({});
   const [moodFrequency, setMoodFrequency] = useState({});
+  const [moodOptions, setMoodOptions] = useState([]);
   const [categoryDuration, setCategoryDuration] = useState({});
   const [weaklyStats, setWeaklyStats] = useState({});
   const { handleNextWeek, handlePrevWeek, endDate, startDate, setStartDate } =
     useWeekSelector();
   async function setWeaklyStatistics() {
     const response = await fetchWeeklyProgressStats(startDate);
-    console.log("fetchWeeklyProgressStats", response);
+    const response1 = await fetchMoodLegendData();
     setWeaklyStats({
       labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
       values: response.data.results[0],
+      moods: response.data.results[1],
     });
+    setMoodOptions(response1.data["mood"]);
   }
+
   async function setMoodStatistics() {
     const response = await fetchMoodsStatistsics();
-    console.log("setMoodStatistics", response);
     setMoodFrequency({
       labels: response.data.results[1][0],
       values: response.data.results[1][1],
+      moods: response.data.results[0].map((item) => [
+        item[1],
+        item[2],
+        item[3],
+      ]),
     });
   }
   async function setCategoriesStatistics() {
-    console.log("setCategoriesStatistics");
     const response = await fetchCategoriesStatistsics();
     if (response["data"]) {
-      console.log(
-        response["data"]["results"][1],
-        response["data"]["results"][0],
-        response["data"]
-      );
       setCategoryFrequency(response["data"]["results"][1]);
       setCategoryDuration(response["data"]["results"][0]);
       let labels = [];
@@ -95,6 +98,8 @@ const Statistics = () => {
           handleNextWeek={handleNextWeek}
           handlePrevWeek={handlePrevWeek}
           weaklyStats={weaklyStats}
+          moodOptions={moodOptions}
+          visibleLegendOptions={6}
         />
       </MainContainer>
     </>
