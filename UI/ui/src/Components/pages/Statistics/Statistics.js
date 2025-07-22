@@ -5,6 +5,7 @@ import PieChart from "../../atoms/PieChart/PieChart";
 import BarChart from "../../atoms/BarChart/BarChart";
 import Paragraph from "../../atoms/Paragraph/Paragraph";
 import WeaklyStats from "../../molecules/WeaklyStats/WeaklyStats";
+import DotChart from "../../atoms/DotChart/DotChart";
 import { parseDurationToMinutes } from "../../../utils/statistics/statistics";
 import {
   useInitialData,
@@ -16,6 +17,7 @@ import {
   fetchCategoriesStatistsics,
   fetchMoodsStatistsics,
   fetchWeeklyProgressStats,
+  fetchHabitsStatistsics,
 } from "../../../api/statistics/statistics";
 
 const Statistics = () => {
@@ -24,8 +26,28 @@ const Statistics = () => {
   const [moodOptions, setMoodOptions] = useState([]);
   const [categoryDuration, setCategoryDuration] = useState({});
   const [weaklyStats, setWeaklyStats] = useState({});
+  const [habitsStats, setHabitsStats] = useState([]);
+  const [visibleHabitsStats, setVisibleHabitsStats] = useState([]);
   const { handleNextWeek, handlePrevWeek, endDate, startDate, setStartDate } =
     useWeekSelector();
+
+  async function setHabitsStatistics() {
+    const response = await fetchHabitsStatistsics();
+    const grouped = {};
+    response.data.results.forEach((item) => {
+      if (!grouped[item.habit_name]) {
+        grouped[item.habit_name] = { done: 0, notDone: 0 };
+      }
+      if (item.done) {
+        grouped[item.habit_name].done = item.count;
+      } else {
+        grouped[item.habit_name].notDone = item.count;
+      }
+    });
+    setHabitsStats(grouped);
+    setVisibleHabitsStats(Object.keys(grouped));
+    console.log("setHabitStatistics", response.data.results);
+  }
   async function setWeaklyStatistics() {
     const response = await fetchWeeklyProgressStats(startDate);
     const response1 = await fetchMoodLegendData();
@@ -78,7 +100,8 @@ const Statistics = () => {
   useInitialData(
     setCategoriesStatistics,
     setMoodStatistics,
-    setWeaklyStatistics
+    setWeaklyStatistics,
+    setHabitsStatistics
   );
   useWeaklyStats(startDate, setWeaklyStatistics);
 
@@ -101,6 +124,7 @@ const Statistics = () => {
           moodOptions={moodOptions}
           visibleLegendOptions={6}
         />
+        <DotChart habits_data={habitsStats} />
       </MainContainer>
     </>
   );

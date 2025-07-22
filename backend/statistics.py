@@ -2,6 +2,7 @@ import logging
 from collections import Counter
 from datetime import datetime, timedelta
 
+import pandas as pd
 import psycopg2
 from database.connection_db import create_connection
 from database.http_messages import HTTP_LOG_MESSAGES
@@ -265,6 +266,11 @@ def get_habits_stats(current_user_id: int):
     conn = create_connection()
     try:
         cursor = conn.cursor()
+        sql_select_habit_name = """
+            SELECT habit_id,habit_name FROM habit_tracker.habit WHERE user_id=%s
+        """
+        cursor.execute(sql_select_habit_name, (current_user_id,))
+        habits_name = cursor.fetchall()
         sql_select_habit_tracker_detail_id = """
             SELECT habit_tracker_detail_id from habit_tracker.activity WHERE user_id=%s;
         """
@@ -280,7 +286,27 @@ def get_habits_stats(current_user_id: int):
                 """
             cursor.execute(sql_select_habits_data, (habit_tracker_detail_id))
             habits_data = cursor.fetchall()
+            df = pd.DataFrame(
+                data=habits_data,
+                columns=["habit_id", "done", "habit_tracker_detail_id"],
+            )
+            joined_df = pd.DataFrame(
+                habits_name, columns=["habit_id", "habit_name"]
+            ).join(df.set_index("habit_id"), on="habit_id")[
+                ["habit_id", "habit_name", "done"]
+            ]
+            grouped = (
+                joined_df.groupby(["habit_id", "habit_name", "done"])
+                .size()
+                .reset_index(name="count")
+            )
 
+            return (
+                200,
+                "Succesfully retrieved habits data",
+                grouped.to_dict(orient="records"),
+            )
+        return 200, "Succesfully retrieved 0 habits data", None
     except ProgrammingError as e:
         logging.error(f"SQL syntax or logic error: {e}")
         return 500, "Database programming error.", None

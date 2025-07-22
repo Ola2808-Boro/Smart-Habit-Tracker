@@ -2,7 +2,16 @@ import PropTypes from "prop-types";
 import { StyledInput } from "./Input.styles.js";
 
 // Input component renders a custom styled input field
-const Input = ({ fontSize, type, color, onChange, data, checked, value }) => {
+const Input = ({
+  fontSize,
+  type,
+  color,
+  onChange,
+  data,
+  checked,
+  value,
+  key,
+}) => {
   return (
     <StyledInput
       fontSize={fontSize}
@@ -12,6 +21,7 @@ const Input = ({ fontSize, type, color, onChange, data, checked, value }) => {
       data-task={data}
       checked={checked}
       value={value}
+      key={key}
     ></StyledInput>
   );
 };

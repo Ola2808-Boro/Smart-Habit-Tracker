@@ -4,6 +4,7 @@ from datetime import datetime
 from functools import wraps
 from statistics import (
     get_category_statistics,
+    get_habits_stats,
     get_mood_statistics,
     get_weakly_statistics,
 )
@@ -269,11 +270,18 @@ def retrieved_mood_statistics(current_user_id: int):
 
 @app.route("/weakly-habit-mood-stats", methods=["POST"])
 @token_required
-def retrieved_weklay_habit_mood_statistics(current_user_id: int):
+def retrieved_weakly_habit_mood_statistics(current_user_id: int):
     data = request.json
     code, message, results = get_weakly_statistics(
         data=data, current_user_id=current_user_id
     )
+    return jsonify({"message": message, "results": results}), code
+
+
+@app.route("/habits-stats", methods=["GET"])
+@token_required
+def retrieved_habits_statistics(current_user_id: int):
+    code, message, results = get_habits_stats(current_user_id=current_user_id)
     return jsonify({"message": message, "results": results}), code
 
 

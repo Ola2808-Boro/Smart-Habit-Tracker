@@ -30,13 +30,15 @@ export function useWeekSelector() {
 export const useInitialData = (
   setCategoriesStatistics,
   setMoodStatistics,
-  setWeaklyStatistics
+  setWeaklyStatistics,
+  setHabitStatistics
 ) => {
   useEffect(() => {
     const fetchData = async () => {
       await setCategoriesStatistics();
       await setMoodStatistics();
       await setWeaklyStatistics();
+      await setHabitStatistics();
     };
     fetchData();
   }, []);
