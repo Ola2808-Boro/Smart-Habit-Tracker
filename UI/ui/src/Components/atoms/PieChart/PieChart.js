@@ -22,11 +22,16 @@ const PieChart = ({ data, text }) => {
       ]}
       layout={{
         title: { text },
+        margin: { l: 10, r: 10, t: 30, b: 10 },
         paper_bgcolor: "rgba(0,0,0,0)",
         plot_bgcolor: "rgba(0,0,0,0)",
-        legend: { bgcolor: "rgba(0,0,0,0)" },
+        legend: {
+          bgcolor: "rgba(0,0,0,0)",
+          x: 1,
+        },
         modebar: { bgcolor: "rgba(0,0,0,0)" },
       }}
+      config={{ autosizable: true }}
     />
   );
 };

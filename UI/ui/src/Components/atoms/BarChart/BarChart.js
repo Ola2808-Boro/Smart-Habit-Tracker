@@ -1,5 +1,4 @@
 import PropTypes from "prop-types";
-import { PALETTE } from "./BarChart.styles.js";
 import Plot from "react-plotly.js";
 const BarChart = ({ data, text, fixedYAxis }) => {
   const yaxis = fixedYAxis
@@ -31,12 +30,15 @@ const BarChart = ({ data, text, fixedYAxis }) => {
       ]}
       layout={{
         title: { text },
+        margin: { l: 40, r: 30, t: 30, b: 50 },
         paper_bgcolor: "rgba(0,0,0,0)",
         plot_bgcolor: "rgba(0,0,0,0)",
-        legend: { bgcolor: "rgba(0,0,0,0)" },
+        legend: { bgcolor: "rgba(0,0,0,0)", x: 1 },
         modebar: { bgcolor: "rgba(0,0,0,0)" },
         yaxis: yaxis,
       }}
+      config={{ autosizable: true }}
+      style={{ width: "100%", height: "100%" }}
     />
   );
 };

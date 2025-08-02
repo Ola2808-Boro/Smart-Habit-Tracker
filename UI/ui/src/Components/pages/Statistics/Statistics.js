@@ -5,7 +5,7 @@ import PieChart from "../../atoms/PieChart/PieChart";
 import BarChart from "../../atoms/BarChart/BarChart";
 import Paragraph from "../../atoms/Paragraph/Paragraph";
 import WeaklyStats from "../../molecules/WeaklyStats/WeaklyStats";
-import DotChart from "../../atoms/DotChart/DotChart";
+import DotChart from "../../molecules/DotChart/DotChart";
 import { parseDurationToMinutes } from "../../../utils/statistics/statistics";
 import {
   useInitialData,
@@ -26,17 +26,29 @@ const Statistics = () => {
   const [moodOptions, setMoodOptions] = useState([]);
   const [categoryDuration, setCategoryDuration] = useState({});
   const [weaklyStats, setWeaklyStats] = useState({});
+  const [visibleWeaklyStats, setVisibleWeaklyStats] = useState(6);
   const [habitsStats, setHabitsStats] = useState([]);
+  const [visibleHabits, setVisibleHabits] = useState(10);
   const [visibleHabitsStats, setVisibleHabitsStats] = useState([]);
   const { handleNextWeek, handlePrevWeek, endDate, startDate, setStartDate } =
     useWeekSelector();
+
+  async function handleChangeState(name, state) {
+    setHabitsStats((prev) => ({
+      ...prev,
+      [name]: {
+        ...prev[name],
+        checked: !state,
+      },
+    }));
+  }
 
   async function setHabitsStatistics() {
     const response = await fetchHabitsStatistsics();
     const grouped = {};
     response.data.results.forEach((item) => {
       if (!grouped[item.habit_name]) {
-        grouped[item.habit_name] = { done: 0, notDone: 0 };
+        grouped[item.habit_name] = { done: 0, notDone: 0, checked: false };
       }
       if (item.done) {
         grouped[item.habit_name].done = item.count;
@@ -112,9 +124,9 @@ const Statistics = () => {
     <>
       <PageTitle />
       <MainContainer>
-        <PieChart text="Category frequency" data={categoryDuration} />
-        <PieChart text="Category frequency" data={categoryFrequency} />
-        <BarChart text="Category frequency" data={moodFrequency} />
+        <PieChart text="Duration by Category" data={categoryDuration} />
+        <PieChart text="Frequency by Category" data={categoryFrequency} />
+        <BarChart text="Mood Freuqnecy" data={moodFrequency} />
         <WeaklyStats
           startDate={startDate}
           endDate={endDate}
@@ -122,9 +134,15 @@ const Statistics = () => {
           handlePrevWeek={handlePrevWeek}
           weaklyStats={weaklyStats}
           moodOptions={moodOptions}
-          visibleLegendOptions={6}
+          visibleLegendOptions={visibleWeaklyStats}
+          setVisible={setVisibleWeaklyStats}
         />
-        <DotChart habits_data={habitsStats} />
+        <DotChart
+          habits_data={habitsStats}
+          handleChangeState={handleChangeState}
+          setVisibleHabits={setVisibleHabits}
+          visibleHabits={visibleHabits}
+        />
       </MainContainer>
     </>
   );

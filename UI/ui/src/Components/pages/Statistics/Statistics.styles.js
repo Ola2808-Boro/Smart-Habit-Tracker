@@ -2,15 +2,13 @@ import styled from "styled-components";
 
 export const MainContainer = styled.div`
   width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  padding: 1rem;
 
   @media (max-width: 768px) {
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: center;
+    grid-template-columns: 1fr;
+    padding: 0.5rem;
   }
 `;
