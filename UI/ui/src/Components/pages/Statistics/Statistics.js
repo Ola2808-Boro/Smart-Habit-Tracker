@@ -58,7 +58,6 @@ const Statistics = () => {
     });
     setHabitsStats(grouped);
     setVisibleHabitsStats(Object.keys(grouped));
-    console.log("setHabitStatistics", response.data.results);
   }
   async function setWeaklyStatistics() {
     const response = await fetchWeeklyProgressStats(startDate);
@@ -117,9 +116,7 @@ const Statistics = () => {
   );
   useWeaklyStats(startDate, setWeaklyStatistics);
 
-  const handleWeekChange = (newStartDate) => {
-    console.log("Nowy tydzień:", newStartDate.format("YYYY-MM-DD"));
-  };
+  const handleWeekChange = (newStartDate) => {};
   return (
     <>
       <PageTitle />

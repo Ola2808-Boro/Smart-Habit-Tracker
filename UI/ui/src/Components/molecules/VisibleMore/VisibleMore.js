@@ -6,9 +6,12 @@ import Button from "../../atoms/Button/Button";
  * Component for displaying the "See more" button when there are more notes to show.
  */
 const VisibleMore = ({ visible, retrievedData, setVisible }) => {
+  const totalItems = Array.isArray(retrievedData)
+    ? retrievedData.length
+    : Object.keys(retrievedData).length;
   return (
     <>
-      {retrievedData && visible < retrievedData.length && (
+      {retrievedData && visible < totalItems && (
         <StyledVisibleMore>
           <Button
             type="button"

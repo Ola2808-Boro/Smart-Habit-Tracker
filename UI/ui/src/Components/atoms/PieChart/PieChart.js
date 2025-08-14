@@ -28,10 +28,14 @@ const PieChart = ({ data, text }) => {
         legend: {
           bgcolor: "rgba(0,0,0,0)",
           x: 1,
+          font: {
+            size: Math.max(8, 15 - sliceCount * 0.3),
+          },
         },
         modebar: { bgcolor: "rgba(0,0,0,0)" },
       }}
       config={{ autosizable: true }}
+      useResizeHandler={true}
     />
   );
 };

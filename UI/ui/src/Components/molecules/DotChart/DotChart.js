@@ -12,19 +12,21 @@ const DotChart = ({
   setVisibleHabits,
 }) => {
   const habitNames = Object.keys(habits_data);
-  const doneCounts = habitNames.map((name) => {
+  const habitNamesFiltered = Object.keys(habits_data).filter(
+    (name) => habits_data[name].checked
+  );
+  const doneCounts = habitNamesFiltered.map((name) => {
     if (habits_data[name].checked) {
       return habits_data[name].done || 0;
     }
     return null;
   });
-  const notDoneCounts = habitNames.map((name) => {
+  const notDoneCounts = habitNamesFiltered.map((name) => {
     if (habits_data[name].checked) {
       return habits_data[name].notDone || 0;
     }
     return null;
   });
-  console.log(habits_data, habitNames);
   const traceDone = {
     type: "scatter",
     mode: "markers",
@@ -45,8 +47,8 @@ const DotChart = ({
 
   const layout = {
     title: "Habit Completion Overview",
-    margin: { l: 200, r: 40, t: 50, b: 50 },
-    height: habitNames.length * 30 + 100,
+    height: "100%",
+    width: "100%",
     xaxis: {
       title: "Count",
       rangemode: "tozero",
@@ -76,7 +78,18 @@ const DotChart = ({
         retrievedData={habits_data}
         visible={visibleHabits}
       />
-      <Plot data={[traceDone, traceNotDone]} layout={layout} />
+      <Plot
+        data={[traceDone, traceNotDone]}
+        layout={{
+          title: "Habit Completion Overview",
+          margin: { l: 80, r: 40, t: 50, b: 50 },
+          autosize: true,
+          xaxis: { title: "Count", rangemode: "tozero" },
+          yaxis: { automargin: true },
+        }}
+        style={{ width: "100%", height: "100%" }}
+        useResizeHandler={true}
+      />
     </StyledContainer>
   );
 };

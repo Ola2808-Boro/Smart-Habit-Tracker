@@ -30,7 +30,7 @@ const BarChart = ({ data, text, fixedYAxis }) => {
       ]}
       layout={{
         title: { text },
-        margin: { l: 40, r: 30, t: 30, b: 50 },
+        margin: { l: 40, r: 40, t: 30, b: 20 },
         paper_bgcolor: "rgba(0,0,0,0)",
         plot_bgcolor: "rgba(0,0,0,0)",
         legend: { bgcolor: "rgba(0,0,0,0)", x: 1 },
@@ -38,7 +38,12 @@ const BarChart = ({ data, text, fixedYAxis }) => {
         yaxis: yaxis,
       }}
       config={{ autosizable: true }}
-      style={{ width: "100%", height: "100%" }}
+      style={{
+        width: "100%",
+        height: "100%",
+        display: "flex",
+      }}
+      useResizeHandler={true}
     />
   );
 };
