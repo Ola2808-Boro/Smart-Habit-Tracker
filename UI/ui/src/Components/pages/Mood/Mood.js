@@ -44,6 +44,8 @@ const Mood = () => {
     addMoodToLegend,
     setInactiveMoodDays,
     addMood,
+    selectedMood,
+    setSelectedMood,
   } = useMood();
   const [alert, setAlert] = useState({
     visible: false,
@@ -63,7 +65,7 @@ const Mood = () => {
   async function handleAddMoodLegend(e) {
     setNewMoodColor();
     e.preventDefault();
-    if (e.target.value) {
+    if (newMoodName && newMoodColor) {
       const response = createMoodOption(newMoodName, newMoodColor);
       addMoodToLegend();
     } else {
@@ -87,12 +89,13 @@ const Mood = () => {
 
   async function handleUpdateMood(e) {
     e.preventDefault();
-    if (e.target.value) {
-      addMood(e, selectedYear, selectedMonth, selectedDay);
+
+    if (selectedMood) {
       const day = selectedDay;
       const mood = selectedMoods[selectedYear][selectedMonth][day].mood;
       const response = await updateMoodData(mood);
       setIsMoodPopupOpen(false);
+      setSelectedMood(null);
       await loadMood();
     } else {
       setIsMoodPopupOpen(false);
@@ -196,6 +199,7 @@ const Mood = () => {
           selectedYear={selectedYear}
           selectedMonth={selectedMonth}
           selectedDay={selectedDay}
+          setSelectedMood={setSelectedMood}
         />
         <ReactJsAlert
           status={alert.visible}

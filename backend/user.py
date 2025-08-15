@@ -83,7 +83,7 @@ def select_user(data: dict):
         cursor.execute(sql_select_user, (data["email"], data["password"]))
         result = cursor.fetchone()
         code, message, results = check_user_acivity_day()
-        print(results)
+
         if not results:
             sql_insert_activity = """
                 INSERT INTO habit_tracker.activity(user_id,activity_date) VALUES(%s,CURRENT_DATE)

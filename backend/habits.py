@@ -241,12 +241,12 @@ def get_habit(current_user_id: int):
         """
         cursor.execute(sql_select_all_habit, (current_user_id,))
         habit_results = cursor.fetchall()
-        print(f"habit_results: {habit_results}")
+
         habits_data = []
 
         for result in habit_results:
             categories = []
-            print(f"results:{result}")
+
             habit_id, habit_name = result[0], result[1]
             category_id_results = get_category_id_by_habit_id(
                 cursor, current_user_id, habit_id
@@ -272,10 +272,10 @@ def get_habit(current_user_id: int):
                                 details="Category_name not found.",
                             )
                         )
-                        # return 204, "Category_name not found.", None
+
                     categories.append(category_name)
             habits_data.append({"habit": habit_name, "categories": categories})
-            print(f"habits_data: {habits_data}")
+
         logging.info(HTTP_LOG_MESSAGES[200].format(function_name="get_habit"))
         return 200, "Retrieved habit successfully.", habits_data
     except ProgrammingError as e:
@@ -398,7 +398,7 @@ def get_task(data: dict, current_user_id: int):
 
 
 def save_task(data: dict, current_user_id: int):
-    print(f"save task data:{data}")
+
     conn = create_connection()
     try:
         if not data.get("task") or not data.get("time"):

@@ -118,7 +118,7 @@ def read_note(data: dict, current_user_id: int):
 
 def get_number_of_questions(current_user_id: int):
     conn = create_connection()
-    print(current_user_id)
+
     try:
         cursor = conn.cursor()
         sql_select_num_of_questions = """
