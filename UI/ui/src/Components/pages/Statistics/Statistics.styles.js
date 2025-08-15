@@ -14,7 +14,6 @@ export const MainContainer = styled.div`
     align-items: center;
     justify-content: center;
     min-height: 350px;
-    max-height: 450px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   }
 
