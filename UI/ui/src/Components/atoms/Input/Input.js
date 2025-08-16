@@ -1,30 +1,28 @@
 import PropTypes from "prop-types";
 import { StyledInput } from "./Input.styles.js";
-
+import { forwardRef } from "react";
 // Input component renders a custom styled input field
-const Input = ({
-  fontSize,
-  type,
-  color,
-  onChange,
-  data,
-  checked,
-  value,
-  key,
-}) => {
-  return (
-    <StyledInput
-      fontSize={fontSize}
-      type={type}
-      color={color}
-      onChange={onChange}
-      data-task={data}
-      checked={checked}
-      value={value}
-      key={key}
-    ></StyledInput>
-  );
-};
+const Input = forwardRef(
+  (
+    { fontSize, type, color, onChange, data, checked, value, key, hiddenInput },
+    ref
+  ) => {
+    return (
+      <StyledInput
+        fontSize={fontSize}
+        type={type}
+        color={color}
+        onChange={onChange}
+        data-task={data}
+        checked={checked}
+        value={value}
+        key={key}
+        ref={ref}
+        hiddenInput={hiddenInput}
+      ></StyledInput>
+    );
+  }
+);
 
 // Default props for the Input component
 Input.defaultProps = {

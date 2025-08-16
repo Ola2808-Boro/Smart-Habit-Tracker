@@ -2,6 +2,7 @@ import logging
 import os
 from datetime import datetime
 from functools import wraps
+from profile import get_avatar_image, update_avatar_image
 from statistics import (
     get_category_statistics,
     get_habits_stats,
@@ -282,6 +283,22 @@ def retrieved_weakly_habit_mood_statistics(current_user_id: int):
 @token_required
 def retrieved_habits_statistics(current_user_id: int):
     code, message, results = get_habits_stats(current_user_id=current_user_id)
+    return jsonify({"message": message, "results": results}), code
+
+
+# Profile
+@app.route("/update-avatar-image", methods=["POST"])
+@token_required
+def saving_avatar_image(current_user_id: int):
+    data = request.json
+    code, message = update_avatar_image(data=data, current_user_id=current_user_id)
+    return jsonify({"message": message}), code
+
+
+@app.route("/get-avatar-image", methods=["GET"])
+@token_required
+def retrieved_avatar_image(current_user_id: int):
+    code, message, results = get_avatar_image(current_user_id=current_user_id)
     return jsonify({"message": message, "results": results}), code
 
 
