@@ -2,7 +2,7 @@ import logging
 import os
 from datetime import datetime
 from functools import wraps
-from profile import get_avatar_image, update_avatar_image
+from profile import get_avatar_image, get_user_data, update_avatar_image
 from statistics import (
     get_category_statistics,
     get_habits_stats,
@@ -299,6 +299,13 @@ def saving_avatar_image(current_user_id: int):
 @token_required
 def retrieved_avatar_image(current_user_id: int):
     code, message, results = get_avatar_image(current_user_id=current_user_id)
+    return jsonify({"message": message, "results": results}), code
+
+
+@app.route("/get-user-data", methods=["GET"])
+@token_required
+def retrieved_user_data(current_user_id: int):
+    code, message, results = get_user_data(current_user_id=current_user_id)
     return jsonify({"message": message, "results": results}), code
 
 

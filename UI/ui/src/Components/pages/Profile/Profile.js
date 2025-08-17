@@ -1,27 +1,39 @@
 import "./Profile.styles.js";
 import PageTitle from "../../atoms/PageTitle/PageTitle";
 import { MainContainer } from "./Profile.styles.js";
-import Avatar from "../../molecules/Avatar/Avatar.js";
-import { useAvatarImage } from "../../../hooks/profile/profile.js";
-import { useEffect } from "react";
+import UserProfileCard from "../../organisms/UserProfileCard/UserProfileCard.styles.js";
+import { useUserData, useInitialData } from "../../../hooks/profile/profile.js";
 import {
   createAvatarImage,
   fetchAvatarImage,
+  fetchUserData,
 } from "../../../api/profile/profile.js";
 const Profile = () => {
-  const { file, setFile, fileInputRef } = useAvatarImage();
+  const {
+    file,
+    setFile,
+    fileInputRef,
+    editorMode,
+    setEditorMode,
+    editorRef,
+    userData,
+    setUserData,
+  } = useUserData();
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const response = await fetchAvatarImage();
-      console.log(response);
-      if (response.data.results) {
-        setFile(response.data.results);
-      }
-    };
-    fetchData();
-  }, []);
-
+  const loadUserData = async () => {
+    const response = await fetchAvatarImage();
+    if (response.data.results) {
+      setFile(response.data.results);
+    }
+    const response1 = await fetchUserData();
+    if (response1.data.results) {
+      setUserData({
+        name: response1.data.results[0],
+        surname: response1.data.results[1],
+        dateJoin: response1.data.results[2],
+      });
+    }
+  };
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
     if (selectedFile) {
@@ -29,25 +41,49 @@ const Profile = () => {
       reader.onloadend = () => {
         const base64String = reader.result;
         setFile(base64String);
-        createAvatarImage(base64String);
       };
       reader.readAsDataURL(selectedFile);
     }
   };
 
-  const handleAvatarClick = () => {
-    fileInputRef.current.click();
+  const handleSave = () => {
+    if (editorRef.current) {
+      const canvas = editorRef.current.getImageScaledToCanvas();
+      canvas.toBlob((blob) => {
+        if (blob) {
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            const base64 = reader.result;
+            setFile(base64);
+            createAvatarImage(base64);
+            setEditorMode(false);
+          };
+          reader.readAsDataURL(blob);
+        }
+      }, "image/png");
+    }
   };
 
+  const handleAvatarClick = () => {
+    if (!editorMode) {
+      fileInputRef.current.click();
+      setEditorMode(true);
+    }
+  };
+  useInitialData(loadUserData);
   return (
     <>
       <PageTitle />
       <MainContainer>
-        <Avatar
+        <UserProfileCard
           file={file}
           handleFileChange={handleFileChange}
           handleAvatarClick={handleAvatarClick}
           fileInputRef={fileInputRef}
+          editorMode={editorMode}
+          handleSave={handleSave}
+          editorRef={editorRef}
+          userData={userData}
         />
       </MainContainer>
     </>

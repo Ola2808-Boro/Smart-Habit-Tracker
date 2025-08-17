@@ -25,3 +25,15 @@ export async function fetchAvatarImage() {
   });
   return response;
 }
+
+export async function fetchUserData() {
+  const token = localStorage.getItem("token");
+  const response = await axios.get("http://127.0.0.1:5000/get-user-data", {
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: token,
+    },
+  });
+  console.log(`ola : ${response}`);
+  return response;
+}
