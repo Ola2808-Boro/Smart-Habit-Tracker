@@ -1,36 +1,13 @@
-import PropTypes from "prop-types";
-import Avatar from "../../molecules/Avatar/Avatar";
-import Input from "../../atoms/Input/Input";
-const UserProfileCard = ({
-  file,
-  handleAvatarClick,
-  fileInputRef,
-  handleFileChange,
-  editorMode,
-  handleSave,
-  editorRef,
-  userData,
-}) => {
-  return (
-    <>
-      <Avatar
-        file={file}
-        handleFileChange={handleFileChange}
-        handleAvatarClick={handleAvatarClick}
-        fileInputRef={fileInputRef}
-        editorMode={editorMode}
-        handleSave={handleSave}
-        editorRef={editorRef}
-      />
-      <Input tetx="text" value={userData["name"]} />
-      <Input tetx="text" value={userData["surname"]} />
-    </>
-  );
-};
+import styled from "styled-components";
 
-// Default props for the UserProfileCard component
-UserProfileCard.propTypes = {};
-
-UserProfileCard.defaultProps = {};
-
-export default UserProfileCard;
+export const StyledConatiner = styled.div`
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-between;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+  border-radius: 24px;
+  background-color: white;
+  padding: 10px;
+`;

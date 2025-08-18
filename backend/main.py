@@ -2,7 +2,12 @@ import logging
 import os
 from datetime import datetime
 from functools import wraps
-from profile import get_avatar_image, get_user_data, update_avatar_image
+from profile import (
+    get_avatar_image,
+    get_user_data,
+    update_avatar_image,
+    update_user_data,
+)
 from statistics import (
     get_category_statistics,
     get_habits_stats,
@@ -307,6 +312,16 @@ def retrieved_avatar_image(current_user_id: int):
 def retrieved_user_data(current_user_id: int):
     code, message, results = get_user_data(current_user_id=current_user_id)
     return jsonify({"message": message, "results": results}), code
+
+
+@app.route("/update-user-data", methods=["POST"])
+@token_required
+def updated_user_data(current_user_id: int):
+    data = request.json
+    code, message, results = update_user_data(
+        data=data, current_user_id=current_user_id
+    )
+    return jsonify({"message": message}), code
 
 
 @app.route("/webhook", methods=["POST"])

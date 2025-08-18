@@ -1,7 +1,7 @@
 import "./Profile.styles.js";
 import PageTitle from "../../atoms/PageTitle/PageTitle";
 import { MainContainer } from "./Profile.styles.js";
-import UserProfileCard from "../../organisms/UserProfileCard/UserProfileCard.styles.js";
+import UserProfileCard from "../../organisms/UserProfileCard/UserProfileCard.js";
 import { useUserData, useInitialData } from "../../../hooks/profile/profile.js";
 import {
   createAvatarImage,

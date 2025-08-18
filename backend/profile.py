@@ -107,3 +107,34 @@ def get_user_data(current_user_id: int):
         return 500, "Unexpected server error.", None
     finally:
         conn.close()
+
+
+def update_user_data(data: dict, current_user_id: int):
+    conn = create_connection()
+    try:
+        cursor = conn.cursor()
+        column, value = list(data.items())[0]
+        sql_update_user_data = f"""
+            UPDATE habit_tracker.user SET {column} = %s WHERE user_id = %s
+        """
+        cursor.execute(sql_update_user_data, (value, current_user_id))
+        conn.commit()
+        logging.info(f"Update user data with id {current_user_id}")
+        return 201, "Succesfully updated user data"
+    except ProgrammingError as e:
+        logging.error(f"SQL syntax or logic error: {e}")
+        return 500, "Database programming error."
+    except IntegrityError as e:
+        logging.error(f"Constraint violation: {e}")
+        return 500, "Data integrity error."
+    except OperationalError as e:
+        logging.error(f"Database connection or transaction error: {e}")
+        return 503, "Database operational error."
+    except DatabaseError as e:
+        logging.error(f"General database error: {e}")
+        return 500, "Database error."
+    except Exception as e:
+        logging.error(f"Unexpected error: {e}")
+        return 500, "Unexpected server error."
+    finally:
+        conn.close()
